@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+
+  arx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: arx
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    volumes:
+      - .:/home/developer
+      - /tmp/.X11-unix:/tmp/.X11-unix

@@ -1,3 +1,8 @@
+# flex and bison
+*.lex.yy.*
+*.output
+*.tab.*
+
 # Prerequisites
 *.d
 
@@ -30,3 +35,6 @@
 *.exe
 *.out
 *.app
+
+# llmv
+*.ll
