@@ -38,3 +38,9 @@
 
 # llmv
 *.ll
+
+# cmake
+build/*
+
+# arx
+arxc

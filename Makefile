@@ -3,27 +3,44 @@ COMPILER=$(ROOT) && clang++
 
 .PHONY: clean
 clean:
-	$(ROOT) && rm -f arx
+	rm -rf build/*
+	mkdir -p build
 
 
 # `llvm-config --cxxflags --ldflags --system-libs --libs core`
 # `bash scripts/getflags.sh`
 .PHONY: build
-build:
+build: clean
 	FLAGS=`scripts/getflags.sh` \
 	&& echo $$FLAGS \
-	&& ${COMPILER} $$FLAGS src/arx.cpp -o arx
+	&& ${COMPILER} $$FLAGS src/arx.cpp -o ../build/arxc
 
 
 .PHONY: build-ast
-build-ast:
+build-ast: clean
 	FLAGS=`scripts/getflags.sh` \
 	&& echo $$FLAGS \
 	&& ${COMPILER} $$FLAGS -O3 -Xclang -disable-llvm-passes \
-	  -S -emit-llvm src/arx.cpp -o arx.ll \
-	&& opt -S -mem2reg -instnamer arx.ll -o arx-ori.ll
+	  -S -emit-llvm src/arx.cpp -o ../build/arx.ll \
+	&& opt -S -mem2reg -instnamer ../build/arx.ll -o ../build/arx-ori.ll
 
 
 .PHONY: run-test
 run-test:
-	$(ROOT) && ./arx ../tests/source.arw
+	$(ROOT) && ./build/arxc ../tests/source.arw
+
+
+.PHONY: cmake-build
+cmake-build:
+	rm -rf build/*
+	mkdir -p build
+	cd build \
+	&& cmake .. \
+	&& cmake --build .
+
+.PHONY: cmake-install
+cmake-install: clean
+	cd build \
+	&& cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
+	&& cmake --build . \
+	&& cmake --install . --config Release -v
