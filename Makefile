@@ -1,9 +1,10 @@
 ROOT=cd arx
 COMPILER=$(ROOT) && clang++
+CLEAN=0
 
 .PHONY: clean
 clean:
-	rm -rf build/*
+	bash ./scripts/optclean.sh
 	mkdir -p build
 
 
@@ -31,16 +32,14 @@ run-test:
 
 
 .PHONY: cmake-build
-cmake-build:
-	rm -rf build/*
-	mkdir -p build
+cmake-build: clean
 	cd build \
-	&& cmake .. \
+	&& cmake .. -GNinja \
 	&& cmake --build .
 
 .PHONY: cmake-install
 cmake-install: clean
 	cd build \
-	&& cmake -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
-	&& cmake --build . \
+	&& cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
+	&& cmake --build .
 	&& cmake --install . --config Release -v

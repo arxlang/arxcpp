@@ -17,7 +17,16 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include <arrow/api.h>
+#include <arrow/csv/api.h>
+#include <arrow/io/api.h>
+#include <arrow/ipc/api.h>
+#include <arrow/pretty_print.h>
+#include <arrow/result.h>
+#include <arrow/status.h>
+#include <arrow/table.h>
+
 
 using namespace llvm;
 
