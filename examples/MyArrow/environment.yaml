@@ -1,0 +1,13 @@
+name: myarrow
+channels:
+- nodefaults
+- conda-forge
+dependencies:
+- arrow-cpp
+- compilers
+- compiler-rt
+- clangdev
+- clangxx
+- cmake
+- llvmdev
+- ninja
