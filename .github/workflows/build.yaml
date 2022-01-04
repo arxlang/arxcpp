@@ -28,7 +28,7 @@ jobs:
         channels: conda-forge,nodefaults
         channel-priority: true
         activate-environment: arx
-        environment-file: conda/envs/dev.yml
+        environment-file: conda/envs/dev.yaml
 
     - name: build using cmake
       run: make cmake-build
