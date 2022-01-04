@@ -22,13 +22,13 @@ jobs:
     - uses: actions/checkout@v2
 
     - uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: 3.8
-          mamba-version: "*"
-          channels: conda-forge,nodefaults
-          channel-priority: true
-          activate-environment: arx
-          environment-file: conda/envs/dev.yml
+      with:
+        python-version: 3.8
+        mamba-version: "*"
+        channels: conda-forge,nodefaults
+        channel-priority: true
+        activate-environment: arx
+        environment-file: conda/envs/dev.yml
 
-    - name: Build toki image
+    - name: build using cmake
       run: make cmake-build
