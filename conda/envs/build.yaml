@@ -1,0 +1,6 @@
+name: arx
+channels:
+- nodefaults
+- conda-forge
+dependencies:
+- conda-build
