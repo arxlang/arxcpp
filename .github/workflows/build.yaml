@@ -28,7 +28,7 @@ jobs:
           channels: conda-forge,nodefaults
           channel-priority: true
           activate-environment: arx
-          environment-file: conda/envs/build.yml
+          environment-file: conda/envs/dev.yml
 
     - name: Build toki image
-      run: make docker-build
+      run: make cmake-build
