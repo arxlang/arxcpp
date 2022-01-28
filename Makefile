@@ -30,12 +30,20 @@ build-ast: clean
 run-test:
 	$(ROOT) && ./build/arxc ../tests/source.arw
 
+.PHONY: run-test-opt
+run-test-opt:
+	# it requires a program that reads dot files (e.g. xdot)
+	llvm-as < tests/t.ll | opt -analyze -view-cfg
 
 .PHONY: cmake-build
 cmake-build: clean
 	cd build \
 	&& cmake .. -GNinja \
 	&& cmake --build .
+	mkdir -p bin
+	rm bin/*
+	mv build/arx bin
+	chmod +x bin/arx
 
 .PHONY: cmake-install
 cmake-install: clean

@@ -41,6 +41,7 @@
 
 # cmake
 build/*
+bin/*
 
 # arx
 arxc

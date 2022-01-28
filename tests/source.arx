@@ -1,12 +1,7 @@
-# this is a comment
+function fib(x):
+  if x < 3:
+    1
+  else:
+    fib(x-1)+fib(x-2);
 
-###
-MY MULTILINE COMMENT
-###
-
-
-myarray: array[int64]
-myarray.append(1)
-myarray.append(2)
-myarray.append(3)
-myarray.append(4)
+fib(10)
