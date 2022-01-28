@@ -41,7 +41,7 @@ cmake-build: clean
 	&& cmake .. -GNinja \
 	&& cmake --build .
 	mkdir -p bin
-	rm bin/*
+	rm -f bin/*
 	mv build/arx bin
 	chmod +x bin/arx
 
