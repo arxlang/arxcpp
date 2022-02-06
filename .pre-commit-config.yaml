@@ -1,0 +1,17 @@
+default_stages:
+  - commit
+
+repos:
+  - repo: local
+    hooks:
+    - entry: clang-format
+      exclude: ^$
+      files: ""
+      id: clang-format
+      language: system
+      name: clang-format
+      pass_filenames: true
+      stages:
+        - commit
+      types_or: [c++, c]
+      args: ["-style=file", "-i"]

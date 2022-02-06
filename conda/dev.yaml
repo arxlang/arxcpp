@@ -11,3 +11,5 @@ dependencies:
 - cmake
 - llvmdev
 - ninja
+# dev
+- pre-commit
