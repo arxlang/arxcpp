@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: build
+name: main
 
 on:
   push:
@@ -32,3 +32,8 @@ jobs:
 
     - name: build using cmake
       run: make cmake-build
+
+    - name: lint
+      run: |
+        pre-commit install
+        pre-commit run --all-files
