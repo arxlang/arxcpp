@@ -6,10 +6,10 @@ dependencies:
 - arrow-cpp
 - compilers
 - compiler-rt
-- clangdev
-- clangxx
+- clangdev 12.0.1
+- clangxx 12.0.1
 - cmake
-- llvmdev
+- llvmdev 12.0.1
 - ninja
 # dev
 - pre-commit
