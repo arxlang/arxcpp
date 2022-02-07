@@ -13,3 +13,4 @@ dependencies:
 - ninja
 # dev
 - pre-commit
+- nodejs
