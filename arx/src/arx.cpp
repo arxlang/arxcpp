@@ -31,7 +31,7 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
 
-std::string ARX_VERSION = "1.0.0";  // semantic-release
+std::string ARX_VERSION = "1.1.1";  // semantic-release
 
 //===----------------------------------------------------------------------===//
 // Lexer
