@@ -20,6 +20,20 @@
               }
             ],
             "countMatches": true
+          },
+          {
+            "files": ["arx/src/arx.cpp"],
+            "from": "std::string ARX_VERSION = \".*\";  // semantic-release",
+            "to": "std::string ARX_VERSION = \"${nextRelease.version}\";  // semantic-release",
+            "results": [
+              {
+                "file": "arx/src/arx.cpp",
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
           }
         ]
       }

@@ -37,6 +37,10 @@ jobs:
     - name: build using cmake
       run: make cmake-build
 
+    - name: test flags
+      run: |
+        bin/arx --version
+
     - name: lint
       run: |
         pre-commit install
