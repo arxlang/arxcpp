@@ -1,0 +1,59 @@
+{% set name = "arx" %}
+{% set version = "1.0.0" %}
+{% set llvm_version = "12.0.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  git_url: ../../
+
+build:
+  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+  skip: True  # [not linux]
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - clangdev {{ llvm_version }}
+    - clangxx {{ llvm_version }}
+    - cmake
+    - compilers
+    - compiler-rt
+    - llvmdev {{ llvm_version }}
+    - ninja
+    - sysroot_linux-64 2.17  # [linux64]
+  host:
+    - arrow-cpp
+    - clangdev {{ llvm_version }}
+    - libclang-cpp {{ llvm_version }}
+    - lld {{ llvm_version }}
+    - llvm {{ llvm_version }}
+    - llvmdev {{ llvm_version }}
+  run:
+    - arrow-cpp
+
+about:
+  home: https://github.com/arx-org/arx
+  license: Apache-2.0
+  license_family: Apache
+  summary: Arx compiler aims to provide arrow datatypes as native datatypes.
+  description: |
+    Arx compiler aims to provide arrow datatypes as native datatypes.
+    For now, it is just the Kaleidoscope compiler with a few changes.
+    **ROADMAP**
+    * Implement more datatypes
+      * int8, int16, int32, int64
+      * float16, float32, float64
+      * string
+      * datetime
+    * Change the language design (syntax)
+    * Implement arrow datatypes as native datatypes
+  doc_url: https://github.com/arx-org/arx
+  dev_url: https://github.com/arx-org/arx
+
+extra:
+  recipe-maintainers:
+    - xmnlab
