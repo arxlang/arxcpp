@@ -55,7 +55,11 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "conda/recipe/meta.yaml"],
+        "assets": [
+          "CHANGELOG.md",
+          "conda/recipe/meta.yaml",
+          "arx/src/arx.cpp"
+        ],
         "message": "chore(release): ${nextRelease.version}"
       }
     ]
