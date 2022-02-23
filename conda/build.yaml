@@ -1,6 +1,7 @@
 name: arx
 channels:
-- nodefaults
-- conda-forge
+  - nodefaults
+  - conda-forge
 dependencies:
-- conda-build
+  - conda-build
+  - mamba
