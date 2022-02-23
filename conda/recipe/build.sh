@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+CXX=clang++
+CC=clang
+
 mkdir -p build
 cmake \
     -GNinja \

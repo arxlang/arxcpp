@@ -1,6 +1,8 @@
 ROOT=cd arx
 COMPILER=$(ROOT) && clang++
 CLEAN=0
+CXX=clang++
+CC=clang
 
 .PHONY: clean
 clean:
