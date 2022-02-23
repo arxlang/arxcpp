@@ -14,6 +14,7 @@
 
 #include <cctype>
 #include <cstdio>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -30,8 +31,7 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
 
-// using namespace llvm;
-// using namespace llvm::orc;
+std::string ARX_VERSION = "1.0.0";  // semantic-release
 
 //===----------------------------------------------------------------------===//
 // Lexer
@@ -1433,7 +1433,14 @@ extern "C" DLLEXPORT double printd(double X) {
 // Main driver code.
 //===----------------------------------------------------------------------===//
 
-int main() {
+int main(int argc, const char* argv[]) {
+  for (int i = 0; i < argc; ++i) {
+    if (std::string(argv[i]) == "--version") {
+      std::cout << "arx version: " << ARX_VERSION << std::endl;
+      return 0;
+    }
+  }
+
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
