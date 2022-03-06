@@ -64,14 +64,3 @@ cmake-install: clean
 		.. \
 	&& cmake --build .
 	&& cmake --install . --config Release -v
-
-
-# CONDA
-.PHONY: conda-build
-conda-build: clean
-	$(DOCKER) build conda-build
-	$(DOCKER) up conda-build -d
-	$(DOCKER) exec conda-build bash -c "mamba install --update-specs --yes --quiet --channel conda-forge conda-build pip boa conda-forge-ci-setup=3"
-	$(DOCKER) exec conda-build bash -c "mamba update --update-specs --yes --quiet --channel conda-forge conda-build pip boa conda-forge-ci-setup=3"
-	$(DOCKER) exec conda-build bash -c "cd /opt/arx/conda/recipe && conda mambabuild ."
-	$(DOCKER) stop conda-build

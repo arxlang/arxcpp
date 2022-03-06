@@ -17,9 +17,3 @@ services:
     volumes:
       - .:/home/developer
       - /tmp/.X11-unix:/tmp/.X11-unix
-
-  conda-build:
-    image: quay.io/condaforge/linux-anvil-cos7-x86_64
-    hostname: conda-build
-    volumes:
-      - ../:/opt/arx
