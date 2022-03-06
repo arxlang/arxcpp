@@ -2,7 +2,8 @@
 
 Arx compiler aims to provide arrow datatypes as native datatypes.
 
-For now, it is just the Kaleidoscope compiler with a few changes.
+For now, it is strongly based on the Kaleidoscope compiler with a just few
+changes.
 
 ## ROADMAP
 

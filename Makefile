@@ -1,6 +1,13 @@
+# build
 ROOT=cd arx
 COMPILER=$(ROOT) && clang++
 CLEAN=0
+CXX=clang++
+CC=clang
+
+# docker
+DOCKER=docker-compose --file docker/docker-compose.yaml
+
 
 .PHONY: clean
 clean:
@@ -48,6 +55,12 @@ cmake-build: clean
 .PHONY: cmake-install
 cmake-install: clean
 	cd build \
-	&& cmake -GNinja -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} .. \
+	&& cmake \
+		-GNinja \
+		-DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+		-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} \
+		-DCMAKE_C_COMPILER=${CC} \
+    	-DCMAKE_CXX_COMPILER=${CXX} \
+		.. \
 	&& cmake --build .
 	&& cmake --install . --config Release -v

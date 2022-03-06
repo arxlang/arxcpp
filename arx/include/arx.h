@@ -1,12 +1,9 @@
-//===- ArxJIT.h - A simple JIT for Kaleidoscope --------*- C++ -*-===//
+//===- ArxJIT.h - A simple JIT for Arx --------*- C++
+//-*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM
 // Exceptions. See https://llvm.org/LICENSE.txt for license information.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
-//
-// Contains a simple JIT definition for use in the kaleidoscope tutorials.
 //
 //===----------------------------------------------------------------------===//
 
@@ -19,10 +16,10 @@
 #include "llvm/ExecutionEngine/Orc/CompileUtils.h"
 #include "llvm/ExecutionEngine/Orc/Core.h"
 #include "llvm/ExecutionEngine/Orc/ExecutionUtils.h"
+#include "llvm/ExecutionEngine/Orc/ExecutorProcessControl.h"
 #include "llvm/ExecutionEngine/Orc/IRCompileLayer.h"
 #include "llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h"
 #include "llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h"
-#include "llvm/ExecutionEngine/Orc/TargetProcessControl.h"
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/LLVMContext.h"
@@ -32,7 +29,6 @@ namespace orc {
 
 class ArxJIT {
  private:
-  std::unique_ptr<TargetProcessControl> TPC;
   std::unique_ptr<ExecutionSession> ES;
 
   DataLayout DL;
@@ -45,12 +41,10 @@ class ArxJIT {
 
  public:
   ArxJIT(
-      std::unique_ptr<TargetProcessControl> TPC,
       std::unique_ptr<ExecutionSession> ES,
       JITTargetMachineBuilder JTMB,
       DataLayout DL)
-      : TPC(std::move(TPC)),
-        ES(std::move(ES)),
+      : ES(std::move(ES)),
         DL(std::move(DL)),
         Mangle(*this->ES, this->DL),
         ObjectLayer(
@@ -71,19 +65,19 @@ class ArxJIT {
   }
 
   static Expected<std::unique_ptr<ArxJIT>> Create() {
-    auto SSP = std::make_shared<SymbolStringPool>();
-    auto TPC = SelfTargetProcessControl::Create(SSP);
-    if (!TPC) return TPC.takeError();
+    auto EPC = SelfExecutorProcessControl::Create();
+    if (!EPC) return EPC.takeError();
 
-    auto ES = std::make_unique<ExecutionSession>(std::move(SSP));
+    auto ES = std::make_unique<ExecutionSession>(std::move(*EPC));
 
-    JITTargetMachineBuilder JTMB((*TPC)->getTargetTriple());
+    JITTargetMachineBuilder JTMB(
+        ES->getExecutorProcessControl().getTargetTriple());
 
     auto DL = JTMB.getDefaultDataLayoutForTarget();
     if (!DL) return DL.takeError();
 
     return std::make_unique<ArxJIT>(
-        std::move(*TPC), std::move(ES), std::move(JTMB), std::move(*DL));
+        std::move(ES), std::move(JTMB), std::move(*DL));
   }
 
   const DataLayout& getDataLayout() const { return DL; }
