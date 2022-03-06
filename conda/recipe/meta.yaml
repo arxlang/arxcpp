@@ -24,6 +24,7 @@ requirements:
     - compiler-rt
     - llvmdev {{ llvm_version }}
     - ninja
+    - sysroot_linux-64 2.17  # [linux64]
   host:
     - arrow-cpp
     - clangdev {{ llvm_version }}
