@@ -35,6 +35,10 @@ requirements:
   run:
     - arrow-cpp
 
+test:
+  commands:
+    - arx --version
+
 about:
   home: https://github.com/arx-org/arx
   license: Apache-2.0
