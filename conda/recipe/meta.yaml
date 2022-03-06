@@ -46,7 +46,7 @@ about:
   summary: Arx compiler aims to provide arrow datatypes as native datatypes.
   description: |
     Arx compiler aims to provide arrow datatypes as native datatypes.
-    For now, it is just the Kaleidoscope compiler with a few changes.
+    For now, it is strongly based on Kaleidoscope compiler with a few changes.
     **ROADMAP**
     * Implement more datatypes
       * int8, int16, int32, int64
