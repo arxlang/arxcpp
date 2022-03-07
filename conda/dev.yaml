@@ -3,7 +3,7 @@ channels:
 - nodefaults
 - conda-forge
 dependencies:
-- arrow-cpp
+- arrow-cpp 7.*
 - compilers
 - compiler-rt
 - clangdev 13.0.1
