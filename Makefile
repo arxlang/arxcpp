@@ -1,3 +1,6 @@
+# path
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 # build
 ROOT=cd arx
 COMPILER=$(ROOT) && clang++
@@ -67,11 +70,15 @@ cmake-install: clean
 
 
 # CONDA
+.PHONY: get-conda-forge-scripts
+get-conda-forge-staged-recipes:
+	rm -rf /tmp/staged-recipes
+	git clone --depth 1 https://github.com/conda-forge/staged-recipes.git /tmp/staged-recipes
+	cp -R conda/build /tmp/staged-recipes/recipes/arx
+	rm -rf /tmp/staged-recipes/recipes/example
+	echo $(ROOT_DIR)
+	sed -i "s:{{arx_path}}:$(ROOT_DIR):g" /tmp/staged-recipes/recipes/arx/meta.yaml
+
 .PHONY: conda-build
-conda-build: clean
-	$(DOCKER) build conda-build
-	$(DOCKER) up conda-build -d
-	$(DOCKER) exec conda-build bash -c "mamba install --update-specs --yes --quiet --channel conda-forge conda-build pip boa conda-forge-ci-setup=3"
-	$(DOCKER) exec conda-build bash -c "mamba update --update-specs --yes --quiet --channel conda-forge conda-build pip boa conda-forge-ci-setup=3"
-	$(DOCKER) exec conda-build bash -c "cd /opt/arx/conda/recipe && conda mambabuild ."
-	$(DOCKER) stop conda-build
+conda-build: clean get-conda-forge-staged-recipes
+	cd /tmp/staged-recipes && python build-locally.py linux64

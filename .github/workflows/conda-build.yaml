@@ -34,4 +34,4 @@ jobs:
         environment-file: conda/build.yaml
 
     - name: build using conda
-      run: cd conda/recipe && mamba build .
+      run: make conda-build
