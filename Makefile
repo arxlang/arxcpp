@@ -78,6 +78,7 @@ get-conda-forge-staged-recipes:
 	rm -rf /tmp/staged-recipes/recipes/example
 	echo $(ROOT_DIR)
 	sed -i "s:{{arx_path}}:$(ROOT_DIR):g" /tmp/staged-recipes/recipes/arx/meta.yaml
+	sed -i "s/DOCKER_RUN_ARGS=\"-it\"/DOCKER_RUN_ARGS=\"\"/g" /tmp/staged-recipes/.scripts/run_docker_build.sh
 
 .PHONY: conda-build
 conda-build: clean get-conda-forge-staged-recipes
