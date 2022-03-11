@@ -15,8 +15,8 @@ cp -R conda/build /tmp/staged-recipes/recipes/arx
 
 # patch
 sed -i "s/DOCKER_RUN_ARGS=\"-it\"/DOCKER_RUN_ARGS=\"\"/g" /tmp/staged-recipes/.scripts/run_docker_build.sh
-sed -i "s%{{git_url}}%${GIT_ORIGIN}%g" /tmp/staged-recipes/recipes/arx/meta.yaml
-sed -i "s:{{git_branch}}:${GIT_BRANCH}:g" /tmp/staged-recipes/recipes/arx/meta.yaml
+# sed -i "s%{{git_url}}%${GIT_ORIGIN}%g" /tmp/staged-recipes/recipes/arx/meta.yaml
+# sed -i "s:{{git_branch}}:${GIT_BRANCH}:g" /tmp/staged-recipes/recipes/arx/meta.yaml
 
 cat /tmp/staged-recipes/recipes/arx/meta.yaml
 
