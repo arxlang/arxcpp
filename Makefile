@@ -47,13 +47,12 @@ run-test-opt:
 
 .PHONY: cmake-build
 cmake-build: clean
-	cd build \
+	mkdir -p $(ROOT_DIR)/bin
+	cd $(ROOT_DIR)/build \
 	&& cmake .. -GNinja \
 	&& cmake --build .
-	mkdir -p bin
-	rm -f bin/*
-	mv build/arx bin
-	chmod +x bin/arx
+	mv $(ROOT_DIR)/build/arx $(ROOT_DIR)//bin
+	chmod +x $(ROOT_DIR)/bin/arx
 
 .PHONY: cmake-install
 cmake-install: clean
