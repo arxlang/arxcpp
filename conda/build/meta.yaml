@@ -7,9 +7,7 @@ package:
   version: {{ version }}
 
 source:
-  git_url: https://github.com/arx-org/arx.git
-  git_tag: main
-  git_depth: 1
+  path: ../..
 
 build:
   number: 0
@@ -29,8 +27,6 @@ requirements:
     - lld {{ llvm_version }}
     - llvm {{ llvm_version }}
     - llvmdev {{ llvm_version }}
-  run:
-    - arrow-cpp 7.*
 
 test:
   commands:

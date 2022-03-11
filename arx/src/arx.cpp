@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <arrow/api.h>
-#include <arrow/csv/api.h>
-#include <arrow/io/api.h>
-#include <arrow/ipc/api.h>
-#include <arrow/pretty_print.h>
-#include <arrow/result.h>
-#include <arrow/status.h>
-#include <arrow/table.h>
+// note: arrow will not be used yet
+// #include <arrow/api.h>
+// #include <arrow/csv/api.h>
+// #include <arrow/io/api.h>
+// #include <arrow/ipc/api.h>
+// #include <arrow/pretty_print.h>
+// #include <arrow/result.h>
+// #include <arrow/status.h>
+// #include <arrow/table.h>
 
 #include "arx.h"
 
