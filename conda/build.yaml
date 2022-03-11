@@ -1,4 +1,4 @@
-name: arx
+name: arx-build
 channels:
   - nodefaults
   - conda-forge
