@@ -8,7 +8,7 @@ package:
 
 source:
   git_url: {{git_url}}  # note: managed by make
-  git_rev: {{git_branch}}  # note: managed by make
+  git_tag: {{git_branch}}  # note: managed by make
   git_depth: 1
 
 build:
