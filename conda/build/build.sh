@@ -17,5 +17,5 @@ cmake --build .
 cmake --install . --config Release -v
 
 mkdir -p ${PREFIX}/bin/
-mv build/arx ${PREFIX}/bin/
+mv ./arx ${PREFIX}/bin/
 chmod +x ${PREFIX}/bin/arx

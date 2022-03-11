@@ -1,10 +1,7 @@
 name: build
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  dispatch:
 
 jobs:
   conda-build:
@@ -30,7 +27,7 @@ jobs:
         mamba-version: "*"
         channels: conda-forge,nodefaults
         channel-priority: true
-        activate-environment: arx
+        activate-environment: arx-build
         environment-file: conda/build.yaml
 
     - name: build using conda

@@ -47,13 +47,12 @@ run-test-opt:
 
 .PHONY: cmake-build
 cmake-build: clean
-	cd build \
+	mkdir -p $(ROOT_DIR)/bin
+	cd $(ROOT_DIR)/build \
 	&& cmake .. -GNinja \
 	&& cmake --build .
-	mkdir -p bin
-	rm -f bin/*
-	mv build/arx bin
-	chmod +x bin/arx
+	mv $(ROOT_DIR)/build/arx $(ROOT_DIR)//bin
+	chmod +x $(ROOT_DIR)/bin/arx
 
 .PHONY: cmake-install
 cmake-install: clean
@@ -68,18 +67,13 @@ cmake-install: clean
 	&& cmake --build .
 	&& cmake --install . --config Release -v
 
-
 # CONDA
-.PHONY: get-conda-forge-scripts
-get-conda-forge-staged-recipes:
-	rm -rf /tmp/staged-recipes
-	git clone --depth 1 https://github.com/conda-forge/staged-recipes.git /tmp/staged-recipes
-	cp -R conda/build /tmp/staged-recipes/recipes/arx
-	rm -rf /tmp/staged-recipes/recipes/example
-	echo $(ROOT_DIR)
-	sed -i "s:{{arx_path}}:$(ROOT_DIR):g" /tmp/staged-recipes/recipes/arx/meta.yaml
-	sed -i "s/DOCKER_RUN_ARGS=\"-it\"/DOCKER_RUN_ARGS=\"\"/g" /tmp/staged-recipes/.scripts/run_docker_build.sh
+.PHONY: prepare-conda-build
+prepare-conda-build:
+	./scripts/prepare-conda-build.sh
 
+.ONESHELL:
 .PHONY: conda-build
-conda-build: clean get-conda-forge-staged-recipes
-	cd /tmp/staged-recipes && python build-locally.py linux64
+conda-build: clean prepare-conda-build
+	cd /tmp/staged-recipes
+	python build-locally.py linux64
