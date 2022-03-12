@@ -73,8 +73,8 @@ prepare-conda-forge-build:
 	./scripts/prepare-conda-build.sh
 
 .ONESHELL:
-.PHONY: conda-forge-build-on-docker
-conda-forge-build-on-docker: clean prepare-conda-forge-build
+.PHONY: conda-forge-build
+conda-forge-build: clean prepare-conda-forge-build
 	cd /tmp/staged-recipes
 	python build-locally.py linux64
 
@@ -84,4 +84,4 @@ conda-forge-build-on-docker: clean prepare-conda-forge-build
 conda-build: clean
 	cd conda/build
 	conda build purge
-	mamba build .
+	conda mambabuild .

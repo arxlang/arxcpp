@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-CXX=clang++
-CC=clang
+# CXX=clang++
+# CC=clang
 
 mkdir -p ${SRC_DIR}/build
 cd ${SRC_DIR}/build
