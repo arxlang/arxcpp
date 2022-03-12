@@ -68,17 +68,6 @@ cmake-install: clean
 	&& cmake --install . --config Release -v
 
 # CONDA
-.PHONY: prepare-conda-forge-build
-prepare-conda-forge-build:
-	./scripts/prepare-conda-build.sh
-
-.ONESHELL:
-.PHONY: conda-forge-build
-conda-forge-build: clean prepare-conda-forge-build
-	cd /tmp/staged-recipes
-	python build-locally.py linux64
-
-
 .ONESHELL:
 .PHONY: conda-build
 conda-build: clean
