@@ -1,7 +1,3 @@
 #!/usr/bin/env bash
 
-# note: sync --libs with CMakeLists.txt
-llvm-config \
-  --cxxflags \
-  | sed 's/-fno-exceptions//g' \
-  | sed 's/-lLLVM-13//g'
+llvm-config --cxxflags --ldflags --system-libs --libs core | sed 's/-fno-exceptions//g'
