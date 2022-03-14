@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
+set -x
 
-# CXX=clang++
-# CC=clang
+CXX=clang++
+CC=clang
+
+LDFLAGS="$(llvm-config --ldflags) $LDFLAGS"
+CFLAGS="$(llvm-config --cflags) $CFLAGS"
+CXXFLAGS="$(llvm-config --cxxflags) $CXXFLAGS"
+CPPFLAGS="$(llvm-config --cppflags) $CPPFLAGS"
 
 mkdir -p ${SRC_DIR}/build
 cd ${SRC_DIR}/build
@@ -20,3 +26,5 @@ cmake --install . -v
 mkdir -p ${PREFIX}/bin/
 mv ./arx ${PREFIX}/bin/
 chmod +x ${PREFIX}/bin/arx
+
+set +x

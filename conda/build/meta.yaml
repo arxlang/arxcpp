@@ -21,6 +21,8 @@ requirements:
     - ninja
     - sysroot_linux-64 2.17  # [linux64]
   host:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
     - arrow-cpp 7.*
     - clangdev {{ llvm_version }}
     - libclang-cpp {{ llvm_version }}
