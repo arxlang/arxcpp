@@ -21,6 +21,8 @@ add_executable(
     arx/src/arx.cpp
     arx/src/lexer.cpp
     arx/src/parser.cpp
+    arx/src/error.cpp
+    arx/src/codegen.cpp
     arx/src/utils.cpp
 )
 
