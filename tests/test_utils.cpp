@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "../arx/include/utils.h"
 
 // Demonstrate some basic assertions.
 TEST(UtilsTest, BasicAssertions) {
@@ -6,9 +7,4 @@ TEST(UtilsTest, BasicAssertions) {
   EXPECT_STRNE("hello", "world");
   // Expect equality.
   EXPECT_EQ(7 * 6, 42);
-}
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

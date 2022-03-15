@@ -80,9 +80,13 @@ class ArxJIT {
         std::move(ES), std::move(JTMB), std::move(*DL));
   }
 
-  const DataLayout& getDataLayout() const { return DL; }
+  const DataLayout& getDataLayout() const {
+    return DL;
+  }
 
-  JITDylib& getMainJITDylib() { return MainJD; }
+  JITDylib& getMainJITDylib() {
+    return MainJD;
+  }
 
   Error addModule(ThreadSafeModule TSM, ResourceTrackerSP RT = nullptr) {
     if (!RT) RT = MainJD.getDefaultResourceTracker();

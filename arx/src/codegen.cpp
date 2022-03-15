@@ -84,7 +84,8 @@ static llvm::DISubroutineType* CreateFunctionType(
   // Add the result type.
   EltTys.push_back(DblTy);
 
-  for (unsigned i = 0, e = NumArgs; i != e; ++i) EltTys.push_back(DblTy);
+  for (unsigned i = 0, e = NumArgs; i != e; ++i)
+    EltTys.push_back(DblTy);
 
   return DBuilder->createSubroutineType(
       DBuilder->getOrCreateTypeArray(EltTys));
@@ -429,7 +430,8 @@ llvm::Function* PrototypeAST::codegen() {
 
   // Set names for all arguments.
   unsigned Idx = 0;
-  for (auto& Arg : F->args()) Arg.setName(Args[Idx++]);
+  for (auto& Arg : F->args())
+    Arg.setName(Args[Idx++]);
 
   return F;
 }

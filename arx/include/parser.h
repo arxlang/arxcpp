@@ -24,8 +24,12 @@ class ExprAST {
   ExprAST(SourceLocation Loc = CurLoc) : Loc(Loc) {}
   virtual ~ExprAST() {}
   virtual llvm::Value* codegen() = 0;
-  int getLine() const { return Loc.Line; }
-  int getCol() const { return Loc.Col; }
+  int getLine() const {
+    return Loc.Line;
+  }
+  int getCol() const {
+    return Loc.Col;
+  }
   virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
     return out << ':' << getLine() << ':' << getCol() << '\n';
   }
@@ -50,7 +54,9 @@ class VariableExprAST : public ExprAST {
  public:
   VariableExprAST(SourceLocation Loc, const std::string& Name)
       : ExprAST(Loc), Name(Name) {}
-  const std::string& getName() const { return Name; }
+  const std::string& getName() const {
+    return Name;
+  }
   llvm::Value* codegen() override;
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
     return ExprAST::dump(out << Name, ind);
@@ -108,7 +114,8 @@ class CallExprAST : public ExprAST {
   llvm::Value* codegen() override;
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
     ExprAST::dump(out << "call " << Callee, ind);
-    for (const auto& Arg : Args) Arg->dump(indent(out, ind + 1), ind + 1);
+    for (const auto& Arg : Args)
+      Arg->dump(indent(out, ind + 1), ind + 1);
     return out;
   }
 };
@@ -209,18 +216,28 @@ class PrototypeAST {
         Precedence(Prec),
         Line(Loc.Line) {}
   llvm::Function* codegen();
-  const std::string& getName() const { return Name; }
+  const std::string& getName() const {
+    return Name;
+  }
 
-  bool isUnaryOp() const { return IsOperator && Args.size() == 1; }
-  bool isBinaryOp() const { return IsOperator && Args.size() == 2; }
+  bool isUnaryOp() const {
+    return IsOperator && Args.size() == 1;
+  }
+  bool isBinaryOp() const {
+    return IsOperator && Args.size() == 2;
+  }
 
   char getOperatorName() const {
     assert(isUnaryOp() || isBinaryOp());
     return Name[Name.size() - 1];
   }
 
-  unsigned getBinaryPrecedence() const { return Precedence; }
-  int getLine() const { return Line; }
+  unsigned getBinaryPrecedence() const {
+    return Precedence;
+  }
+  int getLine() const {
+    return Line;
+  }
 };
 
 /// FunctionAST - This class represents a function definition itself.

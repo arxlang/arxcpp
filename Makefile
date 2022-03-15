@@ -56,8 +56,6 @@ cmake-build: clean
 		${CMAKE_EXTRA_FLAGS} \
 		..
 	cmake --build .
-	cp $(ROOT_DIR)/build/arx $(ROOT_DIR)/bin
-	chmod +x $(ROOT_DIR)/bin/arx
 
 .ONESHELL:
 .PHONY: cmake-install
@@ -82,7 +80,7 @@ test-source-code:
 
 .ONESHELL:
 .PHONY: run-tests
-run-tests: test-sanity test-sorce-code
+run-tests: test-sanity test-source-code
 
 
 .PHONY: run-test-opt

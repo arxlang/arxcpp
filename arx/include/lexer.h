@@ -42,6 +42,12 @@ std::string getTokName(int);
 int gettok();
 static int advance();
 
+class IOSource {
+ public:
+  static char* content; /* used for testing */
+  static char getchar();
+};
+
 static SourceLocation CurLoc;
 static SourceLocation LexLoc;
 static std::string IdentifierStr;  // Filled in if tok_identifier

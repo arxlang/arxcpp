@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
 project(arx)
 
+set(PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_PATH}/bin)
+message(STATUS "PROJECT_PATH: ${PROJECT_PATH}")
+message(STATUS "EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH}")
+
 find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -11,18 +16,21 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 # you will need to enable C++11 support
 # for your compiler.
 
-include_directories(${LLVM_INCLUDE_DIRS} arx/include)
+include_directories(${LLVM_INCLUDE_DIRS} ${PROJECT_PATH}/arx/include)
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # Now build our tools
+set(ARX_LIB_SOURCES
+  ${PROJECT_PATH}/arx/src/lexer.cpp
+  ${PROJECT_PATH}/arx/src/parser.cpp
+  ${PROJECT_PATH}/arx/src/error.cpp
+  ${PROJECT_PATH}/arx/src/codegen.cpp
+  ${PROJECT_PATH}/arx/src/utils.cpp)
+
 set(ARX_SOURCES
-    arx/src/main.cpp
-    arx/src/lexer.cpp
-    arx/src/parser.cpp
-    arx/src/error.cpp
-    arx/src/codegen.cpp
-    arx/src/utils.cpp)
+  ${PROJECT_PATH}/arx/src/main.cpp
+  ${ARX_LIB_SOURCES})
 
 add_executable(arx ${ARX_SOURCES})
 

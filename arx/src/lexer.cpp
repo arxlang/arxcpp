@@ -37,8 +37,26 @@ std::string getTokName(int Tok) {
   return std::string(1, (char)Tok);
 }
 
+/* define IOSource */
+char* IOSource::content = nullptr;
+
+char IOSource::getchar() {
+  if (IOSource::content) {
+    return *IOSource::content++;
+  }
+  return getchar();
+}
+
+static bool is_identifier_first_char(char c) {
+  return isalpha(c) || c == '_';
+}
+
+static bool is_identifier_char(char c) {
+  return isalnum(c) || c == '_';
+}
+
 int advance() {
-  int LastChar = getchar();
+  int LastChar = IOSource::getchar();
 
   if (LastChar == '\n' || LastChar == '\r') {
     LexLoc.Line++;
@@ -53,13 +71,15 @@ int gettok() {
   static int LastChar = ' ';
 
   // Skip any whitespace.
-  while (isspace(LastChar)) LastChar = advance();
+  while (isspace(LastChar))
+    LastChar = advance();
 
   CurLoc = LexLoc;
 
-  if (isalpha(LastChar)) {  // identifier: [a-zA-Z][a-zA-Z0-9]*
+  if (is_identifier_first_char(LastChar)) {
     IdentifierStr = LastChar;
-    while (isalnum((LastChar = advance()))) IdentifierStr += LastChar;
+    while (is_identifier_char((LastChar = advance())))
+      IdentifierStr += LastChar;
 
     if (IdentifierStr == "function") return tok_function;
     if (IdentifierStr == "return") return tok_return;
@@ -87,7 +107,8 @@ int gettok() {
 
   if (LastChar == '#') {
     // Comment until end of line.
-    do LastChar = advance();
+    do
+      LastChar = advance();
     while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
     if (LastChar != EOF) return gettok();
