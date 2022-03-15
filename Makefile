@@ -39,13 +39,23 @@ build-ast: clean
 	  -S -emit-llvm src/arx.cpp -o ../build/arx.ll \
 	&& opt -S -mem2reg -instnamer ../build/arx.ll -o ../build/arx-ori.ll
 
+.ONESHELL:
+.PHONY: test-sanity
+test-sanity:
+	cd build/tests
+	ctest --verbose --label-regex sanity
 
 .ONESHELL:
-.PHONY: run-test
-run-test: cmake-publish
+.PHONY: test-source-code
+test-source-code:
 	./bin/arx < tests/data/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./bin/arx < tests/data/test_sum.arx
+
+.ONESHELL:
+.PHONY: run-tests
+run-tests: test-sanity test-sorce-code
+
 
 .PHONY: run-test-opt
 run-test-opt:
@@ -71,7 +81,7 @@ cmake-build: clean
 
 .PHONY: cmake-publish
 cmake-publish: cmake-build
-	mv $(ROOT_DIR)/build/arx $(ROOT_DIR)/bin
+	cp $(ROOT_DIR)/build/arx $(ROOT_DIR)/bin
 	chmod +x $(ROOT_DIR)/bin/arx
 
 .ONESHELL:
