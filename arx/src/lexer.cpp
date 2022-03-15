@@ -55,7 +55,7 @@ static bool is_identifier_char(char c) {
   return isalnum(c) || c == '_';
 }
 
-int advance() {
+static int advance() {
   int LastChar = IOSource::getchar();
 
   if (LastChar == '\n' || LastChar == '\r') {

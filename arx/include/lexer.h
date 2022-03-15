@@ -40,7 +40,6 @@ struct SourceLocation {
 
 std::string getTokName(int);
 int gettok();
-static int advance();
 
 class IOSource {
  public:
