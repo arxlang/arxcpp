@@ -39,6 +39,34 @@ build-ast: clean
 	  -S -emit-llvm src/arx.cpp -o ../build/arx.ll \
 	&& opt -S -mem2reg -instnamer ../build/arx.ll -o ../build/arx-ori.ll
 
+# cmake/build
+
+.ONESHELL:
+.PHONY: cmake-build
+cmake-build: clean
+	mkdir -p $(ROOT_DIR)/bin
+	cd $(ROOT_DIR)/build
+	cmake \
+		-GNinja \
+		-DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
+		-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} \
+		-DCMAKE_C_COMPILER=${CC} \
+    	-DCMAKE_CXX_COMPILER=${CXX} \
+		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
+		${CMAKE_EXTRA_FLAGS} \
+		..
+	cmake --build .
+	cp $(ROOT_DIR)/build/arx $(ROOT_DIR)/bin
+	chmod +x $(ROOT_DIR)/bin/arx
+
+.ONESHELL:
+.PHONY: cmake-install
+cmake-install: cmake-build
+	cd build
+	cmake --install . --config Release -v
+
+# tests
+
 .ONESHELL:
 .PHONY: test-sanity
 test-sanity:
@@ -62,33 +90,6 @@ run-test-opt:
 	# it requires a program that reads dot files (e.g. xdot)
 	llvm-as < tests/t.ll | opt -analyze -view-cfg
 
-
-.ONESHELL:
-.PHONY: cmake-build
-cmake-build: clean
-	mkdir -p $(ROOT_DIR)/bin
-	cd $(ROOT_DIR)/build
-	cmake \
-		-GNinja \
-		-DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
-		-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} \
-		-DCMAKE_C_COMPILER=${CC} \
-    	-DCMAKE_CXX_COMPILER=${CXX} \
-		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
-		${CMAKE_EXTRA_FLAGS} \
-		..
-	cmake --build .
-
-.PHONY: cmake-publish
-cmake-publish: cmake-build
-	cp $(ROOT_DIR)/build/arx $(ROOT_DIR)/bin
-	chmod +x $(ROOT_DIR)/bin/arx
-
-.ONESHELL:
-.PHONY: cmake-install
-cmake-install: cmake-build
-	cd build
-	cmake --install . --config Release -v
 
 # CONDA
 .ONESHELL:
