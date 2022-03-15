@@ -31,8 +31,8 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
 
-#include "arx.h"
 #include "codegen.h"
+#include "jit.h"
 #include "lexer.h"
 #include "parser.h"
 #include "utils.h"

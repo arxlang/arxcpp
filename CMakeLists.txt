@@ -18,7 +18,7 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 # Now build our tools
 add_executable(
     arx
-    arx/src/arx.cpp
+    arx/src/main.cpp
     arx/src/lexer.cpp
     arx/src/parser.cpp
     arx/src/error.cpp

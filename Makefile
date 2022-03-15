@@ -38,10 +38,10 @@ build-ast: clean
 
 .ONESHELL:
 .PHONY: run-test
-run-test:
-	./bin/arx < tests/test_fibonacci.arx
+run-test: cmake-publish
+	./bin/arx < tests/data/test_fibonacci.arx
 	@python -c "print('=' * 80)"
-	./bin/arx < tests/test_sum.arx
+	./bin/arx < tests/data/test_sum.arx
 
 .PHONY: run-test-opt
 run-test-opt:
