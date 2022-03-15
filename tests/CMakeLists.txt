@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 add_executable(LexerTest LexerTest.cpp)
 
-set(EXECUTE_TEST_LIBS gtest ${CMAKE_DL_LIBS} ${ZLIB_LIBRARIES})
+set(EXECUTE_TEST_LIBS gtest)
 
 target_link_libraries(LexerTest ${EXECUTE_TEST_LIBS})
 
