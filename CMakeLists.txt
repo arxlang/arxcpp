@@ -32,6 +32,14 @@ llvm_map_components_to_libnames(
     llvm_libs support core irreader orcjit mcjit native object executionengine
 )
 
+option(ENABLE_TESTS "Build unit tests" OFF)
+if (ENABLE_TESTS)
+  find_package(GTest REQUIRED)
+  enable_testing()
+  include(GoogleTest)
+  add_subdirectory(tests)
+endif()
+
 # Link against LLVM libraries
 target_link_libraries(arx ${llvm_libs})
 

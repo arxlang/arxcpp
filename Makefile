@@ -8,6 +8,10 @@ CLEAN=0
 CXX=clang++
 CC=clang
 
+# build flags
+CMAKE_EXTRA_FLAGS=
+CMAKE_BUILD_TYPE=release
+
 # docker
 DOCKER=docker-compose --file docker/docker-compose.yaml
 
@@ -60,7 +64,8 @@ cmake-build: clean
 		-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} \
 		-DCMAKE_C_COMPILER=${CC} \
     	-DCMAKE_CXX_COMPILER=${CXX} \
-		-DCMAKE_BUILD_TYPE=release \
+		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
+		${CMAKE_EXTRA_FLAGS} \
 		..
 	cmake --build .
 
