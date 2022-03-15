@@ -43,7 +43,7 @@ jobs:
 
     - name: tests
       run: |
-        make test-gtest
+        make run-tests
 
     - name: lint
       run: |
