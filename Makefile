@@ -36,36 +36,44 @@ build-ast: clean
 	&& opt -S -mem2reg -instnamer ../build/arx.ll -o ../build/arx-ori.ll
 
 
+.ONESHELL:
 .PHONY: run-test
 run-test:
-	$(ROOT) && ./build/arxc ../tests/source.arw
+	./bin/arx < tests/test_fibonacci.arx
+	@python -c "print('=' * 80)"
+	./bin/arx < tests/test_sum.arx
 
 .PHONY: run-test-opt
 run-test-opt:
 	# it requires a program that reads dot files (e.g. xdot)
 	llvm-as < tests/t.ll | opt -analyze -view-cfg
 
+
+.ONESHELL:
 .PHONY: cmake-build
 cmake-build: clean
 	mkdir -p $(ROOT_DIR)/bin
-	cd $(ROOT_DIR)/build \
-	&& cmake .. -GNinja \
-	&& cmake --build .
-	mv $(ROOT_DIR)/build/arx $(ROOT_DIR)//bin
-	chmod +x $(ROOT_DIR)/bin/arx
-
-.PHONY: cmake-install
-cmake-install: clean
-	cd build \
-	&& cmake \
+	cd $(ROOT_DIR)/build
+	cmake \
 		-GNinja \
 		-DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
 		-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} \
 		-DCMAKE_C_COMPILER=${CC} \
     	-DCMAKE_CXX_COMPILER=${CXX} \
-		.. \
-	&& cmake --build .
-	&& cmake --install . --config Release -v
+		-DCMAKE_BUILD_TYPE=release \
+		..
+	cmake --build .
+
+.PHONY: cmake-publish
+cmake-publish: cmake-build
+	mv $(ROOT_DIR)/build/arx $(ROOT_DIR)/bin
+	chmod +x $(ROOT_DIR)/bin/arx
+
+.ONESHELL:
+.PHONY: cmake-install
+cmake-install: cmake-build
+	cd build
+	cmake --install . --config Release -v
 
 # CONDA
 .ONESHELL:

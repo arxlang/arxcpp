@@ -16,7 +16,13 @@ separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # Now build our tools
-add_executable(arx arx/src/arx.cpp)
+add_executable(
+    arx
+    arx/src/arx.cpp
+    arx/src/lexer.cpp
+    arx/src/parser.cpp
+    arx/src/utils.cpp
+)
 
 # Find the libraries that correspond to the LLVM components
 # that we wish to use

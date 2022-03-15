@@ -1,0 +1,4 @@
+function fib(x):
+  x + 1;
+
+fib(7777)
