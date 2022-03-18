@@ -35,10 +35,10 @@
 #include "jit.h"
 #include "lexer.h"
 #include "parser.h"
+#include "settings.h"
 #include "utils.h"
 
 extern int CurTok;
-extern std::map<char, int> BinopPrecedence;
 
 std::string ARX_VERSION = "1.1.1";  // semantic-release
 
@@ -76,13 +76,7 @@ int main(int argc, const char* argv[]) {
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
 
-  // Install standard binary operators.
-  // 1 is lowest precedence.
-  BinopPrecedence['='] = 2;
-  BinopPrecedence['<'] = 10;
-  BinopPrecedence['+'] = 20;
-  BinopPrecedence['-'] = 20;
-  BinopPrecedence['*'] = 40;  // highest.
+  load_settings();
 
   // Prime the first token.
   getNextToken();

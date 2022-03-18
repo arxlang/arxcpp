@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../arx/include/lexer.h"
 #include "../arx/include/parser.h"
+#include "../arx/include/settings.h"
 
 extern int CurTok;
 
@@ -65,4 +66,14 @@ TEST(ParserTest, GetNextTokenTest) {
   EXPECT_EQ(CurTok, (int)')');
 
   IOSource::content = nullptr;
+}
+
+TEST(ParserTest, BinopPrecedenceTest) {
+  load_settings();
+
+  EXPECT_EQ(BinopPrecedence['='], 2);
+  EXPECT_EQ(BinopPrecedence['<'], 10);
+  EXPECT_EQ(BinopPrecedence['+'], 20);
+  EXPECT_EQ(BinopPrecedence['-'], 20);
+  EXPECT_EQ(BinopPrecedence['*'], 40);
 }

@@ -264,6 +264,6 @@ class FunctionAST {
 extern std::map<char, int> BinopPrecedence;
 static int GetTokPrecedence();
 
-std::unique_ptr<FunctionAST> ParseDefinition();
-std::unique_ptr<PrototypeAST> ParseExtern();
-std::unique_ptr<FunctionAST> ParseTopLevelExpr();
+extern std::unique_ptr<FunctionAST> ParseDefinition();
+extern std::unique_ptr<PrototypeAST> ParseExtern();
+extern std::unique_ptr<FunctionAST> ParseTopLevelExpr();

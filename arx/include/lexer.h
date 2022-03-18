@@ -41,6 +41,7 @@ struct SourceLocation {
 std::string getTokName(int);
 int gettok();
 
+/* Used for wrapping getchar */
 class IOSource {
  public:
   static char* content; /* used for testing */

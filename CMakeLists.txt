@@ -26,6 +26,7 @@ set(ARX_LIB_SOURCES
   ${PROJECT_PATH}/arx/src/parser.cpp
   ${PROJECT_PATH}/arx/src/error.cpp
   ${PROJECT_PATH}/arx/src/codegen.cpp
+  ${PROJECT_PATH}/arx/src/settings.cpp
   ${PROJECT_PATH}/arx/src/utils.cpp)
 
 set(ARX_SOURCES

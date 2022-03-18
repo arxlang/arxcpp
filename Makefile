@@ -71,11 +71,9 @@ test-sanity:
 	cd build/tests
 	ctest --verbose --label-regex sanity
 
-.ONESHELL:
 .PHONY: test-source-code
 test-source-code:
 	./bin/arx < tests/data/test_fibonacci.arx
-	@python -c "print('=' * 80)"
 	./bin/arx < tests/data/test_sum.arx
 
 .ONESHELL:
