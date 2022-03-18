@@ -1,10 +1,68 @@
 #include <gtest/gtest.h>
+#include "../arx/include/lexer.h"
 #include "../arx/include/parser.h"
 
-// Demonstrate some basic assertions.
-TEST(ParserTest, BasicAssertions) {
-  // Expect two strings not to be equal.
-  EXPECT_STRNE("hello", "world");
-  // Expect equality.
-  EXPECT_EQ(7 * 6, 42);
+extern int CurTok;
+
+TEST(ParserTest, GetNextTokenTest) {
+  /* Test gettok for main tokens */
+  IOSource::content = (char*)R""""(
+  function math(x):
+    if x > 10:
+      x + 1
+    else:
+      x * 20
+
+  math(1);
+  )"""";
+
+  getNextToken();  // clean the buffer
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_function);
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_identifier);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)'(');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_identifier);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)')');
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)':');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_if);
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_identifier);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)'>');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_number);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)':');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_identifier);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)'+');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_number);
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_else);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)':');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_identifier);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)'*');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_number);
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_identifier);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)'(');
+  getNextToken();
+  EXPECT_EQ(CurTok, tok_number);
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)')');
+
+  IOSource::content = nullptr;
 }

@@ -235,6 +235,7 @@ class PrototypeAST {
   unsigned getBinaryPrecedence() const {
     return Precedence;
   }
+
   int getLine() const {
     return Line;
   }
@@ -258,11 +259,12 @@ class FunctionAST {
   }
 };
 
-static int CurTok;
+extern int CurTok;
 static std::map<char, int> BinopPrecedence;
 
 int getNextToken();
-int GetTokPrecedence();
+static int GetTokPrecedence();
+
 std::unique_ptr<FunctionAST> ParseDefinition();
 std::unique_ptr<PrototypeAST> ParseExtern();
 std::unique_ptr<FunctionAST> ParseTopLevelExpr();

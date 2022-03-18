@@ -37,6 +37,8 @@
 #include "parser.h"
 #include "utils.h"
 
+extern int CurTok;
+
 std::string ARX_VERSION = "1.1.1";  // semantic-release
 
 /// top ::= definition | external | expression | ';'
