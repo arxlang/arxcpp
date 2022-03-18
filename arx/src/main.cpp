@@ -38,6 +38,7 @@
 #include "utils.h"
 
 extern int CurTok;
+extern std::map<char, int> BinopPrecedence;
 
 std::string ARX_VERSION = "1.1.1";  // semantic-release
 

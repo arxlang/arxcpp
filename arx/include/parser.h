@@ -16,6 +16,8 @@
 #include "lexer.h"
 #include "utils.h"
 
+extern SourceLocation CurLoc;
+
 /// ExprAST - Base class for all expression nodes.
 class ExprAST {
   SourceLocation Loc;
@@ -259,10 +261,7 @@ class FunctionAST {
   }
 };
 
-extern int CurTok;
-static std::map<char, int> BinopPrecedence;
-
-int getNextToken();
+extern std::map<char, int> BinopPrecedence;
 static int GetTokPrecedence();
 
 std::unique_ptr<FunctionAST> ParseDefinition();

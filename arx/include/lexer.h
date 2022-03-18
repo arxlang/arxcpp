@@ -47,7 +47,9 @@ class IOSource {
   static char getchar();
 };
 
-static SourceLocation CurLoc;
-static SourceLocation LexLoc;
-static std::string IdentifierStr;  // Filled in if tok_identifier
-static double NumVal;              // Filled in if tok_number
+extern SourceLocation CurLoc;
+extern std::string IdentifierStr;  // Filled in if tok_identifier
+extern double NumVal;              // Filled in if tok_number
+
+extern int CurTok;
+extern int getNextToken();

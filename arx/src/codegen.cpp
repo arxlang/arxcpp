@@ -38,6 +38,7 @@
 #include "utils.h"
 
 extern DebugInfo KSDbgInfo;
+extern std::map<char, int> BinopPrecedence;
 
 //===----------------------------------------------------------------------===//
 // Code Generation Globals

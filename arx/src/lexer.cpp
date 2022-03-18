@@ -1,6 +1,11 @@
 #include "lexer.h"
 #include <string>
 
+SourceLocation CurLoc;
+SourceLocation LexLoc;
+std::string IdentifierStr;
+double NumVal;
+
 std::string getTokName(int Tok) {
   switch (Tok) {
     case tok_eof:
@@ -121,4 +126,12 @@ int gettok() {
   int ThisChar = LastChar;
   LastChar = advance();
   return ThisChar;
+}
+
+/// CurTok/getNextToken - Provide a simple token buffer.  CurTok is the current
+/// token the parser is looking at.  getNextToken reads another token from the
+/// lexer and updates CurTok with its results.
+int CurTok;
+int getNextToken() {
+  return CurTok = gettok();
 }

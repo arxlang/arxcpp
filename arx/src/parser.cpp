@@ -2,17 +2,15 @@
 #include "error.h"
 #include "lexer.h"
 
-/// CurTok/getNextToken - Provide a simple token buffer.  CurTok is the current
-/// token the parser is looking at.  getNextToken reads another token from the
-/// lexer and updates CurTok with its results.
-int CurTok;
-int getNextToken() {
-  return CurTok = gettok();
-}
+extern SourceLocation CurLoc;
+extern std::string IdentifierStr;
+extern double NumVal;
+
+extern int CurTok;
 
 /// BinopPrecedence - This holds the precedence for each binary operator that
 /// is defined.
-extern std::map<char, int> BinopPrecedence;
+std::map<char, int> BinopPrecedence;
 
 /// GetTokPrecedence - Get the precedence of the pending binary operator token.
 int GetTokPrecedence() {
