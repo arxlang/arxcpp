@@ -37,27 +37,29 @@
 #include "parser.h"
 #include "utils.h"
 
-extern DebugInfo KSDbgInfo;
 extern std::map<char, int> BinopPrecedence;
+extern int CurTok;
 
 //===----------------------------------------------------------------------===//
 // Code Generation Globals
 //===----------------------------------------------------------------------===//
 
-extern std::unique_ptr<llvm::LLVMContext> TheContext;
-extern std::unique_ptr<llvm::Module> TheModule;
-extern std::unique_ptr<llvm::IRBuilder<>> Builder;
-extern llvm::ExitOnError ExitOnErr;
+DebugInfo KSDbgInfo;
 
-extern std::map<std::string, llvm::AllocaInst*> NamedValues;
-extern std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
-extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+std::unique_ptr<llvm::LLVMContext> TheContext;
+std::unique_ptr<llvm::Module> TheModule;
+std::unique_ptr<llvm::IRBuilder<>> Builder;
+llvm::ExitOnError ExitOnErr;
+
+std::map<std::string, llvm::AllocaInst*> NamedValues;
+std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
+std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
 //===----------------------------------------------------------------------===//
 // Debug Info Support
 //===----------------------------------------------------------------------===//
 
-extern std::unique_ptr<llvm::DIBuilder> DBuilder;
+std::unique_ptr<llvm::DIBuilder> DBuilder;
 
 llvm::DIType* DebugInfo::getDoubleTy() {
   if (DblTy) return DblTy;
@@ -583,6 +585,28 @@ void HandleTopLevelExpression() {
   } else {
     // Skip token for error recovery.
     getNextToken();
+  }
+}
+
+/// top ::= definition | external | expression | ';'
+void MainLoop() {
+  while (1) {
+    switch (CurTok) {
+      case tok_eof:
+        return;
+      case ';':  // ignore top-level semicolons.
+        getNextToken();
+        break;
+      case tok_function:
+        HandleDefinition();
+        break;
+      case tok_extern:
+        HandleExtern();
+        break;
+      default:
+        HandleTopLevelExpression();
+        break;
+    }
   }
 }
 

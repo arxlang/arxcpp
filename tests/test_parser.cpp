@@ -77,3 +77,13 @@ TEST(ParserTest, BinopPrecedenceTest) {
   EXPECT_EQ(BinopPrecedence['-'], 20);
   EXPECT_EQ(BinopPrecedence['*'], 40);
 }
+
+TEST(ParserTest, BinopPrecedenceTest) {
+  load_settings();
+
+  EXPECT_EQ(BinopPrecedence['='], 2);
+  EXPECT_EQ(BinopPrecedence['<'], 10);
+  EXPECT_EQ(BinopPrecedence['+'], 20);
+  EXPECT_EQ(BinopPrecedence['-'], 20);
+  EXPECT_EQ(BinopPrecedence['*'], 40);
+}

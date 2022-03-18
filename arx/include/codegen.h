@@ -36,20 +36,21 @@ struct DebugInfo {
   llvm::DIType* getDoubleTy();
 };
 
-static DebugInfo KSDbgInfo;
+extern DebugInfo KSDbgInfo;
 
-static std::unique_ptr<llvm::LLVMContext> TheContext;
-static std::unique_ptr<llvm::Module> TheModule;
-static std::unique_ptr<llvm::IRBuilder<>> Builder;
-static llvm::ExitOnError ExitOnErr;
+extern std::unique_ptr<llvm::LLVMContext> TheContext;
+extern std::unique_ptr<llvm::Module> TheModule;
+extern std::unique_ptr<llvm::IRBuilder<>> Builder;
+extern llvm::ExitOnError ExitOnErr;
 
-static std::map<std::string, llvm::AllocaInst*> NamedValues;
-static std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
-static std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+extern std::map<std::string, llvm::AllocaInst*> NamedValues;
+extern std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
+extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
-static std::unique_ptr<llvm::DIBuilder> DBuilder;
+extern std::unique_ptr<llvm::DIBuilder> DBuilder;
 
 void InitializeModule();
 void HandleDefinition();
 void HandleExtern();
 void HandleTopLevelExpression();
+void MainLoop();

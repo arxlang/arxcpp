@@ -38,36 +38,19 @@
 #include "settings.h"
 #include "utils.h"
 
-extern int CurTok;
-
 std::string ARX_VERSION = "1.1.1";  // semantic-release
 
-/// top ::= definition | external | expression | ';'
-static void MainLoop() {
-  while (1) {
-    switch (CurTok) {
-      case tok_eof:
-        return;
-      case ';':  // ignore top-level semicolons.
-        getNextToken();
-        break;
-      case tok_function:
-        HandleDefinition();
-        break;
-      case tok_extern:
-        HandleExtern();
-        break;
-      default:
-        HandleTopLevelExpression();
-        break;
-    }
+static bool check_version(const char* arg) {
+  if (std::string(arg) == "--version") {
+    std::cout << "arx version: " << ARX_VERSION << std::endl;
+    return true;
   }
+  return false;
 }
 
 int main(int argc, const char* argv[]) {
   for (int i = 0; i < argc; ++i) {
-    if (std::string(argv[i]) == "--version") {
-      std::cout << "arx version: " << ARX_VERSION << std::endl;
+    if (check_version(argv[i])) {
       return 0;
     }
   }
