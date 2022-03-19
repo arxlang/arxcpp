@@ -271,3 +271,4 @@ std::unique_ptr<ExprAST> ParsePrimary();
 
 /* declared as extern for testing */
 std::unique_ptr<ExprAST> ParseIfExpr();
+std::unique_ptr<ExprAST> ParseExpression();

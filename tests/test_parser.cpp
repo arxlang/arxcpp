@@ -4,7 +4,10 @@
 #include "../arx/include/parser.h"
 #include "../arx/include/settings.h"
 
+#define quote(x) #x
+
 extern int CurTok;
+extern SourceLocation CurLoc;
 
 TEST(ParserTest, GetNextTokenTest) {
   /* Test gettok for main tokens */
@@ -76,6 +79,15 @@ TEST(ParserTest, BinopPrecedenceTest) {
   EXPECT_EQ(BinopPrecedence['+'], 20);
   EXPECT_EQ(BinopPrecedence['-'], 20);
   EXPECT_EQ(BinopPrecedence['*'], 40);
+}
+
+TEST(ParserTest, ParseExpressionTest) {
+  /* Test gettok for main tokens */
+  IOSource::update_buffer((char*)"1 + 1");
+
+  auto expr = ParseExpression();
+  std::cout << typeid(expr).name() << "\t" << quote(expr) << std::endl;
+  EXPECT_NE(expr, nullptr);
 }
 
 TEST(ParserTest, ParseIfExprTest) {

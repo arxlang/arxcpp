@@ -22,8 +22,6 @@ int GetTokPrecedence() {
   return TokPrec;
 }
 
-std::unique_ptr<ExprAST> ParseExpression();
-
 /// numberexpr ::= number
 std::unique_ptr<ExprAST> ParseNumberExpr() {
   auto Result = std::make_unique<NumberExprAST>(NumVal);
@@ -225,11 +223,6 @@ std::unique_ptr<ExprAST> ParsePrimary() {
   char msg[80];
 
   switch (CurTok) {
-    default:
-      strcpy(msg, "Unknown token when expecting an expression: '");
-      strcat(msg, std::to_string(CurTok).c_str());
-      strcat(msg, "'.");
-      return LogError(msg);
     case tok_identifier:
       return ParseIdentifierExpr();
     case tok_number:
@@ -243,8 +236,14 @@ std::unique_ptr<ExprAST> ParsePrimary() {
     case tok_var:
       return ParseVarExpr();
     case ';':
+      // ignore top-level semicolons.
       getNextToken();  // eat `;`
       return ParsePrimary();
+    default:
+      strcpy(msg, "Unknown token when expecting an expression: '");
+      strcat(msg, std::to_string(CurTok).c_str());
+      strcat(msg, "'.");
+      return LogError(msg);
   }
 }
 
@@ -304,7 +303,9 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
 ///
 std::unique_ptr<ExprAST> ParseExpression() {
   auto LHS = ParseUnary();
-  if (!LHS) return nullptr;
+  if (!LHS) {
+    return nullptr;
+  }
 
   return ParseBinOpRHS(0, std::move(LHS));
 }
