@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <memory>
 #include "../arx/include/lexer.h"
 #include "../arx/include/parser.h"
 #include "../arx/include/settings.h"
@@ -7,7 +8,7 @@ extern int CurTok;
 
 TEST(ParserTest, GetNextTokenTest) {
   /* Test gettok for main tokens */
-  IOSource::content = (char*)R""""(
+  IOSource::update_buffer((char*)R""""(
   function math(x):
     if x > 10:
       x + 1
@@ -15,9 +16,8 @@ TEST(ParserTest, GetNextTokenTest) {
       x * 20
 
   math(1);
-  )"""";
+  )"""");
 
-  getNextToken();  // clean the buffer
   getNextToken();
   EXPECT_EQ(CurTok, tok_function);
   getNextToken();
@@ -64,8 +64,8 @@ TEST(ParserTest, GetNextTokenTest) {
   EXPECT_EQ(CurTok, tok_number);
   getNextToken();
   EXPECT_EQ(CurTok, (int)')');
-
-  IOSource::content = nullptr;
+  getNextToken();
+  EXPECT_EQ(CurTok, (int)';');
 }
 
 TEST(ParserTest, BinopPrecedenceTest) {
@@ -78,12 +78,15 @@ TEST(ParserTest, BinopPrecedenceTest) {
   EXPECT_EQ(BinopPrecedence['*'], 40);
 }
 
-TEST(ParserTest, BinopPrecedenceTest) {
-  load_settings();
+TEST(ParserTest, ParseIfExprTest) {
+  /* Test gettok for main tokens */
+  IOSource::update_buffer((char*)R""""(
+  if 1 > 2:
+    a = 1
+  else:
+    a = 2
+  )"""");
 
-  EXPECT_EQ(BinopPrecedence['='], 2);
-  EXPECT_EQ(BinopPrecedence['<'], 10);
-  EXPECT_EQ(BinopPrecedence['+'], 20);
-  EXPECT_EQ(BinopPrecedence['-'], 20);
-  EXPECT_EQ(BinopPrecedence['*'], 40);
+  getNextToken();  // clean the buffer
+  auto expr = ParsePrimary();
 }

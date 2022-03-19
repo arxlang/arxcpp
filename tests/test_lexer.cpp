@@ -1,9 +1,9 @@
-#include <iostream>
 #include <string>
 
 #include <gtest/gtest.h>
 
 #include "../arx/include/lexer.h"
+#include "../arx/include/utils.h"
 
 TEST(LexerTest, TokenNameTest) {
   /* Test some results from getTokName */
@@ -18,7 +18,7 @@ TEST(LexerTest, TokenNameTest) {
 
 TEST(LexerTest, GetTokTest) {
   /* Test gettok for main tokens */
-  IOSource::content = (char*)R""""(
+  IOSource::update_buffer((char*)R""""(
   function math(x):
     if x > 10:
       x + 1
@@ -26,7 +26,7 @@ TEST(LexerTest, GetTokTest) {
       x * 20
 
   math(1);
-  )"""";
+  )"""");
 
   EXPECT_EQ(gettok(), tok_function);
   EXPECT_EQ(gettok(), tok_identifier);
@@ -51,6 +51,5 @@ TEST(LexerTest, GetTokTest) {
   EXPECT_EQ(gettok(), (int)'(');
   EXPECT_EQ(gettok(), tok_number);
   EXPECT_EQ(gettok(), (int)')');
-
-  IOSource::content = nullptr;
+  EXPECT_EQ(gettok(), (int)';');
 }

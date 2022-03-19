@@ -22,17 +22,17 @@ int GetTokPrecedence() {
   return TokPrec;
 }
 
-static std::unique_ptr<ExprAST> ParseExpression();
+std::unique_ptr<ExprAST> ParseExpression();
 
 /// numberexpr ::= number
-static std::unique_ptr<ExprAST> ParseNumberExpr() {
+std::unique_ptr<ExprAST> ParseNumberExpr() {
   auto Result = std::make_unique<NumberExprAST>(NumVal);
   getNextToken();  // consume the number
   return std::move(Result);
 }
 
 /// parenexpr ::= '(' expression ')'
-static std::unique_ptr<ExprAST> ParseParenExpr() {
+std::unique_ptr<ExprAST> ParseParenExpr() {
   getNextToken();  // eat (.
   auto V = ParseExpression();
   if (!V) return nullptr;
@@ -45,7 +45,7 @@ static std::unique_ptr<ExprAST> ParseParenExpr() {
 /// identifierexpr
 ///   ::= identifier
 ///   ::= identifier '(' expression* ')'
-static std::unique_ptr<ExprAST> ParseIdentifierExpr() {
+std::unique_ptr<ExprAST> ParseIdentifierExpr() {
   std::string IdName = IdentifierStr;
 
   SourceLocation LitLoc = CurLoc;
@@ -80,7 +80,7 @@ static std::unique_ptr<ExprAST> ParseIdentifierExpr() {
 }
 
 /// ifexpr ::= 'if' expression 'then' expression 'else' expression
-static std::unique_ptr<ExprAST> ParseIfExpr() {
+std::unique_ptr<ExprAST> ParseIfExpr() {
   SourceLocation IfLoc = CurLoc;
   char msg[80];
 
@@ -88,7 +88,9 @@ static std::unique_ptr<ExprAST> ParseIfExpr() {
 
   // condition.
   auto Cond = ParseExpression();
-  if (!Cond) return nullptr;
+  if (!Cond) {
+    return nullptr;
+  };
 
   if (CurTok != ':') {
     strcpy(msg, "`if` statement expected ':', received: '");
@@ -99,7 +101,9 @@ static std::unique_ptr<ExprAST> ParseIfExpr() {
   getNextToken();  // eat the ':'
 
   auto Then = ParseExpression();
-  if (!Then) return nullptr;
+  if (!Then) {
+    return nullptr;
+  };
 
   if (CurTok != tok_else) {
     return LogError("expected else");
@@ -115,14 +119,16 @@ static std::unique_ptr<ExprAST> ParseIfExpr() {
   getNextToken();  // eat the ':'
 
   auto Else = ParseExpression();
-  if (!Else) return nullptr;
+  if (!Else) {
+    return nullptr;
+  };
 
   return std::make_unique<IfExprAST>(
       IfLoc, std::move(Cond), std::move(Then), std::move(Else));
 }
 
 /// forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
-static std::unique_ptr<ExprAST> ParseForExpr() {
+std::unique_ptr<ExprAST> ParseForExpr() {
   getNextToken();  // eat the for.
 
   if (CurTok != tok_identifier)
@@ -166,7 +172,7 @@ static std::unique_ptr<ExprAST> ParseForExpr() {
 
 /// varexpr ::= 'var' identifier ('=' expression)?
 //                    (',' identifier ('=' expression)?)* 'in' expression
-static std::unique_ptr<ExprAST> ParseVarExpr() {
+std::unique_ptr<ExprAST> ParseVarExpr() {
   getNextToken();  // eat the var.
 
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames;
@@ -215,10 +221,15 @@ static std::unique_ptr<ExprAST> ParseVarExpr() {
 ///   ::= ifexpr
 ///   ::= forexpr
 ///   ::= varexpr
-static std::unique_ptr<ExprAST> ParsePrimary() {
+std::unique_ptr<ExprAST> ParsePrimary() {
+  char msg[80];
+
   switch (CurTok) {
     default:
-      return LogError("unknown token when expecting an expression");
+      strcpy(msg, "Unknown token when expecting an expression: '");
+      strcat(msg, std::to_string(CurTok).c_str());
+      strcat(msg, "'.");
+      return LogError(msg);
     case tok_identifier:
       return ParseIdentifierExpr();
     case tok_number:
@@ -231,13 +242,16 @@ static std::unique_ptr<ExprAST> ParsePrimary() {
       return ParseForExpr();
     case tok_var:
       return ParseVarExpr();
+    case ';':
+      getNextToken();  // eat `;`
+      return ParsePrimary();
   }
 }
 
 /// unary
 ///   ::= primary
 ///   ::= '!' unary
-static std::unique_ptr<ExprAST> ParseUnary() {
+std::unique_ptr<ExprAST> ParseUnary() {
   // If the current token is not an operator, it must be a primary expr.
   if (!isascii(CurTok) || CurTok == '(' || CurTok == ',')
     return ParsePrimary();
@@ -252,7 +266,7 @@ static std::unique_ptr<ExprAST> ParseUnary() {
 
 /// binoprhs
 ///   ::= ('+' unary)*
-static std::unique_ptr<ExprAST> ParseBinOpRHS(
+std::unique_ptr<ExprAST> ParseBinOpRHS(
     int ExprPrec, std::unique_ptr<ExprAST> LHS) {
   // If this is a binop, find its precedence.
   while (1) {
@@ -288,7 +302,7 @@ static std::unique_ptr<ExprAST> ParseBinOpRHS(
 /// expression
 ///   ::= unary binoprhs
 ///
-static std::unique_ptr<ExprAST> ParseExpression() {
+std::unique_ptr<ExprAST> ParseExpression() {
   auto LHS = ParseUnary();
   if (!LHS) return nullptr;
 
@@ -299,7 +313,7 @@ static std::unique_ptr<ExprAST> ParseExpression() {
 ///   ::= id '(' id* ')'
 ///   ::= binary LETTER number? (id, id)
 ///   ::= unary LETTER (id)
-static std::unique_ptr<PrototypeAST> ParsePrototype() {
+std::unique_ptr<PrototypeAST> ParsePrototype() {
   std::string FnName;
 
   SourceLocation FnLoc = CurLoc;

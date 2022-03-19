@@ -41,13 +41,6 @@ struct SourceLocation {
 std::string getTokName(int);
 int gettok();
 
-/* Used for wrapping getchar */
-class IOSource {
- public:
-  static char* content; /* used for testing */
-  static char getchar();
-};
-
 extern SourceLocation CurLoc;
 extern std::string IdentifierStr;  // Filled in if tok_identifier
 extern double NumVal;              // Filled in if tok_number

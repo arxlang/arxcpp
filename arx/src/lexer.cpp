@@ -1,5 +1,7 @@
-#include "lexer.h"
 #include <string>
+
+#include "lexer.h"
+#include "utils.h"
 
 SourceLocation CurLoc;
 SourceLocation LexLoc;
@@ -40,16 +42,6 @@ std::string getTokName(int Tok) {
       return "const";
   }
   return std::string(1, (char)Tok);
-}
-
-/* define IOSource */
-char* IOSource::content = nullptr;
-
-char IOSource::getchar() {
-  if (IOSource::content) {
-    return *IOSource::content++;
-  }
-  return getchar();
 }
 
 static bool is_identifier_first_char(char c) {
