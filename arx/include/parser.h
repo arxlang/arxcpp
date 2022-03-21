@@ -39,9 +39,8 @@ class ExprAST {
 
 /// NumberExprAST - Expression class for numeric literals like "1.0".
 class NumberExprAST : public ExprAST {
-  double Val;
-
  public:
+  double Val;
   NumberExprAST(double Val) : Val(Val) {}
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
     return ExprAST::dump(out << Val, ind);
@@ -270,5 +269,6 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr();
 std::unique_ptr<ExprAST> ParsePrimary();
 
 /* declared as extern for testing */
-std::unique_ptr<ExprAST> ParseIfExpr();
 std::unique_ptr<ExprAST> ParseExpression();
+std::unique_ptr<IfExprAST> ParseIfExpr();
+std::unique_ptr<NumberExprAST> ParseNumberExpr();

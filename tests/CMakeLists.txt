@@ -21,9 +21,14 @@ add_executable(
   ${ARX_LIB_SOURCES})
 
 # link arx code
-set(TEST_LIBS gtest ${ZLIB_LIBRARIES} ${CMAKE_DL_LIBS} ${llvm_libs})
-
-target_link_libraries(ArxTests ${TEST_LIBS})
+target_link_libraries(
+  ArxTests
+  glog::glog
+  gtest
+  ${ZLIB_LIBRARIES}
+  ${CMAKE_DL_LIBS}
+  ${llvm_libs}
+)
 
 set(TEST_ARGS "--gtest_output=xml:../")
 

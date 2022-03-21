@@ -1,4 +1,7 @@
+#include <iostream>
 #include <string>
+
+#include <glog/logging.h>
 
 #include "lexer.h"
 #include "utils.h"
@@ -58,8 +61,9 @@ static int advance() {
   if (LastChar == '\n' || LastChar == '\r') {
     LexLoc.Line++;
     LexLoc.Col = 0;
-  } else
+  } else {
     LexLoc.Col++;
+  }
   return LastChar;
 }
 
@@ -68,30 +72,53 @@ int gettok() {
   static int LastChar = ' ';
 
   // Skip any whitespace.
-  while (isspace(LastChar))
+  while (isspace(LastChar)) {
     LastChar = advance();
+  }
 
   CurLoc = LexLoc;
 
   if (is_identifier_first_char(LastChar)) {
     IdentifierStr = LastChar;
-    while (is_identifier_char((LastChar = advance())))
+    while (is_identifier_char((LastChar = advance()))) {
       IdentifierStr += LastChar;
+    }
 
-    if (IdentifierStr == "function") return tok_function;
-    if (IdentifierStr == "return") return tok_return;
-    if (IdentifierStr == "extern") return tok_extern;
-    if (IdentifierStr == "if") return tok_if;
-    if (IdentifierStr == "else") return tok_else;
-    if (IdentifierStr == "for") return tok_for;
-    if (IdentifierStr == "in") return tok_in;
-    if (IdentifierStr == "binary") return tok_binary;
-    if (IdentifierStr == "unary") return tok_unary;
-    if (IdentifierStr == "var") return tok_var;
+    if (IdentifierStr == "function") {
+      return tok_function;
+    }
+    if (IdentifierStr == "return") {
+      return tok_return;
+    }
+    if (IdentifierStr == "extern") {
+      return tok_extern;
+    }
+    if (IdentifierStr == "if") {
+      return tok_if;
+    }
+    if (IdentifierStr == "else") {
+      return tok_else;
+    }
+    if (IdentifierStr == "for") {
+      return tok_for;
+    }
+    if (IdentifierStr == "in") {
+      return tok_in;
+    }
+    if (IdentifierStr == "binary") {
+      return tok_binary;
+    }
+    if (IdentifierStr == "unary") {
+      return tok_unary;
+    }
+    if (IdentifierStr == "var") {
+      return tok_var;
+    }
     return tok_identifier;
   }
 
-  if (isdigit(LastChar) || LastChar == '.') {  // Number: [0-9.]+
+  // Number: [0-9.]+
+  if (isdigit(LastChar) || LastChar == '.') {
     std::string NumStr;
     do {
       NumStr += LastChar;
@@ -102,8 +129,8 @@ int gettok() {
     return tok_number;
   }
 
+  // Comment until end of line.
   if (LastChar == '#') {
-    // Comment until end of line.
     do
       LastChar = advance();
     while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
@@ -112,7 +139,9 @@ int gettok() {
   }
 
   // Check for end of file.  Don't eat the EOF.
-  if (LastChar == EOF) return tok_eof;
+  if (LastChar == EOF) {
+    return tok_eof;
+  }
 
   // Otherwise, just return the character as its ascii value.
   int ThisChar = LastChar;

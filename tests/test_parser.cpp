@@ -1,10 +1,12 @@
-#include <gtest/gtest.h>
 #include <memory>
+
+#include <glog/logging.h>
+#include <gtest/gtest.h>
+#include <unistd.h>
+
 #include "../arx/include/lexer.h"
 #include "../arx/include/parser.h"
 #include "../arx/include/settings.h"
-
-#define quote(x) #x
 
 extern int CurTok;
 extern SourceLocation CurLoc;
@@ -81,13 +83,27 @@ TEST(ParserTest, BinopPrecedenceTest) {
   EXPECT_EQ(BinopPrecedence['*'], 40);
 }
 
-TEST(ParserTest, ParseExpressionTest) {
+TEST(ParserTest, ParseNumberExprTest) {
   /* Test gettok for main tokens */
-  IOSource::update_buffer((char*)"1 + 1");
+  std::unique_ptr<NumberExprAST> expr;
 
-  auto expr = ParseExpression();
-  std::cout << typeid(expr).name() << "\t" << quote(expr) << std::endl;
+  IOSource::update_buffer((char*)"1");
+
+  getNextToken();  // update CurTok
+  expr = ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
+  EXPECT_EQ(expr->Val, 1);
+
+  expr.reset();
+
+  IOSource::update_buffer((char*)"3");
+
+  getNextToken();  // update CurTok
+  // note: investigate why it is necessary to run it twice
+  getNextToken();
+  expr = ParseNumberExpr();
+  EXPECT_NE(expr, nullptr);
+  EXPECT_EQ(expr->Val, 3);
 }
 
 TEST(ParserTest, ParseIfExprTest) {
@@ -99,6 +115,6 @@ TEST(ParserTest, ParseIfExprTest) {
     a = 2
   )"""");
 
-  getNextToken();  // clean the buffer
+  getNextToken();  // update CurTok
   auto expr = ParsePrimary();
 }

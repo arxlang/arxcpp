@@ -1,9 +1,13 @@
-#include "utils.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
+
+#include <glog/logging.h>
+
 #include "llvm/Support/raw_ostream.h"
+
+#include "utils.h"
 
 const int BUFFER_SIZE = 1000;
 
@@ -18,6 +22,7 @@ char IOSource::getchar() {
   if (IOSource::buffer) {
     return *IOSource::buffer++;
   }
+
   return getchar();
 }
 

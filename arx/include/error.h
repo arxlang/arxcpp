@@ -2,8 +2,12 @@
 
 #include <memory>
 #include "llvm/IR/Value.h"
-#include "parser.h"
 
-std::unique_ptr<ExprAST> LogError(const char*);
-std::unique_ptr<PrototypeAST> LogErrorP(const char*);
+/// LogError* - These are little helper functions for error handling.
+template <typename T>
+std::unique_ptr<T> LogError(const char* Str) {
+  fprintf(stderr, "Error: %s\n", Str);
+  return nullptr;
+}
+
 llvm::Value* LogErrorV(const char*);

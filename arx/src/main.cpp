@@ -18,6 +18,8 @@
 #include <string>
 #include <vector>
 
+#include <glog/logging.h>
+
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Analysis/BasicAliasAnalysis.h"
 #include "llvm/Analysis/Passes.h"
@@ -49,6 +51,8 @@ static bool check_version(const char* arg) {
 }
 
 int main(int argc, const char* argv[]) {
+  google::InitGoogleLogging(argv[0]);
+
   for (int i = 0; i < argc; ++i) {
     if (check_version(argv[i])) {
       return 0;

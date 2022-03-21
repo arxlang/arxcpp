@@ -11,6 +11,8 @@ find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
+find_package (glog REQUIRED)
+
 # Set your project compile flags.
 # E.g. if using the C++ header files
 # you will need to enable C++11 support
@@ -50,6 +52,6 @@ if (ENABLE_TESTS)
 endif()
 
 # Link against LLVM libraries
-target_link_libraries(arx ${llvm_libs})
+target_link_libraries(arx glog::glog ${llvm_libs})
 
 install(TARGETS arx DESTINATION bin)
