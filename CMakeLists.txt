@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
-project(arx)
+
+set(TARGET_NAME arx)
+
+project(${TARGET_NAME})
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_PATH}/bin)
@@ -43,12 +50,47 @@ llvm_map_components_to_libnames(
     llvm_libs support core irreader orcjit mcjit native object executionengine
 )
 
+# clang-tidy
+find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
+if(CLANG_TIDY_EXE)
+    set(
+      CMAKE_CXX_CLANG_TIDY
+      "${CLANG_TIDY_EXE};-format-style=file;-header-filter='${CMAKE_SOURCE_DIR}/*'"
+      CACHE STRING
+      ""
+      FORCE)
+else()
+    message(STATUS "clang-tidy NOT found!")
+    set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE) # clear it
+endif()
+
 option(ENABLE_TESTS "Build unit tests" OFF)
 if (ENABLE_TESTS)
   find_package(GTest REQUIRED)
   enable_testing()
   include(GoogleTest)
   add_subdirectory(tests)
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=thread")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=leak")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=memory")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+
+  FIND_PROGRAM(LCOV_PATH lcov)
+
+  # Where TARGET_NAME is the executable target's name
+  add_custom_target(ccov-${TARGET_NAME}
+      COMMAND LLVM_PROFILE_FILE=${TARGET_NAME}.profraw $<TARGET_FILE:${TARGET_NAME}>
+      COMMAND llvm-profdata merge -sparse ${TARGET_NAME}.profraw -o ${TARGET_NAME}.profdata
+      COMMAND llvm-cov report $<TARGET_FILE:${TARGET_NAME}> -instr-profile=${TARGET_NAME}.profdata
+      DEPENDS ${TARGET_NAME}
+  )
 endif()
 
 # Link against LLVM libraries

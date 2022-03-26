@@ -57,6 +57,10 @@ cmake-build: clean
 		..
 	cmake --build .
 
+.PHONY: cmake-build-with-tests
+cmake-build-with-tests:
+	$(MAKE)	cmake-build CMAKE_EXTRA_FLAGS="-DENABLE_TESTS=on"
+
 .ONESHELL:
 .PHONY: cmake-install
 cmake-install: cmake-build
@@ -73,8 +77,9 @@ test-sanity:
 
 .PHONY: test-source-code
 test-source-code:
-	./bin/arx < tests/data/test_fibonacci.arx
-	./bin/arx < tests/data/test_sum.arx
+	./bin/arx --output fibonacci < samples/test_fibonacci.arx
+	@python -c "print('=' * 80)"
+	./bin/arx --output sum  < samples/test_sum.arx
 
 .ONESHELL:
 .PHONY: run-tests

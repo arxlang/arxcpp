@@ -17,3 +17,4 @@ dependencies:
 - gtest
 - gmock
 - glog
+- lcov

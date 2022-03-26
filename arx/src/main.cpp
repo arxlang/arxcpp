@@ -29,8 +29,13 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Host.h"
+#include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
 #include "llvm/Transforms/Scalar.h"
 
 #include "codegen.h"
@@ -53,9 +58,15 @@ static bool check_version(const char* arg) {
 int main(int argc, const char* argv[]) {
   google::InitGoogleLogging(argv[0]);
 
+  std::string output_filename;
+
   for (int i = 0; i < argc; ++i) {
     if (check_version(argv[i])) {
       return 0;
+    }
+
+    if (std::string(argv[i]) == "--output") {
+      output_filename = argv[++i];
     }
   }
 
@@ -86,11 +97,11 @@ int main(int argc, const char* argv[]) {
   DBuilder = std::make_unique<llvm::DIBuilder>(*TheModule);
 
   // Create the compile unit for the module.
-  // Currently down as "fib.arx" as a filename since we're redirecting stdin
+  // Currently down as "fib" as a filename since we're redirecting stdin
   // but we'd like actual source locations.
   KSDbgInfo.TheCU = DBuilder->createCompileUnit(
       llvm::dwarf::DW_LANG_C,
-      DBuilder->createFile("fib.arx", "."),
+      DBuilder->createFile(output_filename, "."),
       "Arx Compiler",
       0,
       "",

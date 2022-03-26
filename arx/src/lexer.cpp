@@ -56,7 +56,7 @@ static bool is_identifier_char(char c) {
 }
 
 static int advance() {
-  int LastChar = IOSource::getchar();
+  int LastChar = getchar();
 
   if (LastChar == '\n' || LastChar == '\r') {
     LexLoc.Line++;
