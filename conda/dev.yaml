@@ -14,3 +14,7 @@ dependencies:
 # dev
 - pre-commit
 - nodejs
+- gtest
+- gmock
+- glog
+- lcov

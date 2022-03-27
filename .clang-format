@@ -22,3 +22,10 @@ IncludeBlocks: Preserve
 AlignAfterOpenBracket: AlwaysBreak
 BinPackArguments: false
 BinPackParameters: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: false
+SpacesBeforeTrailingComments: 2
+SpacesInLineCommentPrefix:
+    Minimum: 1
+# note: update it when using clang-format 14
+# RemoveBracesLLVM: false

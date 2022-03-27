@@ -24,7 +24,6 @@ cmake --build .
 cmake --install . -v
 
 mkdir -p ${PREFIX}/bin/
-mv ./arx ${PREFIX}/bin/
 chmod +x ${PREFIX}/bin/arx
 
 set +x

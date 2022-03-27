@@ -35,11 +35,17 @@ jobs:
         environment-file: conda/dev.yaml
 
     - name: build using cmake
-      run: make cmake-build
+      run: make cmake-build-with-tests
 
     - name: test flags
       run: |
         bin/arx --version
+
+    - name: run sanity tests
+      run: make test-sanity
+
+    - name: test samples
+      run: make test-samples
 
     - name: lint
       run: |
