@@ -96,6 +96,6 @@ run-test-opt:
 .ONESHELL:
 .PHONY: conda-build
 conda-build: clean
-	cd conda/build
+	cd conda/recipe
 	conda build purge
 	conda mambabuild .
