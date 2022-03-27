@@ -75,8 +75,8 @@ test-sanity:
 	cd build/tests
 	ctest --verbose --label-regex sanity
 
-.PHONY: test-source-code
-test-source-code:
+.PHONY: test-samples
+test-samples:
 	./bin/arx --output fibonacci < samples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./bin/arx --output sum  < samples/test_sum.arx

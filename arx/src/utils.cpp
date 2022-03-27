@@ -9,7 +9,7 @@
 
 #include "utils.h"
 
-const int BUFFER_SIZE = 1000;
+const int BUFFER_SIZE = 10000;
 
 llvm::raw_ostream& indent(llvm::raw_ostream& O, int size) {
   return O << std::string(size, ' ');
@@ -19,11 +19,7 @@ llvm::raw_ostream& indent(llvm::raw_ostream& O, int size) {
 char* IOSource::buffer = nullptr;
 
 char IOSource::getchar() {
-  if (IOSource::buffer) {
-    return *IOSource::buffer++;
-  }
-
-  return getchar();
+  return *IOSource::buffer++;
 }
 
 void IOSource::update_buffer(char* buffer) {

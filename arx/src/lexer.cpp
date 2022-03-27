@@ -6,6 +6,8 @@
 #include "lexer.h"
 #include "utils.h"
 
+extern getchar_ptr GETCHAR;
+
 SourceLocation CurLoc;
 SourceLocation LexLoc;
 std::string IdentifierStr;
@@ -56,7 +58,7 @@ static bool is_identifier_char(char c) {
 }
 
 static int advance() {
-  int LastChar = getchar();
+  int LastChar = arx_getchar();
 
   if (LastChar == '\n' || LastChar == '\r') {
     LexLoc.Line++;
