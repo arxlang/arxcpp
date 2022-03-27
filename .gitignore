@@ -46,9 +46,5 @@ bin/*
 # arx
 arxc
 
-# conda-forge
-conda/build/.ci_support
-conda/build/.scripts
-
 # IDE
 .vscode
