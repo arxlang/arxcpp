@@ -1,6 +1,13 @@
 Release Notes
 ---
 
+# [1.2.0](https://github.com/arxlang/arx/compare/1.1.1...1.2.0) (2022-03-27)
+
+
+### Features
+
+* **phases:** Split code into phases ([#14](https://github.com/arxlang/arx/issues/14)) ([222b784](https://github.com/arxlang/arx/commit/222b7847772ae1b47ba9dcbf83a7a4be555fe5d4))
+
 ## [1.1.1](https://github.com/arx-org/arx/compare/1.1.0...1.1.1) (2022-02-23)
 
 

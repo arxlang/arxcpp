@@ -52,7 +52,7 @@ char sys_getchar() {
 // declared by lexer.h
 getchar_ptr arx_getchar = &sys_getchar;
 
-std::string ARX_VERSION = "1.1.1";  // semantic-release
+std::string ARX_VERSION = "1.2.0";  // semantic-release
 
 static bool check_version(const char* arg) {
   if (std::string(arg) == "--version") {
