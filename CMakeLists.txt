@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.21)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+
 set(TARGET_NAME arx)
 
 project(${TARGET_NAME})
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+include(c++-standards)
+cxx_17()
 
 set(PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_PATH}/bin)
@@ -71,27 +74,17 @@ if (ENABLE_TESTS)
   include(GoogleTest)
   add_subdirectory(tests)
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=thread")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
-  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
-  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=leak")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
-  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=memory")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+  option(CLANG_TIDY "CLANG_TIDY" ON)
+  option(CPPCHECK "CPPCHECK" ON)
 
-  FIND_PROGRAM(LCOV_PATH lcov)
-
-  # Where TARGET_NAME is the executable target's name
-  add_custom_target(ccov-${TARGET_NAME}
-      COMMAND LLVM_PROFILE_FILE=${TARGET_NAME}.profraw $<TARGET_FILE:${TARGET_NAME}>
-      COMMAND llvm-profdata merge -sparse ${TARGET_NAME}.profraw -o ${TARGET_NAME}.profdata
-      COMMAND llvm-cov report $<TARGET_FILE:${TARGET_NAME}> -instr-profile=${TARGET_NAME}.profdata
-      DEPENDS ${TARGET_NAME}
-  )
+  include(code-coverage)
+  include(formatting)
+  include(linter)
+  include(sanitizers)
 endif()
+
+include(doxygen)
+build_docs()
 
 # Link against LLVM libraries
 target_link_libraries(arx glog::glog ${llvm_libs})
