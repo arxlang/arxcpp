@@ -21,3 +21,27 @@ repos:
         - commit
       types_or: [c++, c]
       args: ["-style=file", "-i"]
+
+    - entry: cppcheck
+      id: cppcheck
+      name: cppcheck
+      language: system
+      exclude: ^$
+      files: "arx/"
+      pass_filenames: true
+      stages:
+        - commit
+      types_or: [c++, c]
+      args: ["--std=c++17"]
+
+    - entry: clang-tidy
+      id: clang-tidy
+      name: clang-tidy
+      language: system
+      exclude: ^$
+      files: "arx/"
+      pass_filenames: true
+      stages:
+        - commit
+      types_or: [c++, c]
+      args: ["-format-style='{BasedOnStyle: llvm, IndentWidth: 2}'"]
