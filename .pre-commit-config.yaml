@@ -10,33 +10,29 @@ repos:
 
   - repo: local
     hooks:
-    - entry: clang-format
+    - id: clang-format
+      name: clang-format
+      entry: clang-format -style=file -i
       exclude: ^$
       files: ""
-      id: clang-format
       language: system
-      name: clang-format
       pass_filenames: true
       stages:
         - commit
       types_or: [c++, c]
-      args: ["-style=file", "-i"]
 
-    - entry: cppcheck
-      id: cppcheck
+    - id: cppcheck
       name: cppcheck
+      entry: "cppcheck --std=c++17 arx/"
       language: system
-      exclude: ^$
-      files: "arx/"
-      pass_filenames: true
+      pass_filenames: false
       stages:
         - commit
       types_or: [c++, c]
-      args: ["--std=c++17"]
 
-    - entry: clang-tidy
-      id: clang-tidy
+    - id: clang-tidy
       name: clang-tidy
+      entry: clang-tidy
       language: system
       exclude: ^$
       files: "arx/"
@@ -45,8 +41,21 @@ repos:
         - commit
       types_or: [c++, c]
       args: [
-        "-format-style='{BasedOnStyle: llvm, IndentWidth: 2}'",
-        "-checks=*",
-        "-warnings-as-errors=*",
+        "--format-style='{BasedOnStyle: llvm, IndentWidth: 2}'",
+        "--checks=*",
+        "--warnings-as-errors=*",
+        "--header-filter=.*",
         "--fix-errors"
       ]
+
+    - entry: cmake-format
+      id: cmake-format
+      name: cmake-format
+      language: system
+      exclude: ^$
+      files: (\.cmake|CMakeLists.txt)(.in)?$
+      pass_filenames: true
+      stages:
+        - commit
+      types: [file]
+      args: ["-i"]

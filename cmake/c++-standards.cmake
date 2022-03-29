@@ -1,4 +1,5 @@
-# src: https://github.com/StableCoder/cmake-scripts/blob/main/c%2B%2B-standards.cmake
+# src:
+# https://github.com/StableCoder/cmake-scripts/blob/main/c%2B%2B-standards.cmake
 # Copyright (C) 2018-2021 by George Cave - gcave@stablecoder.ca
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
