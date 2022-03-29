@@ -12,7 +12,7 @@ repos:
     hooks:
     - id: clang-format
       name: clang-format
-      entry: clang-format -style=file -i
+      entry: clang-format --Werror --style=file -i --verbose
       exclude: ^$
       files: ""
       language: system
@@ -32,7 +32,13 @@ repos:
 
     - id: clang-tidy
       name: clang-tidy
-      entry: clang-tidy
+      entry: |
+        clang-tidy \
+          --format-style='{BasedOnStyle: llvm, IndentWidth: 2}' \
+          --checks=* \
+          --warnings-as-errors=* \
+          --header-filter=.* \
+          --fix-errors
       language: system
       exclude: ^$
       files: "arx/"
@@ -40,13 +46,6 @@ repos:
       stages:
         - commit
       types_or: [c++, c]
-      args: [
-        "--format-style='{BasedOnStyle: llvm, IndentWidth: 2}'",
-        "--checks=*",
-        "--warnings-as-errors=*",
-        "--header-filter=.*",
-        "--fix-errors"
-      ]
 
     - entry: cmake-format
       id: cmake-format
