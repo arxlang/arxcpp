@@ -10,6 +10,17 @@ repos:
 
   - repo: local
     hooks:
+    # - id: clang-tidy
+    #   name: clang-tidy
+    #   entry: bash -c 'clang-tidy --config-file .clang-tidy.yaml arx/**/*.cpp -- -I${CONDA_PREFIX}'
+    #   language: system
+    #   exclude: ^$
+    #   files: "arx/"
+    #   pass_filenames: false
+    #   stages:
+    #     - commit
+    #   types_or: [c++, c]
+
     - id: clang-format
       name: clang-format
       entry: clang-format --Werror --style=file -i --verbose
@@ -26,23 +37,6 @@ repos:
       entry: "cppcheck --std=c++17 arx/"
       language: system
       pass_filenames: false
-      stages:
-        - commit
-      types_or: [c++, c]
-
-    - id: clang-tidy
-      name: clang-tidy
-      entry: |
-        clang-tidy \
-          --format-style='{BasedOnStyle: llvm, IndentWidth: 2}' \
-          --checks=* \
-          --warnings-as-errors=* \
-          --header-filter=.* \
-          --fix-errors
-      language: system
-      exclude: ^$
-      files: "arx/"
-      pass_filenames: true
       stages:
         - commit
       types_or: [c++, c]
