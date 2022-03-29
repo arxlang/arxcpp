@@ -13,7 +13,7 @@ SourceLocation LexLoc;
 std::string IdentifierStr;
 double NumVal;
 
-std::string getTokName(int Tok) {
+auto getTokName(int Tok) -> std::string {
   switch (Tok) {
     case tok_eof:
       return "eof";
@@ -49,15 +49,15 @@ std::string getTokName(int Tok) {
   return std::string(1, (char)Tok);
 }
 
-static bool is_identifier_first_char(char c) {
+static auto is_identifier_first_char(char c) -> bool {
   return isalpha(c) || c == '_';
 }
 
-static bool is_identifier_char(char c) {
+static auto is_identifier_char(char c) -> bool {
   return isalnum(c) || c == '_';
 }
 
-static int advance() {
+static auto advance() -> int {
   int LastChar = arx_getchar();
 
   if (LastChar == '\n' || LastChar == '\r') {
@@ -70,7 +70,7 @@ static int advance() {
 }
 
 /// gettok - Return the next token from standard input.
-int gettok() {
+auto gettok() -> int {
   static int LastChar = ' ';
 
   // Skip any whitespace.
@@ -155,6 +155,6 @@ int gettok() {
 /// token the parser is looking at.  getNextToken reads another token from the
 /// lexer and updates CurTok with its results.
 int CurTok;
-int getNextToken() {
+auto getNextToken() -> int {
   return CurTok = gettok();
 }

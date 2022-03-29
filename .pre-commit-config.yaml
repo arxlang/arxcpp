@@ -12,7 +12,7 @@ repos:
     hooks:
     # - id: clang-tidy
     #   name: clang-tidy
-    #   entry: bash -c 'clang-tidy --config-file .clang-tidy.yaml arx/**/*.cpp -- -I${CONDA_PREFIX}'
+    #   entry: ./scripts/run-clang-tidy.sh
     #   language: system
     #   exclude: ^$
     #   files: "arx/"

@@ -79,8 +79,8 @@ void DebugInfo::emitLocation(ExprAST* AST) {
       Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
 }
 
-static llvm::DISubroutineType* CreateFunctionType(
-    unsigned NumArgs, llvm::DIFile* Unit) {
+static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
+    -> llvm::DISubroutineType* {
   llvm::SmallVector<llvm::Metadata*, 8> EltTys;
   llvm::DIType* DblTy = KSDbgInfo.getDoubleTy();
 
@@ -98,7 +98,7 @@ static llvm::DISubroutineType* CreateFunctionType(
 // Code Generation
 //===----------------------------------------------------------------------===//
 
-llvm::Function* getFunction(std::string Name) {
+auto getFunction(std::string Name) -> llvm::Function* {
   // First, see if the function has already been added to the current module.
   if (auto* F = TheModule->getFunction(Name)) return F;
 
@@ -113,8 +113,9 @@ llvm::Function* getFunction(std::string Name) {
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
 /// the function.  This is used for mutable variables etc.
-static llvm::AllocaInst* CreateEntryBlockAlloca(
-    llvm::Function* TheFunction, llvm::StringRef VarName) {
+static auto CreateEntryBlockAlloca(
+    llvm::Function* TheFunction, llvm::StringRef VarName)
+    -> llvm::AllocaInst* {
   llvm::IRBuilder<> TmpB(
       &TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
   return TmpB.CreateAlloca(
@@ -621,13 +622,13 @@ void MainLoop() {
 #endif
 
 /// putchard - putchar that takes a double and returns 0.
-extern "C" DLLEXPORT double putchard(double X) {
+extern "C" DLLEXPORT auto putchard(double X) -> double {
   fputc((char)X, stderr);
   return 0;
 }
 
 /// printd - printf that takes a double prints it as "%f\n", returning 0.
-extern "C" DLLEXPORT double printd(double X) {
+extern "C" DLLEXPORT auto printd(double X) -> double {
   fprintf(stderr, "%f\n", X);
   return 0;
 }

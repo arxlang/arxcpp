@@ -45,7 +45,7 @@
 #include "settings.h"
 #include "utils.h"
 
-char sys_getchar() {
+auto sys_getchar() -> char {
   return getchar();
 }
 
@@ -54,7 +54,7 @@ getchar_ptr arx_getchar = &sys_getchar;
 
 std::string ARX_VERSION = "1.2.0";  // semantic-release
 
-static bool check_version(const char* arg) {
+static auto check_version(const char* arg) -> bool {
   if (std::string(arg) == "--version") {
     std::cout << "arx version: " << ARX_VERSION << std::endl;
     return true;
@@ -62,7 +62,7 @@ static bool check_version(const char* arg) {
   return false;
 }
 
-int main(int argc, const char* argv[]) {
+auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 
   std::string output_filename;

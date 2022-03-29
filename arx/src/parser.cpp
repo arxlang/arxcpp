@@ -17,7 +17,7 @@ extern int CurTok;
 std::map<char, int> BinopPrecedence;
 
 /// GetTokPrecedence - Get the precedence of the pending binary operator token.
-int GetTokPrecedence() {
+auto GetTokPrecedence() -> int {
   if (!isascii(CurTok)) return -1;
 
   // Make sure it's a declared binop.

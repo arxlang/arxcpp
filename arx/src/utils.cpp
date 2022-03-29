@@ -11,7 +11,7 @@
 
 const int BUFFER_SIZE = 10000;
 
-llvm::raw_ostream& indent(llvm::raw_ostream& O, int size) {
+auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
   return O << std::string(size, ' ');
 }
 
