@@ -58,3 +58,14 @@ repos:
         - commit
       types: [file]
       args: ["-i"]
+
+    - entry: cmake-lint
+      id: cmake-lint
+      name: cmake-lint
+      language: system
+      exclude: ^$
+      files: (CMakeLists.txt)(.in)?$
+      pass_filenames: true
+      stages:
+        - commit
+      types: [file]
