@@ -44,4 +44,9 @@ repos:
       stages:
         - commit
       types_or: [c++, c]
-      args: ["-format-style='{BasedOnStyle: llvm, IndentWidth: 2}'"]
+      args: [
+        "-format-style='{BasedOnStyle: llvm, IndentWidth: 2}'",
+        "-checks=*",
+        "-warnings-as-errors=*",
+        "--fix-errors"
+      ]

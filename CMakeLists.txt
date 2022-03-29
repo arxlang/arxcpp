@@ -53,20 +53,6 @@ llvm_map_components_to_libnames(
     llvm_libs support core irreader orcjit mcjit native object executionengine
 )
 
-# clang-tidy
-find_program (CLANG_TIDY_EXE NAMES "clang-tidy")
-if(CLANG_TIDY_EXE)
-    set(
-      CMAKE_CXX_CLANG_TIDY
-      "${CLANG_TIDY_EXE};-format-style=file;-header-filter='${CMAKE_SOURCE_DIR}/*'"
-      CACHE STRING
-      ""
-      FORCE)
-else()
-    message(STATUS "clang-tidy NOT found!")
-    set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "" FORCE) # clear it
-endif()
-
 option(ENABLE_TESTS "Build unit tests" OFF)
 if (ENABLE_TESTS)
   find_package(GTest REQUIRED)
@@ -76,11 +62,16 @@ if (ENABLE_TESTS)
 
   option(CLANG_TIDY "CLANG_TIDY" ON)
   option(CPPCHECK "CPPCHECK" ON)
+  # option(IWYU "IWYU" ON)
 
   include(code-coverage)
   include(formatting)
   include(linter)
   include(sanitizers)
+
+  clang_tidy()
+  cppcheck()
+  # include_what_you_use()
 endif()
 
 include(doxygen)
