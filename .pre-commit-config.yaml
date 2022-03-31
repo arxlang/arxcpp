@@ -15,7 +15,7 @@ repos:
     #   entry: ./scripts/run-clang-tidy.sh
     #   language: system
     #   exclude: ^$
-    #   files: "arx/"
+    #   files: ""
     #   pass_filenames: false
     #   stages:
     #     - commit

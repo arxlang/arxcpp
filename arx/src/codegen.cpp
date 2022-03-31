@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 // note: arrow will not be used yet
 // #include <arrow/api.h>

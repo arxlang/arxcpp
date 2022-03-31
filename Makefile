@@ -59,7 +59,8 @@ cmake-build: clean
 
 .PHONY: cmake-build-with-tests
 cmake-build-with-tests:
-	$(MAKE)	cmake-build CMAKE_EXTRA_FLAGS="-DENABLE_TESTS=on"
+	$(MAKE)	cmake-build \
+		CMAKE_EXTRA_FLAGS="-DENABLE_TESTS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=one"
 
 .ONESHELL:
 .PHONY: cmake-install
@@ -83,7 +84,7 @@ test-samples:
 
 .ONESHELL:
 .PHONY: run-tests
-run-tests: test-sanity test-source-code
+run-tests: test-sanity test-samples
 
 
 .PHONY: run-test-opt

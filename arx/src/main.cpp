@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-
 // note: arrow will not be used yet
 // #include <arrow/api.h>
 // #include <arrow/csv/api.h>

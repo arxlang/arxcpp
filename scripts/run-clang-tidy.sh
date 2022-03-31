@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 clang-tidy \
-    --config-file .clang-tidy.yaml \
+    --config-file .clang-tidy \
     arx/**/*.cpp \
     arx/**/*.h \
-    -- \
-    -I${CONDA_PREFIX}/include
+    -p build \
+    --header-filter="^(?!${CONDA_PREFIX}.)*$|arx/include/*.h" \
+    -- -I${CONDA_PREFIX}/include
