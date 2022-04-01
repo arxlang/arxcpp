@@ -71,12 +71,10 @@ if(ENABLE_TESTS)
   include(sanitizers)
 
   clang_tidy(
-    --config-file
-    ${PROJECT_PATH}/.clang-tidy
+    --config-file="${PROJECT_PATH}/.clang-tidy"
     ${PROJECT_PATH}/arx/**/*.cpp
     ${PROJECT_PATH}/arx/**/*.h
-    -p
-    ${PROJECT_PATH}/build
+    -p="${PROJECT_PATH}/build"
     --header-filter="$ENV{CONDA_PREFIX}/include"
     --extra-arg="-I${PROJECT_PATH}/arx/include")
   cppcheck()
