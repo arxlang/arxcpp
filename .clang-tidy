@@ -35,6 +35,6 @@ performance-*,
 -performance-unnecessary-value-param,
 '
 AnalyzeTemporaryDtors: false
-WarningsAsErrors: '*'
+WarningsAsErrors: ''  # TODO: change to '*'
 CheckOptions:
 ...
