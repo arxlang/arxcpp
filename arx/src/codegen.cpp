@@ -70,7 +70,7 @@ llvm::DIType* DebugInfo::getDoubleTy() {
 
 void DebugInfo::emitLocation(ExprAST* AST) {
   if (!AST) return Builder->SetCurrentDebugLocation(llvm::DebugLoc());
-  llvm::DIScope* Scope;
+  llvm::DIScope* Scope = nullptr;
   if (LexicalBlocks.empty())
     Scope = TheCU;
   else
@@ -212,8 +212,8 @@ llvm::Value* CallExprAST::codegen() {
     return LogErrorV("Incorrect # arguments passed");
 
   std::vector<llvm::Value*> ArgsV;
-  for (unsigned i = 0, e = Args.size(); i != e; ++i) {
-    ArgsV.push_back(Args[i]->codegen());
+  for (auto& Arg : Args) {
+    ArgsV.push_back(Arg->codegen());
     if (!ArgsV.back()) return nullptr;
   }
 
@@ -380,16 +380,16 @@ llvm::Value* VarExprAST::codegen() {
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
   // Register all variables and emit their initializer.
-  for (unsigned i = 0, e = VarNames.size(); i != e; ++i) {
-    const std::string& VarName = VarNames[i].first;
-    ExprAST* Init = VarNames[i].second.get();
+  for (auto& i : VarNames) {
+    const std::string& VarName = i.first;
+    ExprAST* Init = i.second.get();
 
     // Emit the initializer before adding the variable to scope, this prevents
     // the initializer from referencing the variable itself, and permits stuff
     // like this:
     //  var a = 1 in
     //    var a = a in ...   # refers to outer 'a'.
-    llvm::Value* InitVal;
+    llvm::Value* InitVal = nullptr;
     if (Init) {
       InitVal = Init->codegen();
       if (!InitVal) return nullptr;

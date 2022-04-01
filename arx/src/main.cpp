@@ -107,7 +107,7 @@ auto main(int argc, const char* argv[]) -> int {
       llvm::dwarf::DW_LANG_C,
       DBuilder->createFile(output_filename, "."),
       "Arx Compiler",
-      0,
+      false,
       "",
       0);
 

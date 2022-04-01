@@ -216,7 +216,7 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
       }
     }
 
-    VarNames.push_back(std::make_pair(Name, std::move(Init)));
+    VarNames.emplace_back(Name, std::move(Init));
 
     // End of var list, exit loop.
     if (CurTok != ',') {
