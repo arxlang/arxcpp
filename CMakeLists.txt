@@ -63,12 +63,22 @@ if(ENABLE_TESTS)
   option(CPPCHECK "CPPCHECK" ON)
   # option(IWYU "IWYU" ON)
 
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
   include(code-coverage)
   include(formatting)
   include(linter)
   include(sanitizers)
 
-  clang_tidy()
+  clang_tidy(
+    --config-file
+    ${PROJECT_PATH}/.clang-tidy
+    ${PROJECT_PATH}/arx/**/*.cpp
+    ${PROJECT_PATH}/arx/**/*.h
+    -p
+    ${PROJECT_PATH}/build
+    --header-filter="$ENV{CONDA_PREFIX}/include"
+    --extra-arg="-I${PROJECT_PATH}/arx/include")
   cppcheck()
   # include_what_you_use()
 endif()

@@ -591,7 +591,7 @@ void HandleTopLevelExpression() {
 
 /// top ::= definition | external | expression | ';'
 void MainLoop() {
-  while (1) {
+  while (true) {
     switch (CurTok) {
       case tok_eof:
         return;

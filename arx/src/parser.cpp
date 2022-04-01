@@ -61,7 +61,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
   getNextToken();  // eat (
   std::vector<std::unique_ptr<ExprAST>> Args;
   if (CurTok != ')') {
-    while (1) {
+    while (true) {
       if (auto Arg = ParseExpression())
         Args.push_back(std::move(Arg));
       else
@@ -201,7 +201,7 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
   if (CurTok != tok_identifier)
     return LogError<VarExprAST>("expected identifier after var");
 
-  while (1) {
+  while (true) {
     std::string Name = IdentifierStr;
     getNextToken();  // eat identifier.
 
@@ -299,7 +299,7 @@ std::unique_ptr<ExprAST> ParseUnary() {
 std::unique_ptr<ExprAST> ParseBinOpRHS(
     int ExprPrec, std::unique_ptr<ExprAST> LHS) {
   // If this is a binop, find its precedence.
-  while (1) {
+  while (true) {
     int TokPrec = GetTokPrecedence();
 
     // If this is a binop that binds at least as tightly as the current binop,
