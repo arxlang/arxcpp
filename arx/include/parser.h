@@ -1,5 +1,8 @@
 #pragma once
 
+#include <utility>
+
+#include "lexer.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Analysis/BasicAliasAnalysis.h"
 #include "llvm/Analysis/Passes.h"
@@ -12,8 +15,6 @@
 #include "llvm/Support/Host.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
-
-#include "lexer.h"
 #include "utils.h"
 
 extern SourceLocation CurLoc;
@@ -24,7 +25,7 @@ class ExprAST {
 
  public:
   ExprAST(SourceLocation Loc = CurLoc) : Loc(Loc) {}
-  virtual ~ExprAST() {}
+  virtual ~ExprAST() = default;
   virtual llvm::Value* codegen() = 0;
   int getLine() const {
     return Loc.Line;
@@ -53,8 +54,8 @@ class VariableExprAST : public ExprAST {
   std::string Name;
 
  public:
-  VariableExprAST(SourceLocation Loc, const std::string& Name)
-      : ExprAST(Loc), Name(Name) {}
+  VariableExprAST(SourceLocation Loc, std::string Name)
+      : ExprAST(Loc), Name(std::move(Name)) {}
   const std::string& getName() const {
     return Name;
   }
@@ -109,9 +110,9 @@ class CallExprAST : public ExprAST {
  public:
   CallExprAST(
       SourceLocation Loc,
-      const std::string& Callee,
+      std::string Callee,
       std::vector<std::unique_ptr<ExprAST>> Args)
-      : ExprAST(Loc), Callee(Callee), Args(std::move(Args)) {}
+      : ExprAST(Loc), Callee(std::move(Callee)), Args(std::move(Args)) {}
   llvm::Value* codegen() override;
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
     ExprAST::dump(out << "call " << Callee, ind);
@@ -152,12 +153,12 @@ class ForExprAST : public ExprAST {
 
  public:
   ForExprAST(
-      const std::string& VarName,
+      std::string VarName,
       std::unique_ptr<ExprAST> Start,
       std::unique_ptr<ExprAST> End,
       std::unique_ptr<ExprAST> Step,
       std::unique_ptr<ExprAST> Body)
-      : VarName(VarName),
+      : VarName(std::move(VarName)),
         Start(std::move(Start)),
         End(std::move(End)),
         Step(std::move(Step)),
@@ -207,11 +208,11 @@ class PrototypeAST {
  public:
   PrototypeAST(
       SourceLocation Loc,
-      const std::string& Name,
+      std::string Name,
       std::vector<std::string> Args,
       bool IsOperator = false,
       unsigned Prec = 0)
-      : Name(Name),
+      : Name(std::move(Name)),
         Args(std::move(Args)),
         IsOperator(IsOperator),
         Precedence(Prec),

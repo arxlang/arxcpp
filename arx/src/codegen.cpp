@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 // note: arrow will not be used yet
 // #include <arrow/api.h>
@@ -70,7 +70,7 @@ llvm::DIType* DebugInfo::getDoubleTy() {
 
 void DebugInfo::emitLocation(ExprAST* AST) {
   if (!AST) return Builder->SetCurrentDebugLocation(llvm::DebugLoc());
-  llvm::DIScope* Scope;
+  llvm::DIScope* Scope = nullptr;
   if (LexicalBlocks.empty())
     Scope = TheCU;
   else
@@ -79,8 +79,8 @@ void DebugInfo::emitLocation(ExprAST* AST) {
       Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
 }
 
-static llvm::DISubroutineType* CreateFunctionType(
-    unsigned NumArgs, llvm::DIFile* Unit) {
+static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
+    -> llvm::DISubroutineType* {
   llvm::SmallVector<llvm::Metadata*, 8> EltTys;
   llvm::DIType* DblTy = KSDbgInfo.getDoubleTy();
 
@@ -98,7 +98,7 @@ static llvm::DISubroutineType* CreateFunctionType(
 // Code Generation
 //===----------------------------------------------------------------------===//
 
-llvm::Function* getFunction(std::string Name) {
+auto getFunction(std::string Name) -> llvm::Function* {
   // First, see if the function has already been added to the current module.
   if (auto* F = TheModule->getFunction(Name)) return F;
 
@@ -113,8 +113,9 @@ llvm::Function* getFunction(std::string Name) {
 
 /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
 /// the function.  This is used for mutable variables etc.
-static llvm::AllocaInst* CreateEntryBlockAlloca(
-    llvm::Function* TheFunction, llvm::StringRef VarName) {
+static auto CreateEntryBlockAlloca(
+    llvm::Function* TheFunction, llvm::StringRef VarName)
+    -> llvm::AllocaInst* {
   llvm::IRBuilder<> TmpB(
       &TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
   return TmpB.CreateAlloca(
@@ -211,8 +212,8 @@ llvm::Value* CallExprAST::codegen() {
     return LogErrorV("Incorrect # arguments passed");
 
   std::vector<llvm::Value*> ArgsV;
-  for (unsigned i = 0, e = Args.size(); i != e; ++i) {
-    ArgsV.push_back(Args[i]->codegen());
+  for (auto& Arg : Args) {
+    ArgsV.push_back(Arg->codegen());
     if (!ArgsV.back()) return nullptr;
   }
 
@@ -379,16 +380,16 @@ llvm::Value* VarExprAST::codegen() {
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
   // Register all variables and emit their initializer.
-  for (unsigned i = 0, e = VarNames.size(); i != e; ++i) {
-    const std::string& VarName = VarNames[i].first;
-    ExprAST* Init = VarNames[i].second.get();
+  for (auto& i : VarNames) {
+    const std::string& VarName = i.first;
+    ExprAST* Init = i.second.get();
 
     // Emit the initializer before adding the variable to scope, this prevents
     // the initializer from referencing the variable itself, and permits stuff
     // like this:
     //  var a = 1 in
     //    var a = a in ...   # refers to outer 'a'.
-    llvm::Value* InitVal;
+    llvm::Value* InitVal = nullptr;
     if (Init) {
       InitVal = Init->codegen();
       if (!InitVal) return nullptr;
@@ -590,7 +591,7 @@ void HandleTopLevelExpression() {
 
 /// top ::= definition | external | expression | ';'
 void MainLoop() {
-  while (1) {
+  while (true) {
     switch (CurTok) {
       case tok_eof:
         return;
@@ -621,13 +622,13 @@ void MainLoop() {
 #endif
 
 /// putchard - putchar that takes a double and returns 0.
-extern "C" DLLEXPORT double putchard(double X) {
+extern "C" DLLEXPORT auto putchard(double X) -> double {
   fputc((char)X, stderr);
   return 0;
 }
 
 /// printd - printf that takes a double prints it as "%f\n", returning 0.
-extern "C" DLLEXPORT double printd(double X) {
+extern "C" DLLEXPORT auto printd(double X) -> double {
   fprintf(stderr, "%f\n", X);
   return 0;
 }

@@ -10,16 +10,16 @@ repos:
 
   - repo: local
     hooks:
-    # - id: clang-tidy
-    #   name: clang-tidy
-    #   entry: bash -c 'clang-tidy --config-file .clang-tidy.yaml arx/**/*.cpp -- -I${CONDA_PREFIX}'
-    #   language: system
-    #   exclude: ^$
-    #   files: "arx/"
-    #   pass_filenames: false
-    #   stages:
-    #     - commit
-    #   types_or: [c++, c]
+    - id: clang-tidy
+      name: clang-tidy
+      entry: ./scripts/run-clang-tidy.sh
+      language: system
+      exclude: ^$
+      files: arx/src/.*\.cpp
+      pass_filenames: true
+      stages:
+        - commit
+      types_or: [c++, c]
 
     - id: clang-format
       name: clang-format

@@ -1,7 +1,7 @@
 #include <memory>
 #include "llvm/IR/Value.h"
 
-llvm::Value* LogErrorV(const char* Str) {
+auto LogErrorV(const char* Str) -> llvm::Value* {
   fprintf(stderr, "Error: %s\n", Str);
   return nullptr;
 }

@@ -45,7 +45,7 @@ class ArxJIT {
       JITTargetMachineBuilder JTMB,
       DataLayout DL)
       : ES(std::move(ES)),
-        DL(std::move(DL)),
+        DL(DL),
         Mangle(*this->ES, this->DL),
         ObjectLayer(
             *this->ES,
