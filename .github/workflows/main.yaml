@@ -69,8 +69,6 @@ jobs:
       with:
         message: |
           <h1>CODE COVERAGE</h1>
-          ${{ steps.llvm-cov-report.outputs.COVERAGE_REPORT_CSS }}
-          ${{ steps.llvm-cov-report.outputs.COVERAGE_REPORT_HTML }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         repo-token-user-login: 'github-actions[bot]'
 
