@@ -22,8 +22,6 @@ jobs:
       run:
         shell: bash -l {0}
 
-    permissions: write-all
-
     steps:
     - uses: actions/checkout@v2
 
