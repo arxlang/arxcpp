@@ -56,19 +56,24 @@ jobs:
         pre-commit run --all-files
 
     - name: llvm-cov generation
+      if: ${{ github.event_name == 'pull_request' }}
+      id: llvm-cov-report
       run: |
         cd build
         ninja ccov
-        echo "::set-output name=COVERAGE_REPORT_CSS::$(cat ccov/arx/style.css)"
-        echo "::set-output name=COVERAGE_REPORT_HTML::$(cat ccov/arx/index.html)"
+        export COVERAGE_REPORT_CSS=$(cat ccov/arx/style.css)
+        export COVERAGE_REPORT_HTML=$(cat ccov/arx/index.html)
+        echo "::set-output name=COVERAGE_REPORT_CSS::${COVERAGE_REPORT_CSS}"
+        echo "::set-output name=COVERAGE_REPORT_HTML::${COVERAGE_REPORT_HTML}"
 
-    - name: llvm-cov report
+    - name: llvm-cov publishing
       uses: mshick/add-pr-comment@v1
+      if: ${{ github.event_name == 'pull_request' }}
       with:
         message: |
           <h1>CODE COVERAGE</h1>
-          ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_CSS }}
-          ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_HTML }}
+          ${{ steps.llvm-cov-report.outputs.COVERAGE_REPORT_CSS }}
+          ${{ steps.llvm-cov-report.outputs.COVERAGE_REPORT_HTML }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         repo-token-user-login: 'github-actions[bot]'
 
