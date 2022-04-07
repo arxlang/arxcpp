@@ -69,7 +69,7 @@ jobs:
       with:
         message: |
           <h1>CODE COVERAGE</h1>
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token: ${{ secrets.GH_TOKEN }}
         repo-token-user-login: 'github-actions[bot]'
 
     # note: this step must be always executed after all tests and checks
