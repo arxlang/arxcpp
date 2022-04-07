@@ -17,7 +17,7 @@ set(CMAKE_C_FLAGS
 -fcoverage-mapping")
 
 add_executable(
-  ArxTests
+  ${TARGET_TEST_NAME}
   __main__.cpp
   test_lexer.cpp
   test_parser.cpp
@@ -27,14 +27,14 @@ add_executable(
   ${ARX_LIB_SOURCES})
 
 # link arx code
-target_link_libraries(ArxTests glog::glog gtest ${ZLIB_LIBRARIES}
+target_link_libraries(${TARGET_TEST_NAME} glog::glog gtest ${ZLIB_LIBRARIES}
                       ${CMAKE_DL_LIBS} ${llvm_libs})
 
 set(TEST_ARGS "--gtest_output=xml:../")
 
-add_test(ArxTests ArxTests ${TEST_ARGS})
+add_test(${TARGET_TEST_NAME} ${TARGET_TEST_NAME} ${TEST_ARGS})
 
 # SANIT TESTS
-set(TEST_PROGRAMS ArxTests)
+set(TEST_PROGRAMS ${TARGET_TEST_NAME})
 set(SANITY_TESTS ${TEST_PROGRAMS})
 set_tests_properties(${SANITY_TESTS} PROPERTIES LABELS "sanity")

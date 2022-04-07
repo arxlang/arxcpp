@@ -52,6 +52,22 @@ jobs:
         pre-commit install
         pre-commit run --all-files
 
+    - name: llvm-cov generation
+      run: |
+        cd build
+        ninja ccov
+        echo "::set-output name=COVERAGE_REPORT_CSS::$(cat ccov/arx/style.css)"
+        echo "::set-output name=COVERAGE_REPORT_HTML::$(cat ccov/arx/index.html)"
+
+    - name: llvm-cov report
+      uses: mshick/add-pr-comment@v1
+        with:
+          message: |
+            ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_CSS }}
+            ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_HTML }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]'
+
     # note: this step must be always executed after all tests and checks
     - name: Release
       if: ${{ github.event_name == 'push' }}
