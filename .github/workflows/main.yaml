@@ -61,12 +61,12 @@ jobs:
 
     - name: llvm-cov report
       uses: mshick/add-pr-comment@v1
-        with:
-          message: |
-            ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_CSS }}
-            ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_HTML }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          repo-token-user-login: 'github-actions[bot]'
+      with:
+        message: |
+          ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_CSS }}
+          ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_HTML }}
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token-user-login: 'github-actions[bot]'
 
     # note: this step must be always executed after all tests and checks
     - name: Release
