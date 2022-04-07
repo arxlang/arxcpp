@@ -22,6 +22,9 @@ jobs:
       run:
         shell: bash -l {0}
 
+    permissions:
+      issues: write
+
     steps:
     - uses: actions/checkout@v2
 
@@ -63,6 +66,7 @@ jobs:
       uses: mshick/add-pr-comment@v1
       with:
         message: |
+          <h1>CODE COVERAGE</h1>
           ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_CSS }}
           ${{ steps.parse-coverage-report.outputs.COVERAGE_REPORT_HTML }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
