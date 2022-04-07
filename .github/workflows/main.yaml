@@ -22,9 +22,6 @@ jobs:
       run:
         shell: bash -l {0}
 
-    permissions:
-      pull-requests: write
-
     steps:
     - uses: actions/checkout@v2
 
