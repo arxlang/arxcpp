@@ -57,22 +57,7 @@ jobs:
       id: llvm-cov-report
       run: |
         cd build
-        ninja ccov
-        export COVERAGE_REPORT_CSS=$(cat ccov/arx/style.css)
-        export COVERAGE_REPORT_HTML=$(cat ccov/arx/index.html)
-        echo "::set-output name=COVERAGE_REPORT_CSS::${COVERAGE_REPORT_CSS}"
-        echo "::set-output name=COVERAGE_REPORT_HTML::${COVERAGE_REPORT_HTML}"
-
-    - name: llvm-cov publishing
-      uses: mshick/add-pr-comment@v1
-      if: ${{ github.event_name == 'pull_request' }}
-      with:
-        message: |
-          <h1>CODE COVERAGE</h1>
-          ${{ steps.llvm-cov-report.outputs.COVERAGE_REPORT_CSS }}
-          ${{ steps.llvm-cov-report.outputs.COVERAGE_REPORT_HTML }}
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        repo-token-user-login: 'github-actions[bot]'
+        ninja ccov-report-arx
 
     # note: this step must be always executed after all tests and checks
     - name: Release
