@@ -59,6 +59,19 @@ jobs:
         cd build
         ninja ccov-report-arx
 
+    - name: Generate documentation
+      if: ${{ github.event_name == 'push' }}
+      run: doxygen Doxyfile
+
+    # Push the documentation to github-pages
+    - name: GitHub Pages action
+      uses: peaceiris/actions-gh-pages@v3.5.9
+      if: ${{ github.event_name == 'push' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/docs/html
+
+
     # note: this step must be always executed after all tests and checks
     - name: Release
       if: ${{ github.event_name == 'push' }}

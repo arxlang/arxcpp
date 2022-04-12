@@ -85,10 +85,8 @@ if(ENABLE_TESTS)
 
   target_code_coverage(${TARGET_NAME} AUTO EXTERNAL)
   target_code_coverage(${TARGET_TEST_NAME} AUTO EXTERNAL)
-endif()
 
-include(doxygen)
-build_docs()
+endif()
 
 # Link against LLVM libraries
 target_link_libraries(arx glog::glog ${llvm_libs})

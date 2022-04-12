@@ -34,6 +34,20 @@
               }
             ],
             "countMatches": true
+          },
+          {
+            "files": ["Doxyfile"],
+            "from": "PROJECT_NUMBER         = \".*\"  # semantic-release",
+            "to": "PROJECT_NUMBER         = \"${nextRelease.version}\"  # semantic-release",
+            "results": [
+              {
+                "file": "Doxyfile",
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
           }
         ]
       }
@@ -58,7 +72,8 @@
         "assets": [
           "CHANGELOG.md",
           "conda/recipe/meta.yaml",
-          "arx/src/main.cpp"
+          "arx/src/main.cpp",
+          "Doxyfile"
         ],
         "message": "chore(release): ${nextRelease.version}"
       }
