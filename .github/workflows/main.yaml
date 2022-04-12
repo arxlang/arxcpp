@@ -64,7 +64,9 @@ jobs:
         ninja ccov-report-arx
 
     - name: Generate documentation
-      run: doxygen Doxyfile
+      run: |
+        doxygen Doxyfile
+        echo "arxlang.org" > ./build/docs/html/CNAME
 
     # Push the documentation to github-pages
     - name: GitHub Pages action
