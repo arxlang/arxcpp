@@ -60,7 +60,6 @@ jobs:
         ninja ccov-report-arx
 
     - name: Generate documentation
-      if: ${{ github.event_name == 'push' }}
       run: doxygen Doxyfile
 
     # Push the documentation to github-pages
@@ -70,7 +69,6 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build/docs/html
-
 
     # note: this step must be always executed after all tests and checks
     - name: Release
