@@ -22,6 +22,10 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 find_package(glog REQUIRED)
+message(STATUS "Found glog ${glog_VERSION}")
+
+find_package(CLI11 CONFIG REQUIRED)
+message(STATUS "Found CLI ${CLI11_VERSION}")
 
 # Set your project compile flags. E.g. if using the C++ header files you will
 # need to enable C++11 support for your compiler.
@@ -50,7 +54,9 @@ llvm_map_components_to_libnames(
   mcjit
   native
   object
-  executionengine)
+  executionengine
+  all
+  )
 
 option(ENABLE_TESTS "Build unit tests" OFF)
 if(ENABLE_TESTS)
@@ -89,6 +95,6 @@ if(ENABLE_TESTS)
 endif()
 
 # Link against LLVM libraries
-target_link_libraries(arx glog::glog ${llvm_libs})
+target_link_libraries(arx CLI11::CLI11 glog::glog ${llvm_libs})
 
 install(TARGETS arx DESTINATION bin)

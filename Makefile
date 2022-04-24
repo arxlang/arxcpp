@@ -53,6 +53,8 @@ cmake-build: clean
 		-DCMAKE_C_COMPILER=${CC} \
     	-DCMAKE_CXX_COMPILER=${CXX} \
 		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
+		--log-level=TRACE \
+		-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
 		${CMAKE_EXTRA_FLAGS} \
 		..
 	cmake --build .
