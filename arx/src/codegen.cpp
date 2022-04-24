@@ -774,5 +774,6 @@ auto open_shell(int count) -> void {
   exit(0);
   */
 
- llvm::outs() << "Not implemented yet." << "\n";
+  llvm::outs() << "Not implemented yet."
+               << "\n";
 }

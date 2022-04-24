@@ -33,7 +33,6 @@ getchar_ptr arx_getchar = &sys_getchar;
 std::string ARX_VERSION = "1.2.0";  // semantic-release
 std::string OUTPUT_FILE{"output.o"};
 
-
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 

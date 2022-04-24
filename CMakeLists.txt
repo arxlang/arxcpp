@@ -55,8 +55,7 @@ llvm_map_components_to_libnames(
   native
   object
   executionengine
-  all
-  )
+  all)
 
 option(ENABLE_TESTS "Build unit tests" OFF)
 if(ENABLE_TESTS)
