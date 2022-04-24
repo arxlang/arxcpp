@@ -37,7 +37,7 @@ std::string OUTPUT_FILE{"output.o"};
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 
-  CLI::App app{"ArxLanguage"};
+  CLI::App app{"ArxLang"};
 
   app.add_option("--output", OUTPUT_FILE, "Output file.");
   app.add_flag("--shell", open_shell, "Open Arx Shell.");
