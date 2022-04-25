@@ -18,27 +18,42 @@
 #include <string>
 #include <vector>
 
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Analysis/BasicAliasAnalysis.h"
-#include "llvm/Analysis/Passes.h"
-#include "llvm/IR/DIBuilder.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Verifier.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Transforms/Scalar.h"
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/Optional.h>
+#include <llvm/ADT/STLExtras.h>
+#include <llvm/Analysis/BasicAliasAnalysis.h>
+#include <llvm/Analysis/Passes.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/Transforms/Scalar.h>
 
 #include "codegen.h"
 #include "jit.h"
 #include "lexer.h"
 #include "parser.h"
+#include "settings.h"
 #include "utils.h"
 
 extern std::map<char, int> BinopPrecedence;
 extern int CurTok;
+extern std::string OUTPUT_FILE;
 
 //===----------------------------------------------------------------------===//
 // Code Generation Globals
@@ -631,4 +646,134 @@ extern "C" DLLEXPORT auto putchard(double X) -> double {
 extern "C" DLLEXPORT auto printd(double X) -> double {
   fprintf(stderr, "%f\n", X);
   return 0;
+}
+
+void InitializeModuleAndPassManager() {
+  // Open a new module.
+  TheContext = std::make_unique<llvm::LLVMContext>();
+  TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
+
+  // Create a new builder for the module.
+  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+}
+
+auto show_llvm_ir(int count) -> void {
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetAsmParser();
+
+  load_settings();
+
+  // Prime the first token.
+  getNextToken();
+
+  TheJIT = ExitOnErr(llvm::orc::ArxJIT::Create());
+
+  InitializeModule();
+
+  // Add the current debug info version into the module.
+  TheModule->addModuleFlag(
+      llvm::Module::Warning,
+      "Debug Info Version",
+      llvm::DEBUG_METADATA_VERSION);
+
+  // Darwin only supports dwarf2.
+  if (llvm::Triple(llvm::sys::getProcessTriple()).isOSDarwin())
+    TheModule->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
+
+  // Construct the DIBuilder, we do this here because we need the module.
+  DBuilder = std::make_unique<llvm::DIBuilder>(*TheModule);
+
+  // Create the compile unit for the module.
+  // Currently down as "fib" as a filename since we're redirecting stdin
+  // but we'd like actual source locations.
+  KSDbgInfo.TheCU = DBuilder->createCompileUnit(
+      llvm::dwarf::DW_LANG_C,
+      DBuilder->createFile(OUTPUT_FILE, "."),
+      "Arx Compiler",
+      false,
+      "",
+      0);
+
+  // Run the main "interpreter loop" now.
+  MainLoop();
+
+  // Finalize the debug info.
+  DBuilder->finalize();
+
+  // Print out all of the generated code.
+  TheModule->print(llvm::errs(), nullptr);
+  exit(0);
+}
+
+auto open_shell(int count) -> void {
+  /*
+  load_settings();
+
+  // Prime the first token.
+  fprintf(stderr, "ready> ");
+  getNextToken();
+
+  InitializeModuleAndPassManager();
+
+  // Run the main "interpreter loop" now.
+  MainLoop();
+
+  // Initialize the target registry etc.
+  llvm::InitializeAllTargetInfos();
+  llvm::InitializeAllTargets();
+  llvm::InitializeAllTargetMCs();
+  llvm::InitializeAllAsmParsers();
+  llvm::InitializeAllAsmPrinters();
+
+  auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+  TheModule->setTargetTriple(TargetTriple);
+
+  std::string Error;
+  auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+
+  // Print an error and exit if we couldn't find the requested target.
+  // This generally occurs if we've forgotten to initialise the
+  // TargetRegistry or we have a bogus target triple.
+  if (!Target) {
+    llvm::errs() << Error;
+    exit(1);
+  }
+
+  auto CPU = "generic";
+  auto Features = "";
+
+  llvm::TargetOptions opt;
+  auto RM = llvm::Optional<llvm::Reloc::Model>();
+  auto TheTargetMachine =
+      Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+
+  TheModule->setDataLayout(TheTargetMachine->createDataLayout());
+
+  std::error_code EC;
+  llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
+
+  if (EC) {
+    llvm::errs() << "Could not open file: " << EC.message();
+    exit(1);
+  }
+
+  llvm::legacy::PassManager pass;
+  auto FileType = llvm::CGFT_ObjectFile;
+
+  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+    llvm::errs() << "TheTargetMachine can't emit a file of this type";
+    exit(1);
+  }
+
+  pass.run(*TheModule);
+  dest.flush();
+
+  llvm::outs() << "Wrote " << OUTPUT_FILE << "\n";
+
+  exit(0);
+  */
+
+  llvm::outs() << "Not implemented yet."
+               << "\n";
 }

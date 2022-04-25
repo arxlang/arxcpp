@@ -3,14 +3,17 @@ channels:
 - nodefaults
 - conda-forge
 dependencies:
-- arrow-cpp 7.*
+# build
 - compilers
 - compiler-rt
-- clangdev 13.0.1
-- clangxx 13.0.1
+- clangdev 13.*
+- clangxx 13.*
 - cmake
-- llvmdev 13.0.1
+- llvmdev 13.*
 - ninja
+# run
+- arrow-cpp 7.*
+- cli11
 # dev
 - pre-commit
 - nodejs

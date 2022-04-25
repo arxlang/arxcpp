@@ -9,6 +9,8 @@
 
 #include "llvm/Support/raw_ostream.h"
 
+extern std::string ARX_VERSION;
+
 const int BUFFER_SIZE = 10000;
 
 auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
@@ -28,4 +30,9 @@ void IOSource::update_buffer(char* buffer) {
   }
 
   strncpy(IOSource::buffer, buffer, std::strlen(buffer));
+}
+
+auto show_version(int count) -> void {
+  std::cout << "arx version: " << ARX_VERSION << std::endl;
+  exit(0);
 }
