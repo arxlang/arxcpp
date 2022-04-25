@@ -79,11 +79,21 @@ test-sanity:
 	cd build/tests
 	ctest --verbose --label-regex sanity
 
-.PHONY: test-samples
-test-samples:
+.PHONY: test-samples-llvm
+test-samples-llvm:
+	./bin/arx --show-llvm < samples/test_fibonacci.arx
+	@python -c "print('=' * 80)"
+	./bin/arx  --show-llvm  < samples/test_sum.arx
+
+.PHONY: test-samples-gen-object
+test-samples-gen-object:
 	./bin/arx --output fibonacci < samples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./bin/arx --output sum  < samples/test_sum.arx
+
+
+.PHONY: test-samples
+test-samples: test-samples-llvm test-samples-gen-object
 
 .ONESHELL:
 .PHONY: run-tests

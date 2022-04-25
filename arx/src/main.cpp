@@ -40,10 +40,12 @@ auto main(int argc, const char* argv[]) -> int {
 
   app.add_option("--output", OUTPUT_FILE, "Output file.");
   app.add_flag("--shell", open_shell, "Open Arx Shell.");
-  app.add_flag("--show-ir", show_llvm_ir, "Show LLVM IR.");
+  app.add_flag("--show-llvm", show_llvm, "Show LLVM IR.");
   app.add_flag("--version", show_version, "Show ArxLang version.");
 
   CLI11_PARSE(app, argc, argv);
+
+  open_shell(1);
 
   return 0;
 }
