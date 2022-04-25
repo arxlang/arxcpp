@@ -1,6 +1,13 @@
 Release Notes
 ---
 
+# [1.3.0](https://github.com/arxlang/arx/compare/1.2.0...1.3.0) (2022-04-25)
+
+
+### Features
+
+* **flags:** Add --show-ir flag ([#31](https://github.com/arxlang/arx/issues/31)) ([efeb799](https://github.com/arxlang/arx/commit/efeb799d0ba9c3330f64c0e0e4628ec8b8d469f7))
+
 # [1.2.0](https://github.com/arxlang/arx/compare/1.1.1...1.2.0) (2022-03-27)
 
 
