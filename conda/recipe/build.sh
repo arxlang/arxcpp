@@ -9,6 +9,8 @@ CFLAGS="$(llvm-config --cflags) $CFLAGS"
 CXXFLAGS="$(llvm-config --cxxflags) $CXXFLAGS"
 CPPFLAGS="$(llvm-config --cppflags) $CPPFLAGS"
 
+export CXXFLAGS="`echo $CXXFLAGS | sed 's/-fno-exceptions//'`"
+
 mkdir -p ${SRC_DIR}/build
 cd ${SRC_DIR}/build
 
