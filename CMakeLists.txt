@@ -77,6 +77,8 @@ if(ENABLE_TESTS)
   include(linter)
   include(sanitizers)
 
+  include_what_you_use(-Xiwyu)
+
   clang_tidy(
     --config-file="${PROJECT_PATH}/.clang-tidy"
     ${PROJECT_PATH}/arx/**/*.cpp
@@ -86,7 +88,6 @@ if(ENABLE_TESTS)
     --extra-arg="-I${PROJECT_PATH}/arx/include")
 
   cppcheck()
-  # include_what_you_use()
 
   target_code_coverage(${TARGET_NAME} AUTO EXTERNAL)
   target_code_coverage(${TARGET_TEST_NAME} AUTO EXTERNAL)
