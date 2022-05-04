@@ -1,5 +1,9 @@
-#include <memory>
-#include "llvm/IR/Value.h"
+#include <stdio.h>
+
+// #include <llvm/IR/Value.h>
+namespace llvm {
+class Value;
+}
 
 auto LogErrorV(const char* Str) -> llvm::Value* {
   fprintf(stderr, "Error: %s\n", Str);

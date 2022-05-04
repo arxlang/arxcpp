@@ -1,13 +1,11 @@
-#include "utils.h"
-
-#include <glog/logging.h>
-
-#include <cstddef>
-#include <cstdio>
+#include <stdlib.h>
+#include <cstring>
 #include <iostream>
 #include <string>
 
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/raw_ostream.h>
+
+#include "utils.h"
 
 extern std::string ARX_VERSION;
 

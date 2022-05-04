@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo ${1} >> /tmp/count.log
+
 set -x
 
 PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
@@ -22,8 +24,10 @@ include-what-you-use \
 
 if [ -s ${IWYU_PATCH_FILEPATH} ]
 then
-     # cat ${IWYU_PATCH_FILEPATH} | grep -v error > ${IWYU_PATCH_FILEPATH}
-     fix_includes.py < ${IWYU_PATCH_FILEPATH}
-     # rm ${IWYU_PATCH_FILEPATH}
-     exit 1
+     # fix_includes.py < ${IWYU_PATCH_FILEPATH}
+     grep --count --max-count 1 "The full include-list for" ${IWYU_PATCH_FILEPATH} | grep 0
+     EXIT_CODE=$?
+     cat ${IWYU_PATCH_FILEPATH}
+     rm ${IWYU_PATCH_FILEPATH}
+     exit ${EXIT_CODE}
 fi

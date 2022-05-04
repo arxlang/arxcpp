@@ -1,6 +1,6 @@
-#include <iostream>
-
-#include <glog/logging.h>
+#include <ctype.h>
+#include <string.h>
+#include <algorithm>
 
 #include "error.h"
 #include "lexer.h"

@@ -1,6 +1,8 @@
-#include "settings.h"
-#include "parser.h"
+#include <map>
 
+#include "settings.h"
+
+// BinopPrecedence from "parser.h"
 extern std::map<char, int> BinopPrecedence;
 
 void load_settings() {

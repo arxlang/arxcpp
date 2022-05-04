@@ -1,10 +1,9 @@
-#include <iostream>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 
-#include <glog/logging.h>
-
 #include "lexer.h"
-#include "utils.h"
 
 extern getchar_ptr GETCHAR;
 
