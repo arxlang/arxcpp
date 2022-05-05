@@ -76,9 +76,6 @@ if(ENABLE_TESTS)
   include(linter)
   include(sanitizers)
 
-  set(CXX_STD_INCLUDE
-      "$ENV{CONDA_PREFIX}/x86_64-conda-linux-gnu/include/c++/10.3.0")
-
   clang_tidy(
     --config-file="${PROJECT_PATH}/.clang-tidy"
     ${PROJECT_PATH}/arx/**/*.cpp
