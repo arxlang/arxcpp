@@ -4,12 +4,16 @@ set -x
 
 PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 
+. ${PROJECT_PATH}/scripts/get_version.sh
+
 IWYU_PATCH_DIR=/tmp/iwyu
 mkdir -p ${IWYU_PATCH_DIR}
 
 IWYU_PATCH_FILEPATH=${IWYU_PATCH_DIR}/iwyu.patch
 touch ${IWYU_PATCH_FILEPATH}
 EXIT_CODE=0
+
+GCC_INCLUDE_PATH=${CONDA_PREFIX}/x86_64-conda-linux-gnu/include/c++/$(get_gcc_version)
 
 for FILEPATH in "$@"
 do
@@ -20,8 +24,9 @@ do
     --verbose=0 \
     -I${CONDA_PREFIX}/include \
     -I${PROJECT_PATH}/arx/include \
-    -I${CONDA_PREFIX}/x86_64-conda-linux-gnu/include/c++/10.3.0 \
-    -I${CONDA_PREFIX}/x86_64-conda-linux-gnu/include/c++/10.3.0/x86_64-conda-linux-gnu \
+    -I${GCC_INCLUDE_PATH} \
+    -I${GCC_INCLUDE_PATH}/x86_64-conda-linux-gnu \
+    -I${CONDA_PREFIX}/lib/clang/$(get_clang_version)/include \
     -std=c++17 \
     ${FILEPATH} 2> ${IWYU_PATCH_FILEPATH}
 

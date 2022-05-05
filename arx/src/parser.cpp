@@ -1,6 +1,11 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "error.h"
 #include "lexer.h"

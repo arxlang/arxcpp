@@ -68,7 +68,6 @@ if(ENABLE_TESTS)
   option(CLANG_TIDY "CLANG_TIDY" ON)
   option(CPPCHECK "CPPCHECK" ON)
   option(CODE_COVERAGE "CODE_COVERAGE" ON)
-  option(IWYU "IWYU" ON)
 
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -79,15 +78,6 @@ if(ENABLE_TESTS)
 
   set(CXX_STD_INCLUDE
       "$ENV{CONDA_PREFIX}/x86_64-conda-linux-gnu/include/c++/10.3.0")
-
-  include_what_you_use(
-    -Xiwyu
-    -I${PROJECT_PATH}/arx/include
-    -I$ENV{CONDA_PREFIX}/include
-    -I${CXX_STD_INCLUDE}
-    -I${CXX_STD_INCLUDE}/x86_64-conda-linux-gnu
-    -std=c++17
-    ${PROJECT_PATH}/arx/src/codegen.cpp)
 
   clang_tidy(
     --config-file="${PROJECT_PATH}/.clang-tidy"
