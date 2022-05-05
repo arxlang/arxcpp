@@ -1,6 +1,6 @@
-#include <ctype.h>
-#include <string.h>
 #include <algorithm>
+#include <cctype>
+#include <cstring>
 
 #include "error.h"
 #include "lexer.h"
