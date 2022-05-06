@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
