@@ -15,12 +15,13 @@ dependencies:
 - arrow-cpp 7.*
 - cli11
 # dev
-- pre-commit
-- nodejs
-- gtest
-- gmock
-- glog
-- lcov
-- cmake-format
+- include-what-you-use >=0.18
 - doxygen
+- cmake-format
 - cppcheck
+- glog
+- gmock
+- gtest
+- lcov
+- nodejs
+- pre-commit

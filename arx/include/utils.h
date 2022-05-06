@@ -1,9 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <string>
-
-#include "llvm/Support/raw_ostream.h"
+// #include "llvm/Support/raw_ostream.h"
+namespace llvm {
+class raw_ostream;
+}
 
 llvm::raw_ostream& indent(llvm::raw_ostream&, int);
 

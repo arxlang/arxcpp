@@ -10,56 +10,69 @@ repos:
 
   - repo: local
     hooks:
-    - id: clang-tidy
-      name: clang-tidy
-      entry: ./scripts/run-clang-tidy.sh
-      language: system
-      exclude: ^$
-      files: arx/src/.*\.cpp
-      pass_filenames: true
-      stages:
-        - commit
-      types_or: [c++, c]
+      # current issue:
+      # https://github.com/include-what-you-use/include-what-you-use/issues/270
+      - id: iwyu
+        name: iwyu
+        entry: ./scripts/iwyu.sh
+        language: system
+        exclude: ^tests\/.*$
+        files: .*\.cpp|.*\.h
+        pass_filenames: true
+        type_or: [c++, c]
+        stages:
+          - commit
 
-    - id: clang-format
-      name: clang-format
-      entry: clang-format --Werror --style=file -i --verbose
-      exclude: ^$
-      files: ""
-      language: system
-      pass_filenames: true
-      stages:
-        - commit
-      types_or: [c++, c]
+      - id: clang-tidy
+        name: clang-tidy
+        entry: ./scripts/run-clang-tidy.sh
+        language: system
+        exclude: ^$
+        files: arx/src/.*\.cpp
+        pass_filenames: true
+        stages:
+          - commit
+        types_or: [c++, c]
 
-    - id: cppcheck
-      name: cppcheck
-      entry: "cppcheck --std=c++17 arx/"
-      language: system
-      pass_filenames: false
-      stages:
-        - commit
-      types_or: [c++, c]
+      - id: clang-format
+        name: clang-format
+        entry: clang-format --Werror --style=file -i --verbose
+        exclude: ^$
+        files: ""
+        language: system
+        pass_filenames: true
+        stages:
+          - commit
+        types_or: [c++, c]
 
-    - entry: cmake-format
-      id: cmake-format
-      name: cmake-format
-      language: system
-      exclude: ^$
-      files: (\.cmake|CMakeLists.txt)(.in)?$
-      pass_filenames: true
-      stages:
-        - commit
-      types: [file]
-      args: ["-i"]
+      - id: cppcheck
+        name: cppcheck
+        entry: "cppcheck --std=c++17 arx/"
+        language: system
+        pass_filenames: false
+        stages:
+          - commit
+        types_or: [c++, c]
 
-    - entry: cmake-lint
-      id: cmake-lint
-      name: cmake-lint
-      language: system
-      exclude: ^$
-      files: (CMakeLists.txt)(.in)?$
-      pass_filenames: true
-      stages:
-        - commit
-      types: [file]
+      - id: cmake-format
+        name: cmake-format
+        entry: cmake-format
+        language: system
+        exclude: ^$
+        files: (\.cmake|CMakeLists.txt)(.in)?$
+        pass_filenames: true
+        stages:
+          - commit
+        types: [file]
+        args: ["-i"]
+
+      - id: cmake-lint
+        name: cmake-lint
+        entry: cmake-lint
+        language: system
+        exclude: ^$
+        files: (CMakeLists.txt)(.in)?$
+        pass_filenames: true
+        stages:
+          - commit
+        types: [file]

@@ -68,7 +68,6 @@ if(ENABLE_TESTS)
   option(CLANG_TIDY "CLANG_TIDY" ON)
   option(CPPCHECK "CPPCHECK" ON)
   option(CODE_COVERAGE "CODE_COVERAGE" ON)
-  # option(IWYU "IWYU" ON)
 
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -86,7 +85,6 @@ if(ENABLE_TESTS)
     --extra-arg="-I${PROJECT_PATH}/arx/include")
 
   cppcheck()
-  # include_what_you_use()
 
   target_code_coverage(${TARGET_NAME} AUTO EXTERNAL)
   target_code_coverage(${TARGET_TEST_NAME} AUTO EXTERNAL)
