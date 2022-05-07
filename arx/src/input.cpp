@@ -10,7 +10,7 @@ auto get_char() -> int {
 }
 
 auto file_to_buffer(std::string filename) -> void {
-  std::ifstream arxfile("");
+  std::ifstream arxfile(filename);
   std::string line;
 
   input_buffer.clear();
