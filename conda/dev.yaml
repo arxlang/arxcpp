@@ -6,10 +6,10 @@ dependencies:
 # build
 - compilers
 - compiler-rt
-- clangdev 13.*
-- clangxx 13.*
+- clangdev 14.*
+- clangxx 14.*
 - cmake
-- llvmdev 13.*
+- llvmdev 14.*
 - ninja
 # run
 - arrow-cpp 7.*

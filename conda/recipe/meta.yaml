@@ -1,6 +1,6 @@
 {% set name = "arx" %}
 {% set version = "1.3.0" %}  # semantic-release
-{% set llvm_version = "13.*" %}
+{% set llvm_version = "14.*" %}
 
 package:
   name: {{ name|lower }}
