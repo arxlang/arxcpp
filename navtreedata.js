@@ -26,17 +26,18 @@ var NAVTREE =
 [
   [ "ArxLang", "index.html", [
     [ "Release Notes", "md_CHANGELOG.html", [
-      [ "<a href=\"https://github.com/arxlang/arx/compare/1.1.1...1.2.0\" >1.2.0</a> (2022-03-27)", "md_CHANGELOG.html#autotoc_md0", [
-        [ "<a href=\"https://github.com/arx-org/arx/compare/1.1.0...1.1.1\" >1.1.1</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md2", [
-          [ "Features", "md_CHANGELOG.html#autotoc_md1", null ],
-          [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md3", null ]
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.2.0...1.3.0\" >1.3.0</a> (2022-04-25)", "md_CHANGELOG.html#autotoc_md0", null ],
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.1.1...1.2.0\" >1.2.0</a> (2022-03-27)", "md_CHANGELOG.html#autotoc_md2", [
+        [ "<a href=\"https://github.com/arx-org/arx/compare/1.1.0...1.1.1\" >1.1.1</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md4", [
+          [ "Features", "md_CHANGELOG.html#autotoc_md3", null ],
+          [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md5", null ]
         ] ]
       ] ],
-      [ "<a href=\"https://github.com/arx-org/arx/compare/1.0.0...1.1.0\" >1.1.0</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md4", null ]
+      [ "<a href=\"https://github.com/arx-org/arx/compare/1.0.0...1.1.0\" >1.1.0</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md6", null ]
     ] ],
     [ "Arx compiler", "md_README.html", [
-      [ "Building", "md_README.html#autotoc_md7", [
-        [ "ROADMAP", "md_README.html#autotoc_md8", null ]
+      [ "Building", "md_README.html#autotoc_md9", [
+        [ "ROADMAP", "md_README.html#autotoc_md10", null ]
       ] ]
     ] ]
   ] ]
