@@ -1,7 +1,12 @@
 #pragma once
 
+#include <stdio.h>
 #include <memory>
-#include "llvm/IR/Value.h"
+
+// "llvm/IR/Value.h"
+namespace llvm {
+class Value;
+}
 
 /// LogError* - These are little helper functions for error handling.
 template <typename T>
