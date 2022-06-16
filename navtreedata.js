@@ -35,9 +35,23 @@ var NAVTREE =
       ] ],
       [ "<a href=\"https://github.com/arx-org/arx/compare/1.0.0...1.1.0\" >1.1.0</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md6", null ]
     ] ],
+    [ "Contributor Covenant Code of Conduct", "md_CODE_OF_CONDUCT.html", [
+      [ "Our Pledge", "md_CODE_OF_CONDUCT.html#autotoc_md9", null ],
+      [ "Our Standards", "md_CODE_OF_CONDUCT.html#autotoc_md10", null ],
+      [ "Enforcement Responsibilities", "md_CODE_OF_CONDUCT.html#autotoc_md11", null ],
+      [ "Scope", "md_CODE_OF_CONDUCT.html#autotoc_md12", null ],
+      [ "Enforcement", "md_CODE_OF_CONDUCT.html#autotoc_md13", null ],
+      [ "Enforcement Guidelines", "md_CODE_OF_CONDUCT.html#autotoc_md14", [
+        [ "1. Correction", "md_CODE_OF_CONDUCT.html#autotoc_md15", null ],
+        [ "2. Warning", "md_CODE_OF_CONDUCT.html#autotoc_md16", null ],
+        [ "3. Temporary Ban", "md_CODE_OF_CONDUCT.html#autotoc_md17", null ],
+        [ "4. Permanent Ban", "md_CODE_OF_CONDUCT.html#autotoc_md18", null ]
+      ] ],
+      [ "Attribution", "md_CODE_OF_CONDUCT.html#autotoc_md19", null ]
+    ] ],
     [ "Arx compiler", "md_README.html", [
-      [ "Building", "md_README.html#autotoc_md9", [
-        [ "ROADMAP", "md_README.html#autotoc_md10", null ]
+      [ "Building", "md_README.html#autotoc_md21", [
+        [ "ROADMAP", "md_README.html#autotoc_md22", null ]
       ] ]
     ] ]
   ] ]
