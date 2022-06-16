@@ -39,9 +39,13 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # Now build our tools
 set(ARX_LIB_SOURCES
-    ${PROJECT_PATH}/arx/src/lexer.cpp ${PROJECT_PATH}/arx/src/parser.cpp
-    ${PROJECT_PATH}/arx/src/error.cpp ${PROJECT_PATH}/arx/src/codegen.cpp
-    ${PROJECT_PATH}/arx/src/settings.cpp ${PROJECT_PATH}/arx/src/utils.cpp)
+    ${PROJECT_PATH}/arx/src/input.cpp
+    ${PROJECT_PATH}/arx/src/lexer.cpp
+    ${PROJECT_PATH}/arx/src/parser.cpp
+    ${PROJECT_PATH}/arx/src/error.cpp
+    ${PROJECT_PATH}/arx/src/codegen.cpp
+    ${PROJECT_PATH}/arx/src/settings.cpp
+    ${PROJECT_PATH}/arx/src/utils.cpp)
 
 set(ARX_SOURCES ${PROJECT_PATH}/arx/src/main.cpp ${ARX_LIB_SOURCES})
 

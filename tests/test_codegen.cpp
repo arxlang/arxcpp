@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include "../arx/include/codegen.h"
+#include "../arx/include/input.h"
 
 // Check show llvm
 TEST(CodeGenTest, ShowLLVM) {
-  IOSource::update_buffer((char*)R""""(
+  string_to_buffer((char*)R""""(
   function add_one(a):
     a + 1
 
@@ -15,7 +16,7 @@ TEST(CodeGenTest, ShowLLVM) {
 
 // Check object generation
 TEST(CodeGenTest, ObjectGeneration) {
-  IOSource::update_buffer((char*)R""""(
+  string_to_buffer((char*)R""""(
   function add_one(a):
     a + 1
 

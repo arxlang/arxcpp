@@ -16,8 +16,8 @@ CMAKE_BUILD_TYPE=release
 DOCKER=docker-compose --file docker/docker-compose.yaml
 
 
-.PHONY: clean
-clean:
+.PHONY: clean-optional
+clean-optional:
 	bash ./scripts/optclean.sh
 	mkdir -p build
 
@@ -25,14 +25,14 @@ clean:
 # `llvm-config --cxxflags --ldflags --system-libs --libs core`
 # `bash scripts/getflags.sh`
 .PHONY: build
-build: clean
+build: clean-optional
 	FLAGS=`scripts/getflags.sh` \
 	&& echo $$FLAGS \
 	&& ${COMPILER} $$FLAGS src/arx.cpp -o ../build/arxc
 
 
 .PHONY: build-ast
-build-ast: clean
+build-ast: clean-optional
 	FLAGS=`scripts/getflags.sh` \
 	&& echo $$FLAGS \
 	&& ${COMPILER} $$FLAGS -O3 -Xclang -disable-llvm-passes \
@@ -43,7 +43,7 @@ build-ast: clean
 
 .ONESHELL:
 .PHONY: cmake-build
-cmake-build: clean
+cmake-build: clean-optional
 	mkdir -p $(ROOT_DIR)/bin
 	cd $(ROOT_DIR)/build
 	cmake \
@@ -58,6 +58,7 @@ cmake-build: clean
 		${CMAKE_EXTRA_FLAGS} \
 		..
 	cmake --build .
+
 
 .PHONY: cmake-build-with-tests
 cmake-build-with-tests:

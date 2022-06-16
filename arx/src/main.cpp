@@ -23,13 +23,6 @@
 #include "lexer.h"
 #include "utils.h"
 
-auto sys_getchar() -> char {
-  return getchar();
-}
-
-// declared by lexer.h
-getchar_ptr arx_getchar = &sys_getchar;
-
 std::string ARX_VERSION = "1.3.0";  // semantic-release
 std::string OUTPUT_FILE{"output.o"};
 
