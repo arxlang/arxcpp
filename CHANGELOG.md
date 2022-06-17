@@ -1,6 +1,13 @@
 Release Notes
 ---
 
+# [1.4.0](https://github.com/arxlang/arx/compare/1.3.0...1.4.0) (2022-06-17)
+
+
+### Features
+
+* **code-gen:** Add code generation default option ([#32](https://github.com/arxlang/arx/issues/32)) ([09063c2](https://github.com/arxlang/arx/commit/09063c2d39c158866fbfc05c7784cf8159862dac))
+
 # [1.3.0](https://github.com/arxlang/arx/compare/1.2.0...1.3.0) (2022-04-25)
 
 

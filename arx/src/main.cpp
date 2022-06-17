@@ -23,7 +23,7 @@
 #include "lexer.h"
 #include "utils.h"
 
-std::string ARX_VERSION = "1.3.0";  // semantic-release
+std::string ARX_VERSION = "1.4.0";  // semantic-release
 std::string OUTPUT_FILE{"output.o"};
 
 auto main(int argc, const char* argv[]) -> int {
