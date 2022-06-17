@@ -80,17 +80,23 @@ test-sanity:
 	cd build/tests
 	ctest --verbose --label-regex sanity
 
+.ONESHELL:
 .PHONY: test-samples-llvm
 test-samples-llvm:
+	set -e
 	./bin/arx --show-llvm < samples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./bin/arx  --show-llvm  < samples/test_sum.arx
 
+.ONESHELL:
 .PHONY: test-samples-gen-object
 test-samples-gen-object:
+	set -e
 	./bin/arx --output fibonacci < samples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./bin/arx --output sum  < samples/test_sum.arx
+	rm -f fibonacci
+	rm -f sum
 
 
 .PHONY: test-samples
@@ -110,7 +116,7 @@ run-test-opt:
 # CONDA
 .ONESHELL:
 .PHONY: conda-build
-conda-build: clean
+conda-build: clean-optional
 	cd conda/recipe
 	conda build purge
 	conda mambabuild .
