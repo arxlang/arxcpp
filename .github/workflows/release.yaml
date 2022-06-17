@@ -1,0 +1,67 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  main:
+
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: true
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules: recursive
+
+
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: 3.9
+        mamba-version: "*"
+        channels: conda-forge,nodefaults
+        channel-priority: true
+        activate-environment: arx
+        environment-file: conda/release.yaml
+
+    - name: build using cmake
+      run: make cmake-build
+
+    - name: Generate documentation
+      run: |
+        doxygen Doxyfile
+        echo "arxlang.org" > ./build/docs/html/CNAME
+
+    # Push the documentation to github-pages
+    - name: GitHub Pages action
+      uses: peaceiris/actions-gh-pages@v3.5.9
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/docs/html
+
+    # note: this step must be always executed after all tests and checks
+    - name: Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        npx --yes \
+          -p semantic-release \
+          -p "@semantic-release/commit-analyzer" \
+          -p "@semantic-release/release-notes-generator" \
+          -p "@semantic-release/changelog" \
+          -p "@semantic-release/exec" \
+          -p "@semantic-release/github" \
+          -p "@semantic-release/git" \
+          -p "@google/semantic-release-replace-plugin" \
+          semantic-release --ci
