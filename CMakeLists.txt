@@ -11,6 +11,8 @@ project(${TARGET_NAME})
 include(c++-standards)
 cxx_17()
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+
 set(PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_PATH}/bin)
 message(STATUS "PROJECT_PATH: ${PROJECT_PATH}")
@@ -20,6 +22,7 @@ find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "LLVM_TARGETS_TO_BUILD: ${LLVM_TARGETS_TO_BUILD}")
 
 find_package(glog REQUIRED)
 message(STATUS "Found glog ${glog_VERSION}")
@@ -36,9 +39,13 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 
 # Now build our tools
 set(ARX_LIB_SOURCES
-    ${PROJECT_PATH}/arx/src/lexer.cpp ${PROJECT_PATH}/arx/src/parser.cpp
-    ${PROJECT_PATH}/arx/src/error.cpp ${PROJECT_PATH}/arx/src/codegen.cpp
-    ${PROJECT_PATH}/arx/src/settings.cpp ${PROJECT_PATH}/arx/src/utils.cpp)
+    ${PROJECT_PATH}/arx/src/input.cpp
+    ${PROJECT_PATH}/arx/src/lexer.cpp
+    ${PROJECT_PATH}/arx/src/parser.cpp
+    ${PROJECT_PATH}/arx/src/error.cpp
+    ${PROJECT_PATH}/arx/src/codegen.cpp
+    ${PROJECT_PATH}/arx/src/settings.cpp
+    ${PROJECT_PATH}/arx/src/utils.cpp)
 
 set(ARX_SOURCES ${PROJECT_PATH}/arx/src/main.cpp ${ARX_LIB_SOURCES})
 
@@ -55,7 +62,8 @@ llvm_map_components_to_libnames(
   native
   object
   executionengine
-  all)
+  all
+  ${LLVM_TARGETS_TO_BUILD})
 
 option(ENABLE_TESTS "Build unit tests" OFF)
 if(ENABLE_TESTS)

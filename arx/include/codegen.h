@@ -49,5 +49,5 @@ extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
 extern std::unique_ptr<llvm::DIBuilder> DBuilder;
 
-void show_llvm_ir(int);
-void open_shell(int);
+auto show_llvm(int) -> void;
+auto open_shell(int) -> void;

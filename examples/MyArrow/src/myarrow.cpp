@@ -1,15 +1,18 @@
 // example from
 // https://github.com/apache/arrow/blob/master/cpp/examples/minimal_build/example.cc
 
-#include <iostream>
-
-#include <arrow/csv/api.h>
-#include <arrow/io/api.h>
-#include <arrow/ipc/api.h>
-#include <arrow/pretty_print.h>
-#include <arrow/result.h>
-#include <arrow/status.h>
-#include <arrow/table.h>
+#include <arrow/csv/options.h>          // for ConvertOptions, ParseOptions
+#include <arrow/csv/reader.h>           // for TableReader
+#include <arrow/io/file.h>              // for FileOutputStream, ReadableFile
+#include <arrow/io/type_fwd.h>          // for default_io_context
+#include <arrow/ipc/writer.h>           // for MakeFileWriter, RecordBatchWr...
+#include <arrow/pretty_print.h>         // for PrettyPrint
+#include <arrow/result.h>               // for ARROW_ASSIGN_OR_RAISE
+#include <arrow/status.h>               // for Status, ARROW_RETURN_NOT_OK
+#include <arrow/table.h>                // for Table
+#include <arrow/util/string_builder.h>  // for operator<<
+#include <iostream>                     // for operator<<, endl, basic_ostream
+#include <memory>                       // for __shared_ptr_access, shared_ptr
 
 using arrow::Status;
 

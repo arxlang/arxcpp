@@ -25,7 +25,8 @@ cmake \
 cmake --build .
 cmake --install . -v
 
-mkdir -p ${PREFIX}/bin/
 chmod +x ${PREFIX}/bin/arx
+
+ctest
 
 set +x

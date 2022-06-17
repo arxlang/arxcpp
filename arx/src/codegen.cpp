@@ -1,6 +1,3 @@
-#include <cstdio>
-#include <cstring>
-
 // note: arrow will not be used yet
 // #include <arrow/api.h>
 // #include <arrow/csv/api.h>
@@ -11,12 +8,21 @@
 // #include <arrow/status.h>
 // #include <arrow/table.h>
 
+#include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
+#include <system_error>
+#include <utility>
 #include <vector>
+
+#include <glog/logging.h>
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/Optional.h>
@@ -26,6 +32,7 @@
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DataLayout.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
@@ -54,6 +61,7 @@
 extern std::map<char, int> BinopPrecedence;
 extern int CurTok;
 extern std::string OUTPUT_FILE;
+extern std::string ARX_VERSION;
 
 //===----------------------------------------------------------------------===//
 // Code Generation Globals
@@ -561,7 +569,7 @@ llvm::Function* FunctionAST::codegen() {
 // Top-Level parsing and JIT Driver
 //===----------------------------------------------------------------------===//
 
-void InitializeModule() {
+auto InitializeModule() -> void {
   // Open a new module.
   TheContext = std::make_unique<llvm::LLVMContext>();
   TheModule = std::make_unique<llvm::Module>("arx-module", *TheContext);
@@ -570,7 +578,16 @@ void InitializeModule() {
   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
-void HandleDefinition() {
+auto InitializeModuleAndPassManager() -> void {
+  // Open a new module.
+  TheContext = std::make_unique<llvm::LLVMContext>();
+  TheModule = std::make_unique<llvm::Module>("arx jit", *TheContext);
+
+  // Create a new builder for the module.
+  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+}
+
+auto HandleDefinition() -> void {
   if (auto FnAST = ParseDefinition()) {
     if (!FnAST->codegen())
       fprintf(stderr, "Error reading function definition:");
@@ -580,7 +597,7 @@ void HandleDefinition() {
   }
 }
 
-void HandleExtern() {
+auto HandleExtern() -> void {
   if (auto ProtoAST = ParseExtern()) {
     if (!ProtoAST->codegen())
       fprintf(stderr, "Error reading extern");
@@ -592,7 +609,7 @@ void HandleExtern() {
   }
 }
 
-void HandleTopLevelExpression() {
+auto HandleTopLevelExpression() -> void {
   // Evaluate a top-level expression into an anonymous function.
   if (auto FnAST = ParseTopLevelExpr()) {
     if (!FnAST->codegen()) {
@@ -605,7 +622,7 @@ void HandleTopLevelExpression() {
 }
 
 /// top ::= definition | external | expression | ';'
-void MainLoop() {
+auto MainLoop() -> void {
   while (true) {
     switch (CurTok) {
       case tok_eof:
@@ -648,16 +665,7 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
   return 0;
 }
 
-void InitializeModuleAndPassManager() {
-  // Open a new module.
-  TheContext = std::make_unique<llvm::LLVMContext>();
-  TheModule = std::make_unique<llvm::Module>("my cool jit", *TheContext);
-
-  // Create a new builder for the module.
-  Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
-}
-
-auto show_llvm_ir(int count) -> void {
+auto show_llvm(int count) -> void {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -707,17 +715,22 @@ auto show_llvm_ir(int count) -> void {
 }
 
 auto open_shell(int count) -> void {
-  /*
   load_settings();
 
   // Prime the first token.
-  fprintf(stderr, "ready> ");
+  fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
+  fprintf(stderr, ">>> ");
+
   getNextToken();
 
   InitializeModuleAndPassManager();
 
   // Run the main "interpreter loop" now.
+  LOG(INFO) << "Starting MainLoop";
+
   MainLoop();
+
+  LOG(INFO) << "Initialize Target";
 
   // Initialize the target registry etc.
   llvm::InitializeAllTargetInfos();
@@ -725,6 +738,8 @@ auto open_shell(int count) -> void {
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
+
+  LOG(INFO) << "TargetTriple";
 
   auto TargetTriple = llvm::sys::getDefaultTargetTriple();
   TheModule->setTargetTriple(TargetTriple);
@@ -743,13 +758,20 @@ auto open_shell(int count) -> void {
   auto CPU = "generic";
   auto Features = "";
 
+  LOG(INFO) << "Target Options";
+
   llvm::TargetOptions opt;
   auto RM = llvm::Optional<llvm::Reloc::Model>();
+
+  LOG(INFO) << "Target Matchine";
   auto TheTargetMachine =
       Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
 
+  LOG(INFO) << "Set Data Layout";
+
   TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
+  LOG(INFO) << "dest output";
   std::error_code EC;
   llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
 
@@ -772,8 +794,4 @@ auto open_shell(int count) -> void {
   llvm::outs() << "Wrote " << OUTPUT_FILE << "\n";
 
   exit(0);
-  */
-
-  llvm::outs() << "Not implemented yet."
-               << "\n";
 }

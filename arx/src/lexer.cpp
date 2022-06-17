@@ -1,11 +1,13 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#include <iosfwd>  // for stringstream
 #include <string>
 
+#include "input.h"
 #include "lexer.h"
 
-extern getchar_ptr GETCHAR;
+std::stringstream buffer;
 
 SourceLocation CurLoc;
 SourceLocation LexLoc;
@@ -57,7 +59,7 @@ static auto is_identifier_char(char c) -> bool {
 }
 
 static auto advance() -> int {
-  int LastChar = arx_getchar();
+  int LastChar = get_char();
 
   if (LastChar == '\n' || LastChar == '\r') {
     LexLoc.Line++;

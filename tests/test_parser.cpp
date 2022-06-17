@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
+#include "../arx/include/input.h"
 #include "../arx/include/lexer.h"
 #include "../arx/include/parser.h"
 #include "../arx/include/settings.h"
@@ -13,7 +14,7 @@ extern SourceLocation CurLoc;
 
 TEST(ParserTest, GetNextTokenTest) {
   /* Test gettok for main tokens */
-  IOSource::update_buffer((char*)R""""(
+  string_to_buffer((char*)R""""(
   function math(x):
     if x > 10:
       x + 1
@@ -87,7 +88,7 @@ TEST(ParserTest, ParseNumberExprTest) {
   /* Test gettok for main tokens */
   std::unique_ptr<NumberExprAST> expr;
 
-  IOSource::update_buffer((char*)"1");
+  string_to_buffer((char*)"1");
 
   getNextToken();  // update CurTok
   expr = ParseNumberExpr();
@@ -96,7 +97,7 @@ TEST(ParserTest, ParseNumberExprTest) {
 
   expr.reset();
 
-  IOSource::update_buffer((char*)"3");
+  string_to_buffer((char*)"3");
 
   getNextToken();  // update CurTok
   // note: investigate why it is necessary to run it twice
@@ -108,7 +109,7 @@ TEST(ParserTest, ParseNumberExprTest) {
 
 TEST(ParserTest, ParseIfExprTest) {
   /* Test gettok for main tokens */
-  IOSource::update_buffer((char*)R""""(
+  string_to_buffer((char*)R""""(
   if 1 > 2:
     a = 1
   else:

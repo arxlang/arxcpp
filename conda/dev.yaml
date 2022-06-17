@@ -10,16 +10,17 @@ dependencies:
 - clangxx 13.*
 - cmake
 - llvmdev 13.*
+- lld 13.*
 - ninja
 # run
 - arrow-cpp 7.*
 - cli11
+- glog
 # dev
 - include-what-you-use >=0.18
-- doxygen
 - cmake-format
 - cppcheck
-- glog
+- doxygen
 - gmock
 - gtest
 - lcov

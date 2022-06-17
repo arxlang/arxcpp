@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include "../arx/include/input.h"
 #include "../arx/include/lexer.h"
 #include "../arx/include/utils.h"
 
@@ -18,7 +19,7 @@ TEST(LexerTest, TokenNameTest) {
 
 TEST(LexerTest, GetTokTest) {
   /* Test gettok for main tokens */
-  IOSource::update_buffer((char*)R""""(
+  string_to_buffer((char*)R""""(
   function math(x):
     if x > 10:
       x + 1

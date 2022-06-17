@@ -46,6 +46,3 @@ extern double NumVal;              // Filled in if tok_number
 
 extern int CurTok;
 extern int getNextToken();
-
-typedef char (*getchar_ptr)();
-extern getchar_ptr arx_getchar;
