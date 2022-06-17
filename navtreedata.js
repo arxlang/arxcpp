@@ -49,9 +49,23 @@ var NAVTREE =
       ] ],
       [ "Attribution", "md_CODE_OF_CONDUCT.html#autotoc_md19", null ]
     ] ],
+    [ "Contributing", "md_CONTRIBUTING.html", [
+      [ "Types of Contributions", "md_CONTRIBUTING.html#autotoc_md21", [
+        [ "Report Bugs", "md_CONTRIBUTING.html#autotoc_md22", null ],
+        [ "Fix Bugs", "md_CONTRIBUTING.html#autotoc_md23", null ],
+        [ "Implement Features", "md_CONTRIBUTING.html#autotoc_md24", null ],
+        [ "Write Documentation", "md_CONTRIBUTING.html#autotoc_md25", null ],
+        [ "Submit Feedback", "md_CONTRIBUTING.html#autotoc_md26", null ]
+      ] ],
+      [ "Get Started!", "md_CONTRIBUTING.html#autotoc_md27", null ],
+      [ "Pull Request Guidelines", "md_CONTRIBUTING.html#autotoc_md28", null ],
+      [ "Release", "md_CONTRIBUTING.html#autotoc_md29", [
+        [ "Commit message format", "md_CONTRIBUTING.html#autotoc_md30", null ]
+      ] ]
+    ] ],
     [ "Arx compiler", "md_README.html", [
-      [ "Building", "md_README.html#autotoc_md21", [
-        [ "ROADMAP", "md_README.html#autotoc_md22", null ]
+      [ "Building", "md_README.html#autotoc_md32", [
+        [ "ROADMAP", "md_README.html#autotoc_md33", null ]
       ] ]
     ] ]
   ] ]
