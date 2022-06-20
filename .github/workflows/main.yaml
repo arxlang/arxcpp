@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: ci-${{ github.ref }}
+      group: ci-main-${{ github.ref }}
       cancel-in-progress: true
 
     defaults:
