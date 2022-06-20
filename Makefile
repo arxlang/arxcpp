@@ -44,7 +44,7 @@ build-ast: clean-optional
 .ONESHELL:
 .PHONY: cmake-build
 cmake-build: clean-optional
-	mkdir -p $(ROOT_DIR)/bin
+	mkdir -p $(ROOT_DIR)/build/bin
 	cd $(ROOT_DIR)/build
 	cmake \
 		-GNinja \
@@ -81,30 +81,30 @@ test-sanity:
 	ctest --verbose --label-regex sanity
 
 .ONESHELL:
-.PHONY: test-samples-llvm
-test-samples-llvm:
+.PHONY: test-examples-llvm
+test-examples-llvm:
 	set -e
-	./bin/arx --show-llvm < samples/test_fibonacci.arx
+	./build/bin/arx --show-llvm < examples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
-	./bin/arx  --show-llvm  < samples/test_sum.arx
+	./build/bin/arx  --show-llvm  < examples/test_sum.arx
 
 .ONESHELL:
-.PHONY: test-samples-gen-object
-test-samples-gen-object:
+.PHONY: test-examples-gen-object
+test-examples-gen-object:
 	set -e
-	./bin/arx --output fibonacci < samples/test_fibonacci.arx
+	./build/bin/arx --output fibonacci < examples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
-	./bin/arx --output sum  < samples/test_sum.arx
+	./build/bin/arx --output sum  < examples/test_sum.arx
 	rm -f fibonacci
 	rm -f sum
 
 
-.PHONY: test-samples
-test-samples: test-samples-llvm test-samples-gen-object
+.PHONY: test-examples
+test-examples: test-examples-llvm test-examples-gen-object
 
 .ONESHELL:
 .PHONY: run-tests
-run-tests: test-sanity test-samples
+run-tests: test-sanity test-examples
 
 
 .PHONY: run-test-opt

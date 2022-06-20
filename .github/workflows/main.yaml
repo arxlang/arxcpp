@@ -48,8 +48,8 @@ jobs:
     - name: run sanity tests
       run: make test-sanity
 
-    - name: test samples
-      run: make test-samples
+    - name: test examples
+      run: make test-examples
 
     - name: lint
       run: |

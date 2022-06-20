@@ -102,4 +102,4 @@ endif()
 # Link against LLVM libraries
 target_link_libraries(arx CLI11::CLI11 glog::glog ${llvm_libs})
 
-install(TARGETS arx DESTINATION bin)
+install(TARGETS arx DESTINATION build/bin)
