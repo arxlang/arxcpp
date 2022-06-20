@@ -11,7 +11,7 @@ CPPFLAGS="$(llvm-config --cppflags) $CPPFLAGS"
 
 export CXXFLAGS="`echo $CXXFLAGS | sed 's/-fno-exceptions//'`"
 
-mkdir -p ${SRC_DIR}/build
+mkdir -p ${SRC_DIR}/build/bin
 cd ${SRC_DIR}/build
 
 cmake \
