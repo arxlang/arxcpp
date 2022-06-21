@@ -118,5 +118,6 @@ run-test-opt:
 .PHONY: conda-build
 conda-build: clean-optional
 	cd conda/recipe
+	mamba update conda conda-build
 	conda build purge
 	conda mambabuild .
