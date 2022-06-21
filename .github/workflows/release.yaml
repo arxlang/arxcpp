@@ -11,10 +11,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    concurrency:
-      group: ci-${{ github.ref }}
-      cancel-in-progress: true
-
     defaults:
       run:
         shell: bash -l {0}

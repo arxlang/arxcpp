@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+set -ex
 
 CXX=clang++
 CC=clang
@@ -11,7 +11,7 @@ CPPFLAGS="$(llvm-config --cppflags) $CPPFLAGS"
 
 export CXXFLAGS="`echo $CXXFLAGS | sed 's/-fno-exceptions//'`"
 
-mkdir -p ${SRC_DIR}/build
+mkdir -p ${SRC_DIR}/build/bin
 cd ${SRC_DIR}/build
 
 cmake \
@@ -25,8 +25,7 @@ cmake \
 cmake --build .
 cmake --install . -v
 
+mv ${PREFIX}/build/bin/arx ${PREFIX}/bin/arx
 chmod +x ${PREFIX}/bin/arx
 
 ctest
-
-set +x

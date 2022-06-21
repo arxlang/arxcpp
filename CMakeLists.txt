@@ -14,7 +14,7 @@ cxx_17()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
 
 set(PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_PATH}/bin)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_PATH}/build/bin)
 message(STATUS "PROJECT_PATH: ${PROJECT_PATH}")
 message(STATUS "EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH}")
 
@@ -102,4 +102,4 @@ endif()
 # Link against LLVM libraries
 target_link_libraries(arx CLI11::CLI11 glog::glog ${llvm_libs})
 
-install(TARGETS arx DESTINATION bin)
+install(TARGETS arx DESTINATION build/bin)
