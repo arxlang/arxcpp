@@ -1,6 +1,7 @@
 {% set name = "arx" %}
 {% set version = "1.4.0" %}  # semantic-release
 {% set llvm_version = "13.*" %}
+{% set arrow_version = "8.*" %}
 
 package:
   name: {{ name|lower }}
@@ -23,7 +24,8 @@ requirements:
   host:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - arrow-cpp 7.*
+    - arrow-cpp {{ arrow_version }}
+    - arrow-c-glib {{ arrow_version }}
     - cli11
     - clangdev {{ llvm_version }}
     - libclang-cpp {{ llvm_version }}
