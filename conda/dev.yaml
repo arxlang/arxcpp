@@ -13,7 +13,8 @@ dependencies:
 - lld 13.*
 - ninja
 # run
-- arrow-cpp 7.*
+- arrow-cpp 8.*
+- arrow-c-glib
 - cli11
 - glog
 # dev
