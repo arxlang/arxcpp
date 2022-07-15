@@ -1,0 +1,4 @@
+# meson native file
+[binaries]
+c_ld = 'lld'
+cpp_ld = 'lld'

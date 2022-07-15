@@ -9,6 +9,8 @@ CXX=clang++
 CC=clang
 
 # build flags
+BUILD_TYPE:=release
+
 CMAKE_EXTRA_FLAGS=
 CMAKE_BUILD_TYPE=release
 
@@ -71,6 +73,24 @@ cmake-build-with-tests:
 cmake-install: cmake-build
 	cd build
 	cmake --install . --config Release -v
+
+.ONESHELL:
+.PHONY: meson-build
+meson-build: clean-optional
+	set -ex
+	meson setup \
+		--prefix ${CONDA_PREFIX} \
+		--libdir ${CONDA_PREFIX}/lib \
+		--includedir ${CONDA_PREFIX}/include \
+		--buildtype=${BUILD_TYPE} \
+		--native-file meson.native \
+		build .
+	meson compile -C build
+
+.ONESHELL:
+.PHONY: meson-install
+meson-install:
+	meson install -C build
 
 # tests
 

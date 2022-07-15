@@ -13,6 +13,7 @@ jobs:
   main:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     concurrency:
       group: ci-main-${{ github.ref }}
@@ -39,7 +40,7 @@ jobs:
         environment-file: conda/dev.yaml
 
     - name: build using cmake
-      run: make cmake-build-with-tests
+      run: make build-meson
 
     - name: test flags
       run: |

@@ -10,6 +10,7 @@ jobs:
   conda-build:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     concurrency:
       group: ci-build-${{ github.ref }}
