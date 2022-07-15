@@ -1,0 +1,5 @@
+option(
+  'tests',
+  type : 'feature',
+  value : 'enabled',
+  description : 'Use this option to build with tests.')

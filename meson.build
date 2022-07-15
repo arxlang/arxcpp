@@ -18,9 +18,7 @@ deps = [
 
 inc = include_directories('arx/include')
 
-exe = executable(
-  'arx',
-  'arx/src/main.cpp',
+sources = [
   'arx/src/input.cpp',
   'arx/src/lexer.cpp',
   'arx/src/parser.cpp',
@@ -28,6 +26,25 @@ exe = executable(
   'arx/src/codegen.cpp',
   'arx/src/settings.cpp',
   'arx/src/utils.cpp',
+]
+
+if get_option('tests').enabled()
+  deps += [dependency('gtest')]
+  sources += [
+    'tests/main.cpp',
+    'tests/test_codegen.cpp',
+    'tests/test_error.cpp',
+    'tests/test_lexer.cpp',
+    'tests/test_parser.cpp',
+    'tests/test_utils.cpp'
+  ]
+else
+  sources += ['src/main.cpp']
+endif
+
+exe = executable(
+  'arx',
+  sources,
   dependencies : deps,
   include_directories : inc,
   install : true)

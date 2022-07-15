@@ -39,12 +39,12 @@ jobs:
         activate-environment: arx
         environment-file: conda/dev.yaml
 
-    - name: build using cmake
-      run: make build-meson
+    - name: build
+      run: make meson-build
 
     - name: test flags
       run: |
-        build/bin/arx --version
+        build/arx --version
 
     - name: run sanity tests
       run: make test-sanity
