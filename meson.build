@@ -28,8 +28,9 @@ sources = [
   'arx/src/utils.cpp',
 ]
 
-if get_option('tests').enabled()
-  deps += [dependency('gtest')]
+gtest_dep = dependency('gtest', required: get_option('tests'))
+if gtest_dep.found()
+    deps += [gtest_dep]
   sources += [
     'tests/main.cpp',
     'tests/test_codegen.cpp',
