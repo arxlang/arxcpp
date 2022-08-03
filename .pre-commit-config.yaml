@@ -28,8 +28,7 @@ repos:
         entry: ./scripts/run-clang-tidy.sh
         language: system
         exclude: ^$
-        files: arx/src/.*\.cpp
-        pass_filenames: true
+        pass_filenames: false
         stages:
           - commit
         types_or: [c++, c]

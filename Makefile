@@ -93,13 +93,14 @@ meson-install:
 .ONESHELL:
 .PHONY: test-sanity
 test-sanity:
+	set -ex
 	cd build/tests
 	ctest --verbose --label-regex sanity
 
 .ONESHELL:
 .PHONY: test-examples-llvm
 test-examples-llvm:
-	set -e
+	set -ex
 	./build/arx --show-llvm < examples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./build/arx  --show-llvm  < examples/test_sum.arx
@@ -107,7 +108,7 @@ test-examples-llvm:
 .ONESHELL:
 .PHONY: test-examples-gen-object
 test-examples-gen-object:
-	set -e
+	set -ex
 	./build/arx --output fibonacci < examples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
 	./build/arx --output sum  < examples/test_sum.arx

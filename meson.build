@@ -7,45 +7,62 @@ project('arx', 'cpp', 'c',
   ]
 )
 
+PROJECT_PATH = meson.source_root()
+
 cxx = meson.get_compiler('cpp')
 
 deps = [
   dependency('arrow'),
   dependency('llvm', version : '>=13.0.0'),
   dependency('CLI11'),
+  dependency('glib-2.0'),
   dependency('glog'),
+  dependency('threads'),
 ]
 
 inc = include_directories('arx/include')
 
-sources = [
-  'arx/src/input.cpp',
-  'arx/src/lexer.cpp',
-  'arx/src/parser.cpp',
-  'arx/src/error.cpp',
-  'arx/src/codegen.cpp',
-  'arx/src/settings.cpp',
-  'arx/src/utils.cpp',
+project_files = [
+  PROJECT_PATH + '/arx/src/input.cpp',
+  PROJECT_PATH + '/arx/src/lexer.cpp',
+  PROJECT_PATH + '/arx/src/parser.cpp',
+  PROJECT_PATH + '/arx/src/error.cpp',
+  PROJECT_PATH + '/arx/src/codegen.cpp',
+  PROJECT_PATH + '/arx/src/settings.cpp',
+  PROJECT_PATH + '/arx/src/utils.cpp',
 ]
+
+src_files = project_files
 
 gtest_dep = dependency('gtest', required: get_option('tests'))
 if gtest_dep.found()
     deps += [gtest_dep]
-  sources += [
-    'tests/main.cpp',
-    'tests/test_codegen.cpp',
-    'tests/test_error.cpp',
-    'tests/test_lexer.cpp',
-    'tests/test_parser.cpp',
-    'tests/test_utils.cpp'
+  src_files += [
+    PROJECT_PATH + '/tests/main.cpp',
+    PROJECT_PATH + '/tests/test_codegen.cpp',
+    PROJECT_PATH + '/tests/test_error.cpp',
+    PROJECT_PATH + '/tests/test_lexer.cpp',
+    PROJECT_PATH + '/tests/test_parser.cpp',
+    PROJECT_PATH + '/tests/test_utils.cpp'
   ]
 else
-  sources += ['src/main.cpp']
+  src_files += [PROJECT_PATH + '/src/main.cpp']
+endif
+
+clangtidy = find_program('clang-tidy', required: false)
+if clangtidy.found()
+    run_target(
+        'tidy',
+        command: [
+            clangtidy,
+            '--fix-errors',
+            '-p', meson.build_root()
+        ] + project_files)
 endif
 
 exe = executable(
   'arx',
-  sources,
+  src_files,
   dependencies : deps,
   include_directories : inc,
   install : true)
