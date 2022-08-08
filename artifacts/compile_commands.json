@@ -1,0 +1,107 @@
+[
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/main.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/main.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/main.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/input.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/input.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/input.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/lexer.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/lexer.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/lexer.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/parser.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/parser.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/parser.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/error.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/error.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/error.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/codegen.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/codegen.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/codegen.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/settings.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/settings.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/settings.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o CMakeFiles/arx.dir/arx/src/utils.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/utils.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/utils.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/main.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/tests/main.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/tests/main.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_lexer.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/tests/test_lexer.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/tests/test_lexer.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_parser.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/tests/test_parser.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/tests/test_parser.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_codegen.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/tests/test_codegen.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/tests/test_codegen.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_utils.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/tests/test_utils.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/tests/test_utils.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_error.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/tests/test_error.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/tests/test_error.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/input.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/input.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/input.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/lexer.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/lexer.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/lexer.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/parser.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/parser.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/parser.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/error.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/error.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/error.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/codegen.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/codegen.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/codegen.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/settings.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/settings.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/settings.cpp"
+},
+{
+  "directory": "/mnt/sda1/storage/dev/arxlang/arx/build",
+  "command": "/home/xmn/mambaforge/envs/arx/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/mnt/sda1/storage/dev/arxlang/arx/arx/include -I/mnt/sda1/storage/dev/arxlang/arx/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem /home/xmn/mambaforge/envs/arx/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/__/arx/src/utils.cpp.o -c /mnt/sda1/storage/dev/arxlang/arx/arx/src/utils.cpp",
+  "file": "/mnt/sda1/storage/dev/arxlang/arx/arx/src/utils.cpp"
+}
+]

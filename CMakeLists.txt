@@ -84,6 +84,7 @@ if(ENABLE_TESTS)
   include(linter)
   include(sanitizers)
 
+  # https://github.com/mesonbuild/meson/issues/2383#issuecomment-444288567
   clang_tidy(
     --config-file="${PROJECT_PATH}/.clang-tidy"
     ${PROJECT_PATH}/arx/**/*.cpp

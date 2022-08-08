@@ -20,9 +20,9 @@ deps = [
   dependency('threads'),
 ]
 
-inc = include_directories('arx/include')
+inc = include_directories('./arx/include')
 
-project_files = [
+project_src_files = [
   PROJECT_PATH + '/arx/src/input.cpp',
   PROJECT_PATH + '/arx/src/lexer.cpp',
   PROJECT_PATH + '/arx/src/parser.cpp',
@@ -32,12 +32,10 @@ project_files = [
   PROJECT_PATH + '/arx/src/utils.cpp',
 ]
 
-src_files = project_files
-
 gtest_dep = dependency('gtest', required: get_option('tests'))
 if gtest_dep.found()
-    deps += [gtest_dep]
-  src_files += [
+  deps += [gtest_dep]
+  test_src_files = project_src_files + [
     PROJECT_PATH + '/tests/main.cpp',
     PROJECT_PATH + '/tests/test_codegen.cpp',
     PROJECT_PATH + '/tests/test_error.cpp',
@@ -46,25 +44,32 @@ if gtest_dep.found()
     PROJECT_PATH + '/tests/test_utils.cpp'
   ]
 else
-  src_files += [PROJECT_PATH + '/src/main.cpp']
+  project_src_files += [PROJECT_PATH + '/arx/src/main.cpp']
 endif
 
 clangtidy = find_program('clang-tidy', required: false)
 if clangtidy.found()
     run_target(
-        'tidy',
+        'clang-tidy',
         command: [
-            clangtidy,
-            '--fix-errors',
-            '-p', meson.build_root()
-        ] + project_files)
+          PROJECT_PATH + '/scripts/run-clang-tidy.sh',
+        ])
 endif
 
-exe = executable(
-  'arx',
-  src_files,
-  dependencies : deps,
-  include_directories : inc,
-  install : true)
+if not gtest_dep.found()
+  arx_exe = executable(
+    'arx',
+    project_files,
+    dependencies : deps,
+    include_directories : inc,
+    install : true)
+else
+  test_exe = executable(
+    'arx',
+    test_src_files,
+    dependencies : deps,
+    include_directories : inc,
+    install : true)
 
-test('basic', exe)
+  test('arx_test', test_exe)
+endif
