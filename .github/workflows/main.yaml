@@ -57,12 +57,13 @@ jobs:
         pre-commit install
         pre-commit run --all-files
 
-    - name: llvm-cov generation
-      if: ${{ github.event_name == 'pull_request' }}
-      id: llvm-cov-report
-      run: |
-        cd build
-        ninja ccov-report-arx
+    # TODO: configure lcov with meson
+    # - name: llvm-cov generation
+    #   if: ${{ github.event_name == 'pull_request' }}
+    #   id: llvm-cov-report
+    #   run: |
+    #     cd build
+    #     ninja ccov-report-arx
 
     - name: Generate documentation
       run: |
