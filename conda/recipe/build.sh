@@ -14,5 +14,3 @@ meson compile -C build
 
 mv ${PREFIX}/build/arx ${PREFIX}/bin/arx
 chmod +x ${PREFIX}/bin/arx
-
-ctest

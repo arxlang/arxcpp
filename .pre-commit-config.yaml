@@ -53,6 +53,7 @@ repos:
           - commit
         types_or: [c++, c]
 
+      # deprecated
       - id: cmake-format
         name: cmake-format
         entry: cmake-format
@@ -65,6 +66,7 @@ repos:
         types: [file]
         args: ["-i"]
 
+      # deprecated
       - id: cmake-lint
         name: cmake-lint
         entry: cmake-lint
