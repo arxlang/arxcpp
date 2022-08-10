@@ -79,7 +79,7 @@ meson-build: clean-optional
 .PHONY: meson-build-with-tests
 meson-build-with-tests:
 	set -ex
-	$(MAKE) meson-build ARGS="-Dtests=enabled -Db_sanitize=address"
+	$(MAKE) meson-build ARGS="-Ddev=enabled"
 
 .ONESHELL:
 .PHONY: meson-install
@@ -94,16 +94,21 @@ meson-install:
 .PHONY: test-sanity
 test-sanity:
 	set -ex
-	cd build/tests
-	ctest --verbose --label-regex sanity
+	meson test -C build -v
 
 .ONESHELL:
 .PHONY: test-examples-llvm
 test-examples-llvm:
 	set -ex
-	./build/arx --show-llvm < examples/test_fibonacci.arx
+	./build/bin/arx --show-llvm < examples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
-	./build/arx  --show-llvm  < examples/test_sum.arx
+	./build/bin/arx  --show-llvm  < examples/test_sum.arx
+
+.ONESHELL:
+.PHONY: test-coverage
+test-coverage:
+	set -ex
+	meson compile -C build coverage
 
 .ONESHELL:
 .PHONY: test-examples-gen-object

@@ -22,7 +22,7 @@ deps = [
 
 inc = include_directories('./arx/include')
 
-project_src_files = [
+project_src_files = files(
   PROJECT_PATH + '/arx/src/input.cpp',
   PROJECT_PATH + '/arx/src/lexer.cpp',
   PROJECT_PATH + '/arx/src/parser.cpp',
@@ -30,46 +30,30 @@ project_src_files = [
   PROJECT_PATH + '/arx/src/codegen.cpp',
   PROJECT_PATH + '/arx/src/settings.cpp',
   PROJECT_PATH + '/arx/src/utils.cpp',
-]
+)
 
-gtest_dep = dependency('gtest', required: get_option('tests'))
-if gtest_dep.found()
-  deps += [gtest_dep]
-  test_src_files = project_src_files + [
-    PROJECT_PATH + '/tests/main.cpp',
-    PROJECT_PATH + '/tests/test_codegen.cpp',
-    PROJECT_PATH + '/tests/test_error.cpp',
-    PROJECT_PATH + '/tests/test_lexer.cpp',
-    PROJECT_PATH + '/tests/test_parser.cpp',
-    PROJECT_PATH + '/tests/test_utils.cpp'
-  ]
+gtest_dep = dependency('gtest', main : true, required: get_option('dev'))
+gmock_dep = dependency('gmock', required: get_option('dev'))
+
+if get_option('dev').enabled()
+  deps += [gtest_dep, gmock_dep]
+  subdir('tests')
 else
-  project_src_files += [PROJECT_PATH + '/arx/src/main.cpp']
+  project_src_files += files(PROJECT_PATH + '/arx/src/main.cpp')
 endif
 
-clangtidy = find_program('clang-tidy', required: false)
+clangtidy = find_program('clang-tidy', required: get_option('dev'))
 if clangtidy.found()
-    run_target(
-        'clang-tidy',
-        command: [
-          PROJECT_PATH + '/scripts/run-clang-tidy.sh',
-        ])
+  run_target(
+    'clang-tidy',
+    command: [
+      PROJECT_PATH + '/scripts/run-clang-tidy.sh',
+    ])
 endif
 
-if not gtest_dep.found()
-  arx_exe = executable(
-    'arx',
-    project_files,
-    dependencies : deps,
-    include_directories : inc,
-    install : true)
-else
-  test_exe = executable(
-    'arx',
-    test_src_files,
-    dependencies : deps,
-    include_directories : inc,
-    install : true)
-
-  test('arx_test', test_exe)
-endif
+arx_exe = executable(
+  'arx',
+  project_src_files,
+  dependencies : deps,
+  include_directories : inc,
+  install : true)
