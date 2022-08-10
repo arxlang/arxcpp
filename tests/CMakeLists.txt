@@ -18,7 +18,7 @@ set(CMAKE_C_FLAGS
 
 add_executable(
   ${TARGET_TEST_NAME}
-  __main__.cpp
+  main.cpp
   test_lexer.cpp
   test_parser.cpp
   test_codegen.cpp

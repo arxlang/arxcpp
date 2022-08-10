@@ -72,18 +72,18 @@ static auto advance() -> int {
 
 /// gettok - Return the next token from standard input.
 auto gettok() -> int {
-  static int LastChar = ' ';
+  static char LastChar = ' ';
 
   // Skip any whitespace.
   while (isspace(LastChar)) {
-    LastChar = advance();
+    LastChar = (char)advance();
   }
 
   CurLoc = LexLoc;
 
   if (is_identifier_first_char(LastChar)) {
-    IdentifierStr = LastChar;
-    while (is_identifier_char((LastChar = advance()))) {
+    IdentifierStr = (char)LastChar;
+    while (is_identifier_char((LastChar = (char)advance()))) {
       IdentifierStr += LastChar;
     }
 
@@ -124,7 +124,7 @@ auto gettok() -> int {
   if (isdigit(LastChar) || LastChar == '.') {
     std::string NumStr;
     do {
-      NumStr += LastChar;
+      NumStr += (char)LastChar;
       LastChar = advance();
     } while (isdigit(LastChar) || LastChar == '.');
 

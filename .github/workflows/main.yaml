@@ -13,6 +13,7 @@ jobs:
   main:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     concurrency:
       group: ci-main-${{ github.ref }}
@@ -38,12 +39,12 @@ jobs:
         activate-environment: arx
         environment-file: conda/dev.yaml
 
-    - name: build using cmake
-      run: make cmake-build-with-tests
+    - name: build
+      run: make meson-build
 
     - name: test flags
       run: |
-        build/bin/arx --version
+        build/arx --version
 
     - name: run sanity tests
       run: make test-sanity
@@ -56,12 +57,13 @@ jobs:
         pre-commit install
         pre-commit run --all-files
 
-    - name: llvm-cov generation
-      if: ${{ github.event_name == 'pull_request' }}
-      id: llvm-cov-report
-      run: |
-        cd build
-        ninja ccov-report-arx
+    # TODO: configure lcov with meson
+    # - name: llvm-cov generation
+    #   if: ${{ github.event_name == 'pull_request' }}
+    #   id: llvm-cov-report
+    #   run: |
+    #     cd build
+    #     ninja ccov-report-arx
 
     - name: Generate documentation
       run: |

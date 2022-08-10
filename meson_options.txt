@@ -1,0 +1,5 @@
+option(
+  'dev',
+  type : 'feature',
+  value : 'disabled',
+  description : 'Use this option for development.')
