@@ -100,9 +100,9 @@ test-sanity:
 .PHONY: test-examples-llvm
 test-examples-llvm:
 	set -ex
-	./build/bin/arx --show-llvm < examples/test_fibonacci.arx
+	./build/arx --show-llvm < examples/test_fibonacci.arx
 	@python -c "print('=' * 80)"
-	./build/bin/arx  --show-llvm  < examples/test_sum.arx
+	./build/arx  --show-llvm  < examples/test_sum.arx
 
 .ONESHELL:
 .PHONY: test-coverage

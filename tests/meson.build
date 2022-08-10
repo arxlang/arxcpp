@@ -28,12 +28,12 @@ test_suite = [
 
 foreach test_item : test_suite
     test_name = test_item[0]
-    sources = test_item[1] + files(PROJECT_PATH + '/tests/main.cpp')
+    test_src_files = test_item[1] + files(PROJECT_PATH + '/tests/main.cpp')
 
     executable_name_suffix = test_name + '_tests'
     test_executable = executable(
       'arx_' + executable_name_suffix,
-      sources,
+      test_src_files,
       include_directories : inc,
       dependencies : deps,
       link_whole: arx_build_lib)

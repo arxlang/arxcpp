@@ -38,8 +38,6 @@ gmock_dep = dependency('gmock', required: get_option('dev'))
 if get_option('dev').enabled()
   deps += [gtest_dep, gmock_dep]
   subdir('tests')
-else
-  project_src_files += files(PROJECT_PATH + '/arx/src/main.cpp')
 endif
 
 clangtidy = find_program('clang-tidy', required: get_option('dev'))
@@ -53,7 +51,7 @@ endif
 
 arx_exe = executable(
   'arx',
-  project_src_files,
+  project_src_files + files(PROJECT_PATH + '/arx/src/main.cpp'),
   dependencies : deps,
   include_directories : inc,
   install : true)
