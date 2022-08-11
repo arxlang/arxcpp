@@ -1,6 +1,3 @@
-add_global_arguments('-Db_sanitize=address', language: 'cpp')
-add_global_arguments('-Db_coverage=true', language: 'cpp')
-
 extra_flags = [
   '-O1',
   '-fno-omit-frame-pointer',

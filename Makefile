@@ -79,7 +79,7 @@ meson-build: clean-optional
 .PHONY: meson-build-with-tests
 meson-build-with-tests:
 	set -ex
-	$(MAKE) meson-build ARGS="-Ddev=enabled"
+	$(MAKE) meson-build ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
 
 .ONESHELL:
 .PHONY: meson-install
@@ -105,10 +105,10 @@ test-examples-llvm:
 	./build/arx  --show-llvm  < examples/test_sum.arx
 
 .ONESHELL:
-.PHONY: test-coverage
-test-coverage:
+.PHONY: code-coverage
+code-coverage:
 	set -ex
-	meson compile -C build coverage
+	ninja coverage -C build
 
 .ONESHELL:
 .PHONY: test-examples-gen-object
