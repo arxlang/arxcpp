@@ -10,7 +10,13 @@ Ensure that:
 - [ ] the tests for your implementation are executed on CI.
 - [ ] it includes documentation
 - [ ] the PR's title is according to the [semantic-release pattern][semantic-release-message].
-  - `chore:` is used for CI, test, support tasks or any other task that is not user facing task.
+  - `build`: Changes that affect the build system or external dependencies (example scopes: cmake, meson, etc)
+  - `ci`: Changes to our CI configuration files and scripts (examples: CircleCi, SauceLabs)
+  - `docs`: Documentation only changes
+  - `perf`: A code change that improves performance
+  - `refactor`: A code change that neither fixes a bug nor adds a feature
+  - `test`: Adding missing tests or correcting existing tests
+  - `chore:` Can be used as a generic task for tasks such as CI, test, support tasks or any other task that is not user facing task.
   - `feat:` is used for a new feature or when a existent one is improved.
   - `fix:` is used when a bug is fixed.
   - `breaking change:` is used when there is a compability break.
