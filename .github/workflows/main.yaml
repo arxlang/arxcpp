@@ -40,7 +40,7 @@ jobs:
         environment-file: conda/dev.yaml
 
     - name: build
-      run: make meson-build
+      run: make meson-build-with-tests CLEAN=1
 
     - name: test flags
       run: |
@@ -57,13 +57,10 @@ jobs:
         pre-commit install
         pre-commit run --all-files
 
-    # TODO: configure lcov with meson
-    # - name: llvm-cov generation
-    #   if: ${{ github.event_name == 'pull_request' }}
-    #   id: llvm-cov-report
-    #   run: |
-    #     cd build
-    #     ninja ccov-report-arx
+    - name: llvm-cov generation
+      if: ${{ github.event_name == 'pull_request' }}
+      id: llvm-cov-report
+      run: make code-coverage
 
     - name: Generate documentation
       run: |

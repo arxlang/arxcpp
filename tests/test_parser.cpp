@@ -87,22 +87,31 @@ TEST(ParserTest, BinopPrecedenceTest) {
 TEST(ParserTest, ParseNumberExprTest) {
   /* Test gettok for main tokens */
   std::unique_ptr<NumberExprAST> expr;
+  int tok;
 
-  string_to_buffer((char*)"1");
+  // TODO: check why it is necessary to add ; here
+  string_to_buffer((char*)"1 2;");
 
-  getNextToken();  // update CurTok
+  tok = getNextToken();  // update CurTok
+  EXPECT_EQ(tok, tok_number);
   expr = ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 1);
+  expr.reset();
 
+  expr = ParseNumberExpr();
+  EXPECT_NE(expr, nullptr);
+  EXPECT_EQ(expr->Val, 2);
   expr.reset();
 
   string_to_buffer((char*)"3");
 
-  getNextToken();
+  tok = getNextToken();
+  EXPECT_EQ(tok, tok_number);
   expr = ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
-  // EXPECT_EQ(expr->Val, 3);
+  EXPECT_EQ(expr->Val, 3);
+  expr.reset();
 }
 
 TEST(ParserTest, ParseIfExprTest) {

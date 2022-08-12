@@ -1,15 +1,12 @@
-add_global_arguments('-Db_sanitize=address', language: 'cpp')
-add_global_arguments('-Db_coverage=true', language: 'cpp')
-
-extra_flags = [
-  '-O1',
-  '-fno-omit-frame-pointer',
-  '-fprofile-instr-generate',
-  '-fcoverage-mapping'
-]
-
-add_global_arguments(extra_flags, language: 'cpp')
-add_global_arguments(extra_flags, language: 'c')
+# extra_flags = [
+#   '-O1',
+#   '-fno-omit-frame-pointer',
+#   '-fprofile-instr-generate',
+#   '-fcoverage-mapping'
+# ]
+#
+# add_global_arguments(extra_flags, language: 'cpp')
+# add_global_arguments(extra_flags, language: 'c')
 
 arx_build_lib = static_library(
   'arx-build',
@@ -24,6 +21,7 @@ test_suite = [
   ['lexer', files(PROJECT_PATH + '/tests/test_lexer.cpp')],
   ['parser', files(PROJECT_PATH + '/tests/test_parser.cpp')],
   ['utils', files(PROJECT_PATH + '/tests/test_utils.cpp')],
+  ['input', files(PROJECT_PATH + '/tests/test_input.cpp')],
 ]
 
 foreach test_item : test_suite

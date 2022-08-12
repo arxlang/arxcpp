@@ -51,6 +51,11 @@
 },
 {
   "directory": "{{PROJECT_PATH}}/build",
+  "command": "{{CONDA_PREFIX}}/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I{{PROJECT_PATH}}/arx/include -I{{PROJECT_PATH}}/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem {{CONDA_PREFIX}}/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_input.cpp.o -c {{PROJECT_PATH}}/tests/test_input.cpp",
+  "file": "{{PROJECT_PATH}}/tests/test_input.cpp"
+},
+{
+  "directory": "{{PROJECT_PATH}}/build",
   "command": "{{CONDA_PREFIX}}/bin/clang++ -DGFLAGS_IS_A_DLL=0 -DGLOG_CUSTOM_PREFIX_SUPPORT -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I{{PROJECT_PATH}}/arx/include -I{{PROJECT_PATH}}/build/tests -fvisibility-inlines-hidden -std=c++17 -fmessage-length=0 -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe -isystem {{CONDA_PREFIX}}/include -fsanitize=address -O1 -fno-omit-frame-pointer -fprofile-instr-generate -fcoverage-mapping -O3 -DNDEBUG -fprofile-instr-generate -fcoverage-mapping -std=c++17 -o tests/CMakeFiles/ArxTests.dir/test_parser.cpp.o -c {{PROJECT_PATH}}/tests/test_parser.cpp",
   "file": "{{PROJECT_PATH}}/tests/test_parser.cpp"
 },
