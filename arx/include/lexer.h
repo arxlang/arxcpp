@@ -39,10 +39,11 @@ struct SourceLocation {
 
 std::string getTokName(int);
 int gettok();
+int advance();
+int getNextToken();
 
 extern SourceLocation CurLoc;
 extern std::string IdentifierStr;  // Filled in if tok_identifier
 extern double NumVal;              // Filled in if tok_number
 
 extern int CurTok;
-extern int getNextToken();

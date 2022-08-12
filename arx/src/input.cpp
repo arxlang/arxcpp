@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <fstream>  // IWYU pragma: keep
 #include <iostream>
 #include <sstream>  // IWYU pragma: keep
@@ -16,9 +17,9 @@ auto file_to_buffer(std::string filename) -> void {
   input_buffer.clear();
 
   if (arxfile.is_open()) {
-    std::cout << "file is open" << '\n';
+    std::cout << "file is open" << std::endl;
     while (getline(arxfile, line)) {
-      input_buffer << line << '\n';
+      input_buffer << line << std::endl;
     }
     arxfile.close();
   }
@@ -26,5 +27,6 @@ auto file_to_buffer(std::string filename) -> void {
 
 auto string_to_buffer(std::string value) -> void {
   input_buffer.clear();
-  input_buffer << value;
+  input_buffer.str("");
+  input_buffer << value << std::endl << EOF;
 }

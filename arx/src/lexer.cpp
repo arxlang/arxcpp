@@ -58,7 +58,7 @@ static auto is_identifier_char(char c) -> bool {
   return isalnum(c) || c == '_';
 }
 
-static auto advance() -> int {
+auto advance() -> int {
   int LastChar = get_char();
 
   if (LastChar == '\n' || LastChar == '\r') {
@@ -125,7 +125,7 @@ auto gettok() -> int {
     std::string NumStr;
     do {
       NumStr += (char)LastChar;
-      LastChar = advance();
+      LastChar = (char)advance();
     } while (isdigit(LastChar) || LastChar == '.');
 
     NumVal = strtod(NumStr.c_str(), nullptr);

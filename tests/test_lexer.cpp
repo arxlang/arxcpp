@@ -17,6 +17,45 @@ TEST(LexerTest, TokenNameTest) {
   EXPECT_EQ(getTokName('+'), "+");
 }
 
+TEST(LexerTest, AdvanceTest) {
+  string_to_buffer((char*)"1");
+  EXPECT_EQ(advance(), 49);
+
+  string_to_buffer((char*)"2");
+  EXPECT_EQ(advance(), 50);
+
+  string_to_buffer((char*)"3");
+  EXPECT_EQ(advance(), 51);
+}
+
+TEST(LexerTest, GetTokSimpleTest) {
+  string_to_buffer((char*)"11");
+  EXPECT_EQ(gettok(), tok_number);
+  EXPECT_EQ(NumVal, 11);
+
+  string_to_buffer((char*)"21");
+  EXPECT_EQ(gettok(), tok_number);
+  EXPECT_EQ(NumVal, 21);
+
+  string_to_buffer((char*)"31");
+  EXPECT_EQ(gettok(), tok_number);
+  EXPECT_EQ(NumVal, 31);
+}
+
+TEST(LexerTest, GetNextTokenSimpleTest) {
+  string_to_buffer((char*)"11");
+  EXPECT_EQ(getNextToken(), tok_number);
+  EXPECT_EQ(NumVal, 11);
+
+  string_to_buffer((char*)"21");
+  EXPECT_EQ(getNextToken(), tok_number);
+  EXPECT_EQ(NumVal, 21);
+
+  string_to_buffer((char*)"31");
+  EXPECT_EQ(getNextToken(), tok_number);
+  EXPECT_EQ(NumVal, 31);
+}
+
 TEST(LexerTest, GetTokTest) {
   /* Test gettok for main tokens */
   string_to_buffer((char*)R""""(

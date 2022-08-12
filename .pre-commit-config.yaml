@@ -52,28 +52,3 @@ repos:
         stages:
           - commit
         types_or: [c++, c]
-
-      # deprecated
-      - id: cmake-format
-        name: cmake-format
-        entry: cmake-format
-        language: system
-        exclude: ^$
-        files: (\.cmake|CMakeLists.txt)(.in)?$
-        pass_filenames: true
-        stages:
-          - commit
-        types: [file]
-        args: ["-i"]
-
-      # deprecated
-      - id: cmake-lint
-        name: cmake-lint
-        entry: cmake-lint
-        language: system
-        exclude: ^$
-        files: (CMakeLists.txt)(.in)?$
-        pass_filenames: true
-        stages:
-          - commit
-        types: [file]
