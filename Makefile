@@ -13,9 +13,6 @@ ARGS:=
 # build flags
 BUILD_TYPE:=release
 
-CMAKE_EXTRA_FLAGS=
-CMAKE_BUILD_TYPE=release
-
 # docker
 DOCKER=docker-compose --file docker/docker-compose.yaml
 
@@ -26,45 +23,9 @@ clean-optional:
 	mkdir -p build
 
 
-# CMAKE
-# =====
-
 .ONESHELL:
-.PHONY: cmake-build
-cmake-build: clean-optional
-	mkdir -p $(ROOT_DIR)/build/bin
-	cd $(ROOT_DIR)/build
-	cmake \
-		-GNinja \
-		-DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} \
-		-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} \
-		-DCMAKE_C_COMPILER=${CC} \
-    	-DCMAKE_CXX_COMPILER=${CXX} \
-		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
-		--log-level=TRACE \
-		-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-		${CMAKE_EXTRA_FLAGS} \
-		..
-	cmake --build .
-
-.PHONY: cmake-build-with-tests
-cmake-build-with-tests:
-	$(MAKE)	cmake-build \
-		CMAKE_EXTRA_FLAGS="-DENABLE_TESTS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=include-what-you-use"
-
-.ONESHELL:
-.PHONY: cmake-install
-cmake-install: cmake-build
-	cd build
-	cmake --install . --config Release -v
-
-
-# MESON
-# =====
-
-.ONESHELL:
-.PHONY: meson-build
-meson-build: clean-optional
+.PHONY: build
+build: clean-optional
 	set -ex
 	meson setup \
 		--prefix ${CONDA_PREFIX} \
@@ -76,14 +37,14 @@ meson-build: clean-optional
 	meson compile -C build
 
 .ONESHELL:
-.PHONY: meson-build-with-tests
-meson-build-with-tests:
+.PHONY: build-with-tests
+build-with-tests:
 	set -ex
-	$(MAKE) meson-build ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
+	$(MAKE) build ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
 
 .ONESHELL:
-.PHONY: meson-install
-meson-install:
+.PHONY: install
+install:
 	meson install -C build
 
 
@@ -91,8 +52,8 @@ meson-install:
 # =====
 
 .ONESHELL:
-.PHONY: test-sanity
-test-sanity:
+.PHONY: test-sanitizer
+test-sanitizer:
 	set -ex
 	meson test -C build -v
 
@@ -126,7 +87,7 @@ test-examples: test-examples-llvm test-examples-gen-object
 
 .ONESHELL:
 .PHONY: run-tests
-run-tests: test-sanity test-examples
+run-tests: test-sanitizer test-examples
 
 
 .PHONY: run-test-opt

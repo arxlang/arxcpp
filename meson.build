@@ -15,9 +15,7 @@ deps = [
   dependency('arrow'),
   dependency('llvm', version : '>=13.0.0'),
   dependency('CLI11'),
-  dependency('glib-2.0'),
   dependency('glog'),
-  dependency('threads'),
 ]
 
 inc = include_directories('./arx/include')

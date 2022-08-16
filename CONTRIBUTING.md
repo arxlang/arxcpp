@@ -75,7 +75,7 @@ Now you can make your changes locally.
 5.  When you’re done making changes, check the compilation and the tests:
 
 ```bash
-$ make cmake-build-with-tests
+$ make build-with-tests
 $ make run-tests
 $ pre-commit run --all-files
 ```
