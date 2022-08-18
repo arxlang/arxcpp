@@ -23,8 +23,8 @@
           },
           {
             "files": ["arx/src/main.cpp"],
-            "from": "const std::string ARX_VERSION = \".*\";  // semantic-release",
-            "to": "const std::string ARX_VERSION = \"${nextRelease.version}\";  // semantic-release",
+            "from": "std::string ARX_VERSION = \".*\";  // semantic-release",
+            "to": "std::string ARX_VERSION = \"${nextRelease.version}\";  // semantic-release",
             "results": [
               {
                 "file": "arx/src/main.cpp",

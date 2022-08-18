@@ -4,7 +4,7 @@
 #include "lexer.h"
 #include "utils.h"
 
-const std::string ARX_VERSION = "t.e.s.t";
+std::string ARX_VERSION = "t.e.s.t";
 std::string OUTPUT_FILE{"output.o"};
 
 int main(int argc, char** argv) {
