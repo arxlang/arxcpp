@@ -21,7 +21,6 @@ dependencies:
 - glog
 # dev
 - include-what-you-use >=0.18
-- cmake-format
 - cppcheck
 - doxygen
 - gmock
