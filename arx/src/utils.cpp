@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-extern std::string ARX_VERSION;
+extern const std::string ARX_VERSION;
 
 auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
   return O << std::string(size, ' ');

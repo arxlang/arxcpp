@@ -61,7 +61,7 @@
 extern std::map<char, int> BinopPrecedence;
 extern int CurTok;
 extern std::string OUTPUT_FILE;
-extern std::string ARX_VERSION;
+extern const std::string ARX_VERSION;
 
 //===----------------------------------------------------------------------===//
 // Code Generation Globals

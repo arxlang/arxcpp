@@ -40,7 +40,7 @@ jobs:
         environment-file: conda/dev.yaml
 
     - name: build
-      run: make meson-build-with-tests CLEAN=1
+      run: make build-with-tests CLEAN=1
 
     - name: test flags
       run: |
