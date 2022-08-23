@@ -46,7 +46,7 @@ repos:
 
       - id: cppcheck
         name: cppcheck
-        entry: "cppcheck --std=c++17 arx/"
+        entry: "cppcheck --std=c++20 arx/"
         language: system
         pass_filenames: false
         stages:

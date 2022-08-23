@@ -27,7 +27,7 @@ do
     -I${GCC_INCLUDE_PATH} \
     -I${GCC_INCLUDE_PATH}/x86_64-conda-linux-gnu \
     -I${CONDA_PREFIX}/lib/clang/$(get_clang_version)/include \
-    -std=c++17 \
+    -std=c++20 \
     ${FILEPATH} 2> ${IWYU_PATCH_FILEPATH}
 
   if [ -s ${IWYU_PATCH_FILEPATH} ]
