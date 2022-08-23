@@ -1,13 +1,3 @@
-# extra_flags = [
-#   '-O1',
-#   '-fno-omit-frame-pointer',
-#   '-fprofile-instr-generate',
-#   '-fcoverage-mapping'
-# ]
-#
-# add_global_arguments(extra_flags, language: 'cpp')
-# add_global_arguments(extra_flags, language: 'c')
-
 arx_build_lib = static_library(
   'arx-build',
   project_src_files,
