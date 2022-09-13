@@ -49,7 +49,7 @@ extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
 extern std::unique_ptr<llvm::DIBuilder> DBuilder;
 
-auto show_llvm(int) -> void;
-auto open_shell(int) -> void;
-auto compile(int) -> void;
-auto compile_to_file(int) -> void;
+auto show_llvm() -> void;
+auto open_shell() -> void;
+auto compile() -> void;
+auto compile_to_file() -> void;

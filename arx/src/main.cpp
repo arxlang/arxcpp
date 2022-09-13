@@ -30,6 +30,24 @@ std::string ARX_VERSION = "1.4.0";  // semantic-release
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 
+auto main_open_shell(int count) {
+  load_input_to_buffer();
+  open_shell();
+  exit(0);
+}
+
+auto main_show_llvm(int count) {
+  load_input_to_buffer();
+  show_llvm();
+  exit(0);
+}
+
+auto main_show_version(int count) {
+  load_input_to_buffer();
+  show_version();
+  exit(0);
+}
+
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 
@@ -39,15 +57,13 @@ auto main(int argc, const char* argv[]) -> int {
 
   app.add_option("--input", INPUT_FILE, "Input file.");
   app.add_option("--output", OUTPUT_FILE, "Output file.");
-  app.add_flag("--shell", open_shell, "Open Arx Shell.");
-  app.add_flag("--show-llvm", show_llvm, "Show LLVM IR.");
-  app.add_flag("--version", show_version, "Show ArxLang version.");
+  app.add_flag("--shell", main_open_shell, "Open Arx Shell.");
+  app.add_flag("--show-llvm", main_show_llvm, "Show LLVM IR.");
+  app.add_flag("--version", main_show_version, "Show ArxLang version.");
 
   CLI11_PARSE(app, argc, argv);
 
-  load_input_to_buffer();
-
-  compile_to_file(1);
+  compile_to_file();
 
   return 0;
 }

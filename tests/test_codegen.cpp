@@ -11,7 +11,7 @@ TEST(CodeGenTest, ShowLLVM) {
   add(1);
   )"""");
 
-  show_llvm(1);
+  show_llvm();
 }
 
 // Check object generation
@@ -23,5 +23,5 @@ TEST(CodeGenTest, ObjectGeneration) {
   add(1);
   )"""");
 
-  open_shell(1);
+  compile();
 }

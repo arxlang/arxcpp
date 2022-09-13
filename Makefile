@@ -57,13 +57,9 @@ test-sanitizer:
 	set -ex
 	meson test -C build -v
 
-.ONESHELL:
 .PHONY: test-examples-llvm
-test-examples-llvm:
-	set -ex
-	./build/arx --show-llvm < examples/test_fibonacci.arx
-	@python -c "print('=' * 80)"
-	./build/arx  --show-llvm  < examples/test_sum.arx
+test-show-llvm:
+	./tests/scripts/test-show-llvm.sh
 
 .ONESHELL:
 .PHONY: code-coverage
@@ -71,19 +67,13 @@ code-coverage:
 	set -ex
 	ninja coverage -C build
 
-.ONESHELL:
-.PHONY: test-examples-gen-object
-test-examples-gen-object:
-	set -ex
-	./build/arx --output fibonacci < examples/test_fibonacci.arx
-	@python -c "print('=' * 80)"
-	./build/arx --output sum  < examples/test_sum.arx
-	rm -f fibonacci
-	rm -f sum
+.PHONY: test-gen-object
+test-gen-object:
+	./tests/scripts/test-gen-objects.sh
 
 
 .PHONY: test-examples
-test-examples: test-examples-llvm test-examples-gen-object
+test-examples: test-examples-llvm test-gen-object
 
 .ONESHELL:
 .PHONY: run-tests

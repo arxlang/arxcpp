@@ -668,9 +668,7 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
   return 0;
 }
 
-auto show_llvm(int count) -> void {
-  load_input_to_buffer();
-
+auto show_llvm() -> void {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -719,8 +717,7 @@ auto show_llvm(int count) -> void {
   exit(0);
 }
 
-auto compile(int count) -> void {
-  load_input_to_buffer();
+auto compile() -> void {
   getNextToken();
 
   InitializeModuleAndPassManager();
@@ -797,17 +794,17 @@ auto compile(int count) -> void {
   dest.flush();
 }
 
-auto compile_to_file(int count) -> void {
-  compile(1);
+auto compile_to_file() -> void {
+  compile();
   llvm::outs() << "Wrote " << OUTPUT_FILE << "\n";
 }
 
-auto open_shell(int count) -> void {
+auto open_shell() -> void {
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile(1);
+  compile();
 
   exit(0);
 }
