@@ -11,7 +11,7 @@ test_suite = [
   ['lexer', files(PROJECT_PATH + '/tests/test_lexer.cpp')],
   ['parser', files(PROJECT_PATH + '/tests/test_parser.cpp')],
   ['utils', files(PROJECT_PATH + '/tests/test_utils.cpp')],
-  ['input', files(PROJECT_PATH + '/tests/test_input.cpp')],
+  ['input', files(PROJECT_PATH + '/tests/test_io.cpp')],
 ]
 
 foreach test_item : test_suite

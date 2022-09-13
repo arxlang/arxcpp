@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "../arx/include/input.h"
+#include "../arx/include/io.h"
 #include "../arx/include/lexer.h"
 #include "../arx/include/utils.h"
 

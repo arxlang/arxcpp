@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "../arx/include/codegen.h"
-#include "../arx/include/input.h"
+#include "../arx/include/io.h"
 
 // Check show llvm
 TEST(CodeGenTest, ShowLLVM) {

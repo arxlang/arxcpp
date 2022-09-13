@@ -51,3 +51,5 @@ extern std::unique_ptr<llvm::DIBuilder> DBuilder;
 
 auto show_llvm(int) -> void;
 auto open_shell(int) -> void;
+auto compile(int) -> void;
+auto compile_to_file(int) -> void;

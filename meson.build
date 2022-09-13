@@ -21,7 +21,7 @@ deps = [
 inc = include_directories('./arx/include')
 
 project_src_files = files(
-  PROJECT_PATH + '/arx/src/input.cpp',
+  PROJECT_PATH + '/arx/src/io.cpp',
   PROJECT_PATH + '/arx/src/lexer.cpp',
   PROJECT_PATH + '/arx/src/parser.cpp',
   PROJECT_PATH + '/arx/src/error.cpp',

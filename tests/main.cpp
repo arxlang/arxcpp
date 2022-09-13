@@ -5,11 +5,13 @@
 #include "utils.h"
 
 std::string ARX_VERSION = "t.e.s.t";
-std::string OUTPUT_FILE{"output.o"};
+extern std::string OUTPUT_FILE;
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   google::InitGoogleLogging(argv[0]);
+
+  OUTPUT_FILE = "output.o";
 
   return RUN_ALL_TESTS();
 }

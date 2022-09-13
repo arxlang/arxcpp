@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -52,6 +53,7 @@
 #include <llvm/Transforms/Scalar.h>
 
 #include "codegen.h"
+#include "io.h"
 #include "jit.h"
 #include "lexer.h"
 #include "parser.h"
@@ -60,6 +62,7 @@
 
 extern std::map<char, int> BinopPrecedence;
 extern int CurTok;
+extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern std::string ARX_VERSION;
 
@@ -666,6 +669,8 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
 }
 
 auto show_llvm(int count) -> void {
+  load_input_to_buffer();
+
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -714,13 +719,8 @@ auto show_llvm(int count) -> void {
   exit(0);
 }
 
-auto open_shell(int count) -> void {
-  load_settings();
-
-  // Prime the first token.
-  fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
-  fprintf(stderr, ">>> ");
-
+auto compile(int count) -> void {
+  load_input_to_buffer();
   getNextToken();
 
   InitializeModuleAndPassManager();
@@ -773,6 +773,11 @@ auto open_shell(int count) -> void {
 
   LOG(INFO) << "dest output";
   std::error_code EC;
+
+  if (OUTPUT_FILE == "") {
+    OUTPUT_FILE = "./output.o";
+  }
+
   llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
 
   if (EC) {
@@ -790,8 +795,19 @@ auto open_shell(int count) -> void {
 
   pass.run(*TheModule);
   dest.flush();
+}
 
+auto compile_to_file(int count) -> void {
+  compile(1);
   llvm::outs() << "Wrote " << OUTPUT_FILE << "\n";
+}
+
+auto open_shell(int count) -> void {
+  // Prime the first token.
+  fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
+  fprintf(stderr, ">>> ");
+
+  compile(1);
 
   exit(0);
 }

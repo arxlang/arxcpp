@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
-#include "../arx/include/input.h"
+#include "../arx/include/io.h"
 #include "../arx/include/lexer.h"
 #include "../arx/include/parser.h"
 #include "../arx/include/settings.h"
