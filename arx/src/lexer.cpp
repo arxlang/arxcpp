@@ -4,7 +4,7 @@
 #include <iosfwd>  // for stringstream
 #include <string>
 
-#include "input.h"
+#include "io.h"
 #include "lexer.h"
 
 std::stringstream buffer;

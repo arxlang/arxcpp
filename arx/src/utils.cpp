@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -12,7 +11,6 @@ auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
   return O << std::string(size, ' ');
 }
 
-auto show_version(int count) -> void {
+auto show_version() -> void {
   std::cout << "arx version: " << ARX_VERSION << std::endl;
-  exit(0);
 }

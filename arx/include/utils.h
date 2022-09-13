@@ -15,4 +15,4 @@ class IOSource {
   static void update_buffer(char*);
 };
 
-void show_version(int count);
+void show_version();
