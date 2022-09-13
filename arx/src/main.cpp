@@ -48,6 +48,12 @@ auto main_show_version(int count) {
   exit(0);
 }
 
+auto main_compile() {
+  load_input_to_buffer();
+  show_version();
+  exit(0);
+}
+
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 
@@ -63,7 +69,7 @@ auto main(int argc, const char* argv[]) -> int {
 
   CLI11_PARSE(app, argc, argv);
 
-  compile_to_file();
+  main_compile();
 
   return 0;
 }

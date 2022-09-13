@@ -718,6 +718,8 @@ auto show_llvm() -> void {
 }
 
 auto compile() -> void {
+  load_settings();
+
   getNextToken();
 
   InitializeModuleAndPassManager();
