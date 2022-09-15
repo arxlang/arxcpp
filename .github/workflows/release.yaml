@@ -5,6 +5,10 @@ name: release
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   main:
@@ -29,36 +33,32 @@ jobs:
         mamba-version: "*"
         channels: conda-forge,nodefaults
         channel-priority: true
-        activate-environment: arx-release
-        environment-file: conda/release.yaml
+        activate-environment: arx
+        environment-file: conda/dev.yaml
+
+    - name: Install release dependencies
+      run: mamba env update -n arx --file conda/release.yaml
 
     - name: build code
       run: make build
 
     - name: Generate documentation
-      run: |
-        doxygen Doxyfile
-        echo "arxlang.org" > ./build/docs/html/CNAME
+      run: make docs-build
+
+    - name: Test release
+      if: ${{ github.event_name != 'workflow_dispatch' }}
+      run: make release-dry
 
     # Push the documentation to github-pages
     - name: GitHub Pages action
+      if: ${{ github.event_name == 'workflow_dispatch' }}
       uses: peaceiris/actions-gh-pages@v3.5.9
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/docs/html
+        publish_dir: ./build/
 
-    # note: this step must be always executed after all tests and checks
     - name: Release
+      if: ${{ github.event_name == 'workflow_dispatch' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        npx --yes \
-          -p semantic-release \
-          -p "@semantic-release/commit-analyzer" \
-          -p "@semantic-release/release-notes-generator" \
-          -p "@semantic-release/changelog" \
-          -p "@semantic-release/exec" \
-          -p "@semantic-release/github" \
-          -p "@semantic-release/git" \
-          -p "@google/semantic-release-replace-plugin" \
-          semantic-release --ci
+      run: make release

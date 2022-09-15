@@ -16,6 +16,19 @@ BUILD_TYPE:=release
 # docker
 DOCKER=docker-compose --file docker/docker-compose.yaml
 
+# release
+SEMANTIC_RELEASE=npx --yes \
+	-p semantic-release \
+	-p "@semantic-release/commit-analyzer" \
+	-p "@semantic-release/release-notes-generator" \
+	-p "@semantic-release/changelog" \
+	-p "@semantic-release/exec" \
+	-p "@semantic-release/github" \
+	-p "@semantic-release/git" \
+	-p "@google/semantic-release-replace-plugin" \
+	semantic-release
+
+
 
 .PHONY: clean-optional
 clean-optional:
@@ -88,14 +101,24 @@ run-test-opt:
 # DOCS
 # ====
 
+.PHONY: docs-clean
+docs-clean:
+	rm -rf ./build
+
+.PHONY: docs-api
+docs-api:
+	mkdir -p build
+	doxygen Doxyfile
+
 .PHONY: docs-build
-docs-build:
-	mkdocs build --clean --site-dir build
+docs-build: docs-clean docs-api
+	mkdocs build --dirty --site-dir build
+	echo "arxlang.org" > ./build/CNAME
 
 
 .PHONY: docs-watch
-docs-watch:
-	mkdocs serve --watch build
+docs-watch: docs-clean docs-api
+	mkdocs serve --watch docs
 
 
 # CONDA
@@ -108,3 +131,16 @@ conda-build: clean-optional
 	mamba update conda conda-build
 	conda build purge
 	conda mambabuild .
+
+
+# RELEASE
+# =======
+
+.PHONY: release
+release:
+	$(SEMANTIC_RELEASE) --ci
+
+
+.PHONY: release-dry
+release-dry:
+	$(SEMANTIC_RELEASE) --dry
