@@ -54,3 +54,6 @@ arxc
 
 # tests
 /Testing
+
+# docs
+./build

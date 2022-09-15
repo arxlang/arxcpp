@@ -1,0 +1,24 @@
+site_name: ArxLang
+
+theme:
+  name: null
+  custom_dir: 'docs/theme/'
+  logo: 'docs/images/arx.png'
+  favicon: 'docs/favicon.ico'
+
+extra:
+  homepage: https://arxlang.org
+
+extra_css:
+  - docs/theme/style.css
+
+nav:
+  - Home: 'index.md'
+  - Tutorials: 'tutorials/index.md'
+  - "Getting Started": 'getting-started.md'
+  - "API Doc": 'api.md'
+  - Sponsor: 'sponsor.md'
+  - Roadmap: 'roadmap.md'
+  - Governance: 'governance.md'
+  - Partners: 'partners.md'
+  - Code of Conduct: 'coc.md'

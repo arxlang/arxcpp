@@ -85,6 +85,18 @@ run-test-opt:
 	# it requires a program that reads dot files (e.g. xdot)
 	llvm-as < tests/t.ll | opt -analyze -view-cfg
 
+# DOCS
+# ====
+
+.PHONY: docs-build
+docs-build:
+	mkdocs build --clean --site-dir build
+
+
+.PHONY: docs-watch
+docs-watch:
+	mkdocs serve --watch build
+
 
 # CONDA
 # =====
