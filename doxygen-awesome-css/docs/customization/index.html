@@ -1,0 +1,399 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Customization -
+		ArxLang</title>
+	<meta charset="utf-8" />
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<link rel="stylesheet" href="/assets/css/custom.css" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+		rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+		crossorigin="anonymous">
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous">
+		</script>
+</head>
+
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+
+				<!-- Header -->
+				<header id="header">
+					<!--
+					<a href="index.html" class="logo" style="vertical-align:middle">
+						<img src="/images/arx.png" width="40px"/>
+						<strong>ArxLang</strong>
+					</a>
+					<ul class="icons">
+						<li>
+							<a href="https://twitter.com/arx_lang" class="icon brands fa-twitter">
+								<span class="label">Twitter</span>
+							</a>
+						</li>
+						<li>
+							<a href="https://github.com/arxlang/arx" class="icon brands fa-github">
+								<span class="label">GitHub</span>
+							</a>
+						</li>
+						<li>
+							<a href="/discord" class="icon brands fa-discord">
+								<span class="label">Discord</span>
+							</a>
+						</li>
+						<li>
+							<a href="mailto:arxcompiler@gmail.com" class="icon solid fa-envelope">
+								<span class="label">Email</span>
+							</a>
+						</li>
+					</ul>
+					-->
+				</header>
+
+				<!-- Section -->
+				<section>
+					<h1 id="customization">Customization</h1>
+<div class="toc">
+<ul>
+<li><a href="#customization">Customization</a><ul>
+<li><a href="#css-variables">CSS-Variables</a><ul>
+<li><a href="#setup">Setup</a></li>
+<li><a href="#available-variables">Available variables</a></li>
+</ul>
+</li>
+<li><a href="#doxygen-generator">Doxygen generator</a></li>
+<li><a href="#share-your-customizations">Share your customizations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="css-variables">CSS-Variables</h2>
+<p>This theme is highly customizable because a lot of things are parameterized with CSS variables.</p>
+<p>Just to give you an idea on how flexible the styling is, click this button:</p>
+<div class="alter-theme-button" onclick="toggle_alternative_theme()" onkeypress="if (event.keyCode == 13) toggle_alternative_theme()" tabindex=0>Alter theme</div>
+
+<h3 id="setup">Setup</h3>
+<p>It is recommended to add your own <code>custom.css</code> and overwrite the variables there:</p>
+<pre><code>HTML_EXTRA_STYLESHEET  = doxygen-awesome.css custom.css
+</code></pre>
+<p>Make sure to override the variables in the correct spot. All variables should be customized where they have been defined, in the <code>html</code> tag selector:</p>
+<pre><code class="language-css">html {
+    /* override light-mode variables here */
+}
+</code></pre>
+<p>For dark-mode overrides you have to choose where to put them, depending on wether the dark-mode toggle extension is installed or not:</p>
+<ul>
+<li>dark-mode toggle is installed:
+    <code>css
+    html.dark-mode {
+        /* define dark-mode variable overrides here if you DO use doxygen-awesome-darkmode-toggle.js */
+    }</code></li>
+<li>dark-mode toggle is <strong>NOT</strong> installed. The dark-mode is enabled automatically depending on the system preference:
+    <code>css
+    @media (prefers-color-scheme: dark) {
+        html:not(.light-mode) {
+            /* define dark-mode variable overrides here if you DON'T use doxygen-awesome-darkmode-toggle.js */
+        }
+    }</code></li>
+</ul>
+<h3 id="available-variables">Available variables</h3>
+<p>The following list gives an overview of the variables defined in <a href="https://github.com/jothepro/doxygen-awesome-css/blob/main/doxygen-awesome.css"><code>doxygen-awesome.css</code></a>.</p>
+<p>The list is not complete. To explore all available variables, have a look at the CSS starting from <a href="https://github.com/jothepro/doxygen-awesome-css/blob/main/doxygen-awesome.css#L30">here</a>.
+All variables are defined at the beginning of the stylesheet.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Default (Light)</th>
+<th>Default (Dark)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Color Scheme</strong>:<br>primary theme colors. This will affect the entire websites color scheme: links, arrows, labels, ...</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--primary-color</code></td>
+<td style="text-align: left;"><span style="background:#1779c4;color:white">#1779c4</span></td>
+<td><span style="background:#1982d2;color:white">#1982d2</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--primary-dark-color</code></td>
+<td style="text-align: left;"><span style="background:#335c80;color:white">#335c80</span></td>
+<td><span style="background:#5ca8e2;color:white">#5ca8e2</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--primary-light-color</code></td>
+<td style="text-align: left;"><span style="background:#70b1e9;color:black">#70b1e9</span></td>
+<td><span style="background:#4779ac;color:white">#4779ac</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Page Colors</strong>:<br>background and foreground (text-color) of the documentation.</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--page-background-color</code></td>
+<td style="text-align: left;"><span style="background:white;color:black">white</span></td>
+<td><span style="background:#1C1D1F;color:white">#1C1D1F</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--page-foreground-color</code></td>
+<td style="text-align: left;"><span style="background:#2f4153;color:white">#2f4153</span></td>
+<td><span style="background:#d2dbde;color:black">#d2dbde</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--page-secondary-foreground-color</code></td>
+<td style="text-align: left;"><span style="background:#637485;color:white">#637485</span></td>
+<td><span style="background:#859399;color:black">#859399</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Spacing:</strong><br>default spacings. Most ui components reference these values for spacing, to provide uniform spacing on the page.</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--spacing-small</code></td>
+<td style="text-align: left;"><code>5px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--spacing-medium</code></td>
+<td style="text-align: left;"><code>10px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--spacing-large</code></td>
+<td style="text-align: left;"><code>16px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Border Radius</strong>:<br>border radius for all rounded ui components. Will affect many components, like dropdowns, memitems, codeblocks, ...</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--border-radius-small</code></td>
+<td style="text-align: left;"><code>4px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--border-radius-medium</code></td>
+<td style="text-align: left;"><code>6px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--border-radius-large</code></td>
+<td style="text-align: left;"><code>8px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Content Width</strong>:<br>The content is centered and constrained in its width. To make the content fill the whole page, set the following variable to <code>auto</code>.</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--content-maxwidth</code></td>
+<td style="text-align: left;"><code>1000px</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Code Fragment Colors</strong>:<br>Color-Scheme of multiline codeblocks</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--fragment-background</code></td>
+<td style="text-align: left;"><span style="background:#F8F9FA;color:black">#F8F9FA</span></td>
+<td><span style="background:#282c34;color:white">#282c34</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--fragment-foreground</code></td>
+<td style="text-align: left;"><span style="background:#37474F;color:white">#37474F</span></td>
+<td><span style="background:#dbe4eb;color:black">#dbe4eb</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Arrow Opacity</strong>:<br>By default the arrows in the sidebar are only visible on hover. You can override this behaviour so they are visible all the time.</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--side-nav-arrow-opacity</code></td>
+<td style="text-align: left;"><code>0</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--side-nav-arrow-hover-opacity</code></td>
+<td style="text-align: left;"><code>0.9</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: left;">...and many more</td>
+<td style="text-align: left;"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>If you miss a configuration option or find a bug, please consider <a href="https://github.com/jothepro/doxygen-awesome-css/issues">opening an issue</a>!</p>
+<h2 id="doxygen-generator">Doxygen generator</h2>
+<p>The theme overrides most colors with the <code>--primary-color-*</code> variables.</p>
+<p>But there is a few small images and graphics that the theme cannot adjust or replace. To make these blend in better with
+the rest, it is recommended to adjust the <a href="https://www.doxygen.nl/manual/customize.html#minor_tweaks_colors">doxygen color settings</a> 
+to something that matches the chosen color-scheme.</p>
+<p>For the default color-scheme, these values work out quite well:</p>
+<pre><code># Doxyfile
+HTML_COLORSTYLE_HUE    = 209
+HTML_COLORSTYLE_SAT    = 255
+HTML_COLORSTYLE_GAMMA  = 113
+</code></pre>
+<h2 id="share-your-customizations">Share your customizations</h2>
+<p>If you customized the theme with custom colors, spacings, font-sizes, etc. and you want to share your creation with others, you can to this <a href="https://github.com/jothepro/doxygen-awesome-css/discussions/13">here</a>.</p>
+<p>I am always curious to learn about how you made the theme look even better!</p>
+<p><span class="next_section_button"></p>
+<p>Read Next: <a href="../tricks/">Tips &amp; Tricks</a>
+</span></p>
+				</section>
+
+			</div>
+		</div>
+
+		<!-- Sidebar -->
+		<div id="sidebar">
+			<div class="inner">
+
+				<!-- Search -->
+				<!--
+				<section id="search" class="alt">
+					<form method="post" action="#">
+						<input type="text" name="query" id="query" placeholder="Search" />
+					</form>
+				</section>
+
+				-->
+
+				<!-- Menu -->
+				<nav id="menu">
+					<header class="major">
+						<h2>
+							<a href="index.html" class="logo" style="vertical-align:middle">
+								<img src="/images/arx.png" width="40px"/>
+								<strong>ArxLang</strong>
+							</a>
+						</h2>
+					</header>
+
+					
+					<ul>
+						
+						<li>
+							<a href="../../..">Home</a>
+						</li>
+						
+						<li>
+							<a href="../../../tutorials/">Tutorials</a>
+						</li>
+						
+						<li>
+							<a href="../../../getting-started/">Getting Started</a>
+						</li>
+						
+						<li>
+							<a href="/api/">API Doc</a>
+						</li>
+						
+						<li>
+							<a href="../../../sponsor/">Sponsor</a>
+						</li>
+						
+						<li>
+							<a href="../../../roadmap/">Roadmap</a>
+						</li>
+						
+						<li>
+							<a href="../../../governance/">Governance</a>
+						</li>
+						
+						<li>
+							<a href="../../../partners/">Partners</a>
+						</li>
+						
+						<li>
+							<a href="../../../coc/">Code of Conduct</a>
+						</li>
+						
+					</ul>
+					
+				</nav>
+
+				<section>
+					<header class="major">
+						<h2>Sponsors</h2>
+					</header>
+
+					<p>
+						Be our first sponsor!
+					</p>
+
+					<iframe
+						src="https://github.com/sponsors/arxlang/button"
+						title="Sponsor ArxLang"
+						height="35" width="116" style="border: 0;">
+					</iframe>
+				</section>
+
+				<section>
+					<header class="major">
+						<h2>Get in touch</h2>
+					</header>
+					<ul class="contact">
+						<li class="icon solid fa-envelope">
+							<a href="mailto:arxcompiler@gmail.com">arxcompiler@gmail.com</a>
+						</li>
+						<li class="icon solid brands fa-twitter">
+							<a href="https://twitter.com/arx_lang">Twitter</a>
+						</li>
+						<li class="icon solid brands fa-github">
+							<a href="https://twitter.com/arx_lang">GitHub</a>
+						</li>
+						<li class="icon solid brands fa-discord">
+							<a href="/discord">Discord</a>
+						</li>
+					</ul>
+				</section>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<p class="copyright">
+						&copy; ArxLang. All rights reserved.<br/>
+						Design: <a href="https://html5up.net">HTML5 UP</a>.
+					</p>
+				</footer>
+
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/browser.min.js"></script>
+	<script src="/assets/js/breakpoints.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<script src="/assets/js/main.js"></script>
+
+</body>
+
+</html>

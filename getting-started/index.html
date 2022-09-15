@@ -1,0 +1,335 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Getting Started -
+		ArxLang</title>
+	<meta charset="utf-8" />
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<link rel="stylesheet" href="/assets/css/custom.css" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+		rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+		crossorigin="anonymous">
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous">
+		</script>
+</head>
+
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+
+				<!-- Header -->
+				<header id="header">
+					<!--
+					<a href="index.html" class="logo" style="vertical-align:middle">
+						<img src="/images/arx.png" width="40px"/>
+						<strong>ArxLang</strong>
+					</a>
+					<ul class="icons">
+						<li>
+							<a href="https://twitter.com/arx_lang" class="icon brands fa-twitter">
+								<span class="label">Twitter</span>
+							</a>
+						</li>
+						<li>
+							<a href="https://github.com/arxlang/arx" class="icon brands fa-github">
+								<span class="label">GitHub</span>
+							</a>
+						</li>
+						<li>
+							<a href="/discord" class="icon brands fa-discord">
+								<span class="label">Discord</span>
+							</a>
+						</li>
+						<li>
+							<a href="mailto:arxcompiler@gmail.com" class="icon solid fa-envelope">
+								<span class="label">Email</span>
+							</a>
+						</li>
+					</ul>
+					-->
+				</header>
+
+				<!-- Section -->
+				<section>
+					<h1 id="getting-started">Getting Started</h1>
+<p>Contributions are welcome, and they are greatly appreciated! Every
+little bit helps, and credit will always be given.</p>
+<p>You can contribute in many ways:</p>
+<h2 id="types-of-contributions">Types of Contributions</h2>
+<h3 id="report-bugs">Report Bugs</h3>
+<p>Report bugs at https://github.com/arxlang/arx/issues.</p>
+<p>If you are reporting a bug, please include:</p>
+<ul>
+<li>Your operating system name and version.</li>
+<li>Any details about your local setup that might be helpful in
+    troubleshooting.</li>
+<li>Detailed steps to reproduce the bug.</li>
+</ul>
+<h3 id="fix-bugs">Fix Bugs</h3>
+<p>Look through the GitHub issues for bugs. Anything tagged with “bug” and
+“help wanted” is open to whoever wants to implement it.</p>
+<h3 id="implement-features">Implement Features</h3>
+<p>Look through the GitHub issues for features. Anything tagged with
+“enhancement” and “help wanted” is open to whoever wants to implement
+it.</p>
+<h3 id="write-documentation">Write Documentation</h3>
+<p>arx could always use more documentation,
+whether as part of the official arx docs,
+in docstrings, or even on the web in blog posts, articles, and such.</p>
+<h3 id="submit-feedback">Submit Feedback</h3>
+<p>The best way to send feedback is to file an issue at
+https://github.com/arxlang/arx/issues.</p>
+<p>If you are proposing a feature:</p>
+<ul>
+<li>Explain in detail how it would work.</li>
+<li>Keep the scope as narrow as possible, to make it easier to
+    implement.</li>
+<li>Remember that this is a volunteer-driven project, and that
+    contributions are welcome :)</li>
+</ul>
+<h2 id="get-started">Get Started!</h2>
+<p>Ready to contribute? Here’s how to set up <code>arx</code> for local development.</p>
+<ol>
+<li>
+<p>Fork the <code>arx</code> repo on GitHub.</p>
+</li>
+<li>
+<p>Clone your fork locally:</p>
+</li>
+</ol>
+<pre><code class="language-bash">$ git clone git@github.com:your_name_here/arx.git
+</code></pre>
+<ol>
+<li>Prepare your local development environment:</li>
+</ol>
+<pre><code class="language-bash">$ mamba env create --file /conda/dev.yaml
+$ conda activate arx
+$ pre-commit install
+</code></pre>
+<ol>
+<li>Create a branch for local development:</li>
+</ol>
+<pre><code class="language-bash">$ git checkout -b name-of-your-bugfix-or-feature
+</code></pre>
+<p>Now you can make your changes locally.</p>
+<ol>
+<li>When you’re done making changes, check the compilation and the tests:</li>
+</ol>
+<pre><code class="language-bash">$ make build-with-tests
+$ make run-tests
+$ pre-commit run --all-files
+</code></pre>
+<ol>
+<li>Commit your changes and push your branch to GitHub:</li>
+</ol>
+<pre><code class="language-bash">$ git add .
+$ git commit -m “Your detailed description of your changes.”
+$ git push origin name-of-your-bugfix-or-feature
+</code></pre>
+<ol>
+<li>Submit a pull request through the GitHub website.</li>
+</ol>
+<h2 id="pull-request-guidelines">Pull Request Guidelines</h2>
+<p>Before you submit a pull request, check that it meets these guidelines:</p>
+<ol>
+<li>The pull request should include tests.</li>
+<li>If the pull request adds functionality, the docs should be updated.
+    Put your new functionality into a function with a docstring, and add
+    the feature to the list in README.md.</li>
+</ol>
+<h2 id="release">Release</h2>
+<p>This project uses semantic-release in order to cut a new release
+based on the commit-message.</p>
+<h3 id="commit-message-format">Commit message format</h3>
+<p><strong>semantic-release</strong> uses the commit messages to determine the consumer
+impact of changes in the codebase. Following formalized conventions for
+commit messages, <strong>semantic-release</strong> automatically determines the next
+<a href="https://semver.org">semantic version</a> number, generates a changelog and
+publishes the release.</p>
+<p>By default, <strong>semantic-release</strong> uses <a href="https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format">Angular Commit Message
+Conventions</a>.
+The commit message format can be changed with the <code>preset</code> or <code>config</code>
+options_ of the
+<a href="https://github.com/semantic-release/commit-analyzer#options">@semantic-release/commit-analyzer</a>
+and
+<a href="https://github.com/semantic-release/release-notes-generator#options">@semantic-release/release-notes-generator</a>
+plugins.</p>
+<p>Tools such as <a href="https://github.com/commitizen/cz-cli">commitizen</a> or
+<a href="https://github.com/conventional-changelog/commitlint">commitlint</a> can
+be used to help contributors and enforce valid commit messages.</p>
+<p>The table below shows which commit message gets you which release type
+when <code>semantic-release</code> runs (using the default configuration):</p>
+<table>
+<thead>
+<tr>
+<th>Commit message</th>
+<th>Release type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fix(pencil): stop graphite breaking when pressure is applied</code></td>
+<td>Fix Release</td>
+</tr>
+<tr>
+<td><code>feat(pencil): add 'graphiteWidth' option</code></td>
+<td>Feature Release</td>
+</tr>
+<tr>
+<td><code>perf(pencil): remove graphiteWidth option</code></td>
+<td>Chore</td>
+</tr>
+<tr>
+<td><code>BREAKING CHANGE: The graphiteWidth option has been removed</code></td>
+<td>Breaking Release</td>
+</tr>
+</tbody>
+</table>
+<p>source:
+<a href="https://github.com/semantic-release/semantic-release/blob/master/README.md#commit-message-format">https://github.com/semantic-release/semantic-release/blob/master/README.md#commit-message-format</a></p>
+<p>As this project uses the <code>squash and merge</code> strategy, ensure to apply
+the commit message format to the PR's title.</p>
+				</section>
+
+			</div>
+		</div>
+
+		<!-- Sidebar -->
+		<div id="sidebar">
+			<div class="inner">
+
+				<!-- Search -->
+				<!--
+				<section id="search" class="alt">
+					<form method="post" action="#">
+						<input type="text" name="query" id="query" placeholder="Search" />
+					</form>
+				</section>
+
+				-->
+
+				<!-- Menu -->
+				<nav id="menu">
+					<header class="major">
+						<h2>
+							<a href="index.html" class="logo" style="vertical-align:middle">
+								<img src="/images/arx.png" width="40px"/>
+								<strong>ArxLang</strong>
+							</a>
+						</h2>
+					</header>
+
+					
+					<ul>
+						
+						<li>
+							<a href="..">Home</a>
+						</li>
+						
+						<li>
+							<a href="../tutorials/">Tutorials</a>
+						</li>
+						
+						<li>
+							<a href="./">Getting Started</a>
+						</li>
+						
+						<li>
+							<a href="/api/">API Doc</a>
+						</li>
+						
+						<li>
+							<a href="../sponsor/">Sponsor</a>
+						</li>
+						
+						<li>
+							<a href="../roadmap/">Roadmap</a>
+						</li>
+						
+						<li>
+							<a href="../governance/">Governance</a>
+						</li>
+						
+						<li>
+							<a href="../partners/">Partners</a>
+						</li>
+						
+						<li>
+							<a href="../coc/">Code of Conduct</a>
+						</li>
+						
+					</ul>
+					
+				</nav>
+
+				<section>
+					<header class="major">
+						<h2>Sponsors</h2>
+					</header>
+
+					<p>
+						Be our first sponsor!
+					</p>
+
+					<iframe
+						src="https://github.com/sponsors/arxlang/button"
+						title="Sponsor ArxLang"
+						height="35" width="116" style="border: 0;">
+					</iframe>
+				</section>
+
+				<section>
+					<header class="major">
+						<h2>Get in touch</h2>
+					</header>
+					<ul class="contact">
+						<li class="icon solid fa-envelope">
+							<a href="mailto:arxcompiler@gmail.com">arxcompiler@gmail.com</a>
+						</li>
+						<li class="icon solid brands fa-twitter">
+							<a href="https://twitter.com/arx_lang">Twitter</a>
+						</li>
+						<li class="icon solid brands fa-github">
+							<a href="https://twitter.com/arx_lang">GitHub</a>
+						</li>
+						<li class="icon solid brands fa-discord">
+							<a href="/discord">Discord</a>
+						</li>
+					</ul>
+				</section>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<p class="copyright">
+						&copy; ArxLang. All rights reserved.<br/>
+						Design: <a href="https://html5up.net">HTML5 UP</a>.
+					</p>
+				</footer>
+
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/browser.min.js"></script>
+	<script src="/assets/js/breakpoints.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<script src="/assets/js/main.js"></script>
+
+</body>
+
+</html>
