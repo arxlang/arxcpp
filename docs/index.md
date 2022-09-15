@@ -1,20 +1,11 @@
-<!-- Banner -->
-<section id="banner">
-    <div class="content">
-        <header>
-            <h1>ArxLang</h1>
-        </header>
-        <p>Aenean ornare velit lacus, ac varius enim ullamcorper eu. Proin
-            aliquam facilisis ante interdum congue. Integer mollis, nisl amet
-            convallis, porttitor magna ullamcorper, amet egestas mauris. Ut
-            magna finibus nisi nec lacinia. Nam maximus erat id euismod
-            egestas. Pellentesque sapien ac quam. Lorem ipsum dolor sit
-            nullam.</p>
-        <ul class="actions">
-            <li><a href="#" class="button big">Learn More</a></li>
-        </ul>
-    </div>
-    <span class="image object">
-        <img src="images/pic10.jpg" alt="" />
-    </span>
-</section>
+# ArxLang
+
+Arx is multi-purpose compiler that aims to provide arrow datatypes as native datatypes.
+
+For now, it is strongly based on the Kaleidoscope compiler with a just few changes.</p>
+
+<br/>
+## Arx Enhancement Proposals
+
+Any change to the language (syntax) should be done using a Enhancement Proposal
+via [https://github.com/arxlang/arx-design](arx-design) repository.

@@ -8,6 +8,16 @@
 	<meta name="viewport"
 		content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="/assets/css/main.css" />
+	<link rel="stylesheet" href="/assets/css/custom.css" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+		rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+		crossorigin="anonymous">
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous">
+		</script>
 </head>
 
 <body class="is-preload">
@@ -21,15 +31,34 @@
 
 				<!-- Header -->
 				<header id="header">
-					<a href="index.html" class="logo"><strong>ArxLang</strong></a>
+					<!--
+					<a href="index.html" class="logo" style="vertical-align:middle">
+						<img src="/images/arx.png" width="40px"/>
+						<strong>ArxLang</strong>
+					</a>
 					<ul class="icons">
-						<li><a href="https://twitter.com/arx_lang" class="icon brands fa-twitter"><span
-									class="label">Twitter</span></a></li>
-						<li><a href="https://github.com/arxlang/arx" class="icon brands fa-github"><span
-									class="label">GitHub</span></a></li>
-						<li><a href="/discord" class="icon brands fa-discord"><span
-							class="label">Discord</span></a></li>
+						<li>
+							<a href="https://twitter.com/arx_lang" class="icon brands fa-twitter">
+								<span class="label">Twitter</span>
+							</a>
+						</li>
+						<li>
+							<a href="https://github.com/arxlang/arx" class="icon brands fa-github">
+								<span class="label">GitHub</span>
+							</a>
+						</li>
+						<li>
+							<a href="/discord" class="icon brands fa-discord">
+								<span class="label">Discord</span>
+							</a>
+						</li>
+						<li>
+							<a href="mailto:arxcompiler@gmail.com" class="icon solid fa-envelope">
+								<span class="label">Email</span>
+							</a>
+						</li>
 					</ul>
+					-->
 				</header>
 
 				<!-- Section -->
@@ -45,16 +74,24 @@
 			<div class="inner">
 
 				<!-- Search -->
+				<!--
 				<section id="search" class="alt">
 					<form method="post" action="#">
 						<input type="text" name="query" id="query" placeholder="Search" />
 					</form>
 				</section>
 
+				-->
+
 				<!-- Menu -->
 				<nav id="menu">
 					<header class="major">
-						<h2>Menu</h2>
+						<h2>
+							<a href="index.html" class="logo" style="vertical-align:middle">
+								<img src="/images/arx.png" width="40px"/>
+								<strong>ArxLang</strong>
+							</a>
+						</h2>
 					</header>
 
 					{% if nav|length>1 %}
@@ -68,7 +105,22 @@
 					{% endif %}
 				</nav>
 
-				<!-- Section -->
+				<section>
+					<header class="major">
+						<h2>Sponsors</h2>
+					</header>
+
+					<p>
+						Be our first sponsor!
+					</p>
+
+					<iframe
+						src="https://github.com/sponsors/arxlang/button"
+						title="Sponsor ArxLang"
+						height="35" width="116" style="border: 0;">
+					</iframe>
+				</section>
+
 				<section>
 					<header class="major">
 						<h2>Get in touch</h2>
@@ -103,11 +155,11 @@
 	</div>
 
 	<!-- Scripts -->
-	<script src="assets/js/jquery.min.js"></script>
-	<script src="assets/js/browser.min.js"></script>
-	<script src="assets/js/breakpoints.min.js"></script>
-	<script src="assets/js/util.js"></script>
-	<script src="assets/js/main.js"></script>
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/browser.min.js"></script>
+	<script src="/assets/js/breakpoints.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<script src="/assets/js/main.js"></script>
 
 </body>
 
