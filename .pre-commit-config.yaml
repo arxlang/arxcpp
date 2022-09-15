@@ -16,8 +16,7 @@ repos:
         name: iwyu
         entry: ./scripts/iwyu.sh
         language: system
-        exclude: ^tests\/.*$
-        files: .*\.cpp|.*\.h
+        files: ^arx\/.*\.(cpp|h)$
         pass_filenames: true
         type_or: [c++, c]
         stages:

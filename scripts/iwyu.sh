@@ -21,7 +21,8 @@ do
 
   include-what-you-use \
     -Xiwyu \
-    --verbose=0 \
+    --error_always \
+    --verbose 0 \
     -I${CONDA_PREFIX}/include \
     -I${PROJECT_PATH}/arx/include \
     -I${GCC_INCLUDE_PATH} \
