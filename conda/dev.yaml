@@ -26,5 +26,6 @@ dependencies:
 - gmock
 - gtest
 - lcov
+- mkdocs
 - nodejs
 - pre-commit
