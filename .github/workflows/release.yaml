@@ -11,7 +11,7 @@ on:
     branches: [ main ]
 
 jobs:
-  main:
+  release:
 
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -42,12 +42,22 @@ jobs:
     - name: build code
       run: make build
 
-    - name: Generate documentation
+    - name: Test documentation generation
       run: make docs-build
 
     - name: Test release
       if: ${{ github.event_name != 'workflow_dispatch' }}
       run: make release-dry
+
+    - name: Release
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: make release
+
+    - name: Generate documentation
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: make docs-build
 
     # Push the documentation to github-pages
     - name: GitHub Pages action
@@ -56,9 +66,3 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build/
-
-    - name: Release
-      if: ${{ github.event_name == 'workflow_dispatch' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: make release
