@@ -1,6 +1,13 @@
 Release Notes
 ---
 
+## [1.4.1](https://github.com/arxlang/arx/compare/1.4.0...1.4.1) (2022-09-15)
+
+
+### Bug Fixes
+
+* **codegen:** Fix code generation and IO issues ([#52](https://github.com/arxlang/arx/issues/52)) ([62b8b48](https://github.com/arxlang/arx/commit/62b8b480c295bc2ecdcb5c25b5521b98682b57d9))
+
 # [1.4.0](https://github.com/arxlang/arx/compare/1.3.0...1.4.0) (2022-06-17)
 
 

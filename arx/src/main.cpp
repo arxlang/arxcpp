@@ -26,7 +26,7 @@
 #include "settings.h"
 #include "utils.h"
 
-std::string ARX_VERSION = "1.4.0";  // semantic-release
+std::string ARX_VERSION = "1.4.1";  // semantic-release
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 
