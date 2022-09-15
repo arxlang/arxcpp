@@ -47,7 +47,6 @@ jobs:
 
     - name: Test release
       if: ${{ github.event_name != 'workflow_dispatch' }}
-      env:
       run: make release-dry
 
     # Push the documentation to github-pages
