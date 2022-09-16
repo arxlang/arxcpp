@@ -63,6 +63,4 @@ jobs:
       run: make code-coverage
 
     - name: Generate documentation
-      run: |
-        doxygen Doxyfile
-        echo "arxlang.org" > ./build/docs/html/CNAME
+      run: make docs-build
