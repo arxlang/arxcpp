@@ -4,8 +4,6 @@ set -x
 
 PROJECT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 
-. ${PROJECT_PATH}/scripts/get_version.sh
-
 IWYU_PATCH_DIR=/tmp/iwyu
 mkdir -p ${IWYU_PATCH_DIR}
 
@@ -13,7 +11,7 @@ IWYU_PATCH_FILEPATH=${IWYU_PATCH_DIR}/iwyu.patch
 touch ${IWYU_PATCH_FILEPATH}
 EXIT_CODE=0
 
-GCC_INCLUDE_PATH=${CONDA_PREFIX}/x86_64-conda-linux-gnu/include/c++/$(get_gcc_version)
+GCC_INCLUDE_PATH=$(dirname $(find ${CONDA_PREFIX} -name cxxabi.h))
 
 for FILEPATH in "$@"
 do
