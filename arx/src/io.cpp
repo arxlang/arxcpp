@@ -5,6 +5,11 @@
 #include <sstream>  // IWYU pragma: keep
 #include <string>
 
+/**
+ * @file
+ * @brief ... text ...
+ */
+
 std::stringstream input_buffer;
 std::string INPUT_FILE{""};
 std::string OUTPUT_FILE{""};
