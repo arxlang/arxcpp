@@ -1,9 +1,7 @@
 Release Notes
 ---
 
-## 1.4.1 
-<a style="font-size:12px" href='https://github.com/arxlang/arx/compare/1.4.0...1.4.1'>2022-09-15</a>
-
+## [1.4.1](https://github.com/arxlang/arx/compare/1.4.0...1.4.1) (2022-09-15)
 
 
 ### Bug Fixes

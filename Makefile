@@ -109,6 +109,8 @@ docs-clean:
 docs-api:
 	mkdir -p build
 	doxygen Doxyfile
+	sleep 0.2
+	./scripts/format_releases.sh
 
 .PHONY: docs-build
 docs-build: docs-clean docs-api
