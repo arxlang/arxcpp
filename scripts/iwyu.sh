@@ -12,6 +12,7 @@ touch ${IWYU_PATCH_FILEPATH}
 EXIT_CODE=0
 
 GCC_INCLUDE_PATH=$(dirname $(find ${CONDA_PREFIX} -name cxxabi.h))
+CLANG_INCLUDE_PATH=$(dirname $(find ${CONDA_PREFIX}/lib/clang/ -name builtins.h ))
 
 for FILEPATH in "$@"
 do
@@ -25,7 +26,7 @@ do
     -I${PROJECT_PATH}/arx/include \
     -I${GCC_INCLUDE_PATH} \
     -I${GCC_INCLUDE_PATH}/x86_64-conda-linux-gnu \
-    -I${CONDA_PREFIX}/lib/clang/$(get_clang_version)/include \
+    -I${CLANG_INCLUDE_PATH} \
     -std=c++20 \
     ${FILEPATH} 2> ${IWYU_PATCH_FILEPATH}
 
