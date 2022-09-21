@@ -61,8 +61,3 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
       id: llvm-cov-report
       run: make code-coverage
-
-    - name: Generate documentation
-      run: |
-        doxygen Doxyfile
-        echo "arxlang.org" > ./build/docs/html/CNAME
