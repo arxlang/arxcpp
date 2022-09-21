@@ -42,23 +42,29 @@ jobs:
     - name: build code
       run: make build
 
-    - name: Generate documentation
+    - name: Test documentation generation
       run: make docs-build
 
     - name: Test release
       if: ${{ github.event_name != 'workflow_dispatch' }}
       run: make release-dry
 
-    # Push the documentation to github-pages
+    # note: semantic-release should be executed before the documentation
+    #       publishing because semantic-release will update changelog and
+    #       update hard-coded version inside some files
+    - name: Release
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: make release
+
+    - name: Generate documentation with changes from semantic-release
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: make docs-build
+
     - name: GitHub Pages action
       if: ${{ github.event_name == 'workflow_dispatch' }}
       uses: peaceiris/actions-gh-pages@v3.5.9
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build/
-
-    - name: Release
-      if: ${{ github.event_name == 'workflow_dispatch' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: make release
