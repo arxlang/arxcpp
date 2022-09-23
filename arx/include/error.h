@@ -3,12 +3,20 @@
 #include <stdio.h>
 #include <memory>
 
-// "llvm/IR/Value.h"
+
 namespace llvm {
+/** 
+ * @brief 
+ * "llvm/IR/Value.h"
+ * 
+ */
 class Value;
 }
 
-/// LogError* - These are little helper functions for error handling.
+/**
+ * @brief LogError* - These are little helper functions for error handling.
+ * 
+ */
 template <typename T>
 std::unique_ptr<T> LogError(const char* Str) {
   fprintf(stderr, "Error: %s\n", Str);

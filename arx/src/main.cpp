@@ -30,30 +30,56 @@ std::string ARX_VERSION = "1.4.1";  // semantic-release
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 
+/**
+ * @brief
+ * @param count
+ *
+ */
 auto main_open_shell(int count) {
   load_input_to_buffer();
   open_shell();
   exit(0);
 }
 
+/**
+ * @brief
+ * @param count
+ *
+ */
 auto main_show_llvm(int count) {
   load_input_to_buffer();
   show_llvm();
   exit(0);
 }
 
+/**
+ * @brief
+ * @param count
+ *
+ */
 auto main_show_version(int count) {
   load_input_to_buffer();
   show_version();
   exit(0);
 }
 
+/**
+ * @brief
+ *
+ */
 auto main_compile() {
   load_input_to_buffer();
   show_version();
   exit(0);
 }
 
+/**
+ * @brief
+ * @param argc
+ * @param argv
+ * @return 
+ *
+ */
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 

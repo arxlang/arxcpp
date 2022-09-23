@@ -14,6 +14,12 @@ SourceLocation LexLoc;
 std::string IdentifierStr;
 double NumVal;
 
+/**
+ * @brief
+ * @param Tok
+ * @return
+ *
+ */
 auto getTokName(int Tok) -> std::string {
   switch (Tok) {
     case tok_eof:
@@ -50,14 +56,31 @@ auto getTokName(int Tok) -> std::string {
   return std::string(1, (char)Tok);
 }
 
+/**
+ * @brief
+ * @param c
+ * @return
+ *
+ */
 static auto is_identifier_first_char(char c) -> bool {
   return isalpha(c) || c == '_';
 }
 
+/**
+ * @brief
+ * @param c
+ * @return
+ *
+ */
 static auto is_identifier_char(char c) -> bool {
   return isalnum(c) || c == '_';
 }
 
+/**
+ * @brief
+ * @return
+ *
+ */
 auto advance() -> int {
   int LastChar = get_char();
 
@@ -70,11 +93,15 @@ auto advance() -> int {
   return LastChar;
 }
 
-/// gettok - Return the next token from standard input.
+/**
+ * @brief
+ * @return Return the next token from standard input.
+ *
+ */
 auto gettok() -> int {
   static char LastChar = ' ';
 
-  // Skip any whitespace.
+  /** Skip any whitespace. */
   while (isspace(LastChar)) {
     LastChar = (char)advance();
   }
@@ -120,7 +147,7 @@ auto gettok() -> int {
     return tok_identifier;
   }
 
-  // Number: [0-9.]+
+  /** Number: [0-9.]+ */
   if (isdigit(LastChar) || LastChar == '.') {
     std::string NumStr;
     do {
@@ -132,7 +159,7 @@ auto gettok() -> int {
     return tok_number;
   }
 
-  // Comment until end of line.
+  /** Comment until end of line. */
   if (LastChar == '#') {
     do
       LastChar = advance();
@@ -141,20 +168,25 @@ auto gettok() -> int {
     if (LastChar != EOF) return gettok();
   }
 
-  // Check for end of file.  Don't eat the EOF.
+  /** Check for end of file.  Don't eat the EOF. */
   if (LastChar == EOF) {
     return tok_eof;
   }
 
-  // Otherwise, just return the character as its ascii value.
+  /** Otherwise, just return the character as its ascii value. */
   int ThisChar = LastChar;
   LastChar = advance();
   return ThisChar;
 }
 
-/// CurTok/getNextToken - Provide a simple token buffer.  CurTok is the current
-/// token the parser is looking at.  getNextToken reads another token from the
-/// lexer and updates CurTok with its results.
+/**
+ * @brief Provide a simple token buffer.  
+ * @return
+ * @param CurTok is the current token the parser is looking at.
+ *  
+ * getNextToken reads another token from the lexer and updates 
+ * CurTok with its results.
+ */
 int CurTok;
 auto getNextToken() -> int {
   return CurTok = gettok();

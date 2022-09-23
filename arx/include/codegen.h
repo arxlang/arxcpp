@@ -27,6 +27,10 @@
 #include "parser.h"
 #include "utils.h"
 
+/**
+ * @brief
+ * 
+ */
 struct DebugInfo {
   llvm::DICompileUnit* TheCU;
   llvm::DIType* DblTy;
