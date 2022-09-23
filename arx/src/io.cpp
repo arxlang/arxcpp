@@ -5,7 +5,6 @@
 #include <sstream>  // IWYU pragma: keep
 #include <string>
 
-
 std::stringstream input_buffer;
 std::string INPUT_FILE{""};
 std::string OUTPUT_FILE{""};

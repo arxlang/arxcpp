@@ -21,18 +21,18 @@
  * @section DESCRIPTION
  *
  *  This module handles errors.
- * 
+ *
  */
 
 /**
  * @brief Prints error in stderr.
  * @param Str String of the error.
- * @return nullptr objetct.  
+ * @return nullptr objetct.
  *
  *  Class responsible for throw errors to stderr.
- *  
+ *
  */
- 
+
 #include <cstdio>
 
 // #include <llvm/IR/Value.h>

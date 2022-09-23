@@ -17,13 +17,13 @@ extern double NumVal;
 
 extern int CurTok;
 
-/** 
+/**
  * @brief This holds the precedence for each binary operator that
  * is defined.
  */
 std::map<char, int> BinopPrecedence;
 
-/** 
+/**
  * @brief Get the precedence of the pending binary operator token.
  * @return
  *
@@ -31,7 +31,7 @@ std::map<char, int> BinopPrecedence;
 auto GetTokPrecedence() -> int {
   if (!isascii(CurTok)) return -1;
 
-  /** 
+  /**
    * Make sure it's a declared binop.
    */
   int TokPrec = BinopPrecedence[CurTok];
@@ -39,7 +39,7 @@ auto GetTokPrecedence() -> int {
   return TokPrec;
 }
 
-/** 
+/**
  * @brief
  * @return
  * numberexpr ::= number
@@ -50,7 +50,7 @@ std::unique_ptr<NumberExprAST> ParseNumberExpr() {
   return std::move(Result);
 }
 
-/** 
+/**
  * @brief
  * @return
  * parenexpr ::= '(' expression ')'
@@ -109,7 +109,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
   return std::make_unique<CallExprAST>(LitLoc, IdName, std::move(Args));
 }
 
-/** 
+/**
  * @brief
  * @return
  * ifexpr ::= 'if' expression 'then' expression 'else' expression
@@ -161,7 +161,7 @@ std::unique_ptr<IfExprAST> ParseIfExpr() {
       IfLoc, std::move(Cond), std::move(Then), std::move(Else));
 }
 
-/** 
+/**
  * @brief
  * @return
  * forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
@@ -223,9 +223,9 @@ std::unique_ptr<ForExprAST> ParseForExpr() {
       std::move(Body));
 }
 
-/** 
+/**
  * @brief
- * @return 
+ * @return
  * varexpr ::= 'var' identifier ('=' expression)?
  *                    (',' identifier ('=' expression)?)* 'in' expression
  */
@@ -280,9 +280,9 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
   return std::make_unique<VarExprAST>(std::move(VarNames), std::move(Body));
 }
 
-/** 
+/**
  * @brief
- * @return 
+ * @return
  * primary
  *   ::= identifierexpr
  *   ::= numberexpr
@@ -319,7 +319,7 @@ std::unique_ptr<ExprAST> ParsePrimary() {
   }
 }
 
-/** 
+/**
  * @brief
  * @return
  * unary
@@ -343,7 +343,7 @@ std::unique_ptr<ExprAST> ParseUnary() {
  * @brief
  * @param ExprPrec
  * @param LHS
- * @return 
+ * @return
  * binoprhs
  *   ::= ('+' unary)*
  */
@@ -368,7 +368,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
     SourceLocation BinLoc = CurLoc;
     getNextToken();  // eat binop
 
-    /** 
+    /**
      * Parse the unary expression after the binary operator.
      */
     auto RHS = ParseUnary();
@@ -376,7 +376,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
       return nullptr;
     }
 
-    /** 
+    /**
      * If BinOp binds less tightly with RHS than the operator after RHS, let
      * the pending operator take RHS as its LHS.
      */
@@ -388,7 +388,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
       }
     }
 
-    /** 
+    /**
      * Merge LHS/RHS.
      */
     LHS = std::make_unique<BinaryExprAST>(
@@ -396,7 +396,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
   }
 }
 
-/** 
+/**
  * @brief
  * @return
  * expression
@@ -412,7 +412,7 @@ std::unique_ptr<ExprAST> ParseExpression() {
   return ParseBinOpRHS(0, std::move(LHS));
 }
 
-/** 
+/**
  * @brief
  * @return
  * prototype
@@ -522,7 +522,7 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
   return nullptr;
 }
 
-/** 
+/**
  * @brief
  * @return
  * external ::= 'extern' prototype

@@ -11,7 +11,7 @@ extern std::string ARX_VERSION;
  * @brief
  * @param O
  * @param size
- * @return 
+ * @return
  *
  */
 auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
@@ -20,7 +20,7 @@ auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
 
 /**
  * @brief
- * @return 
+ * @return
  *
  */
 auto show_version() -> void {

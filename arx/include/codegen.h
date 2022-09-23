@@ -29,7 +29,7 @@
 
 /**
  * @brief
- * 
+ *
  */
 struct DebugInfo {
   llvm::DICompileUnit* TheCU;

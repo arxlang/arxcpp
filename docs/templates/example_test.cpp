@@ -24,7 +24,6 @@
  *  A more elaborate description of the module.
  */
 
-
 /**
  * @author Optional class author name
  * @brief A brief description of the class
@@ -35,19 +34,17 @@
  *  An Example class.
  *  More details about this class.
  */
- 
-class Example_Class
-{
-  public:
-    /** 
-     *  More details about this function.
-     * @see External link.
-     * @param a Param a escription.
-     * @param b Param b escription.
-     * @return Return description.
-     */
-    void example(int a, int b);
+
+class Example_Class {
+ public:
+  /**
+   *  More details about this function.
+   * @see External link.
+   * @param a Param a escription.
+   * @param b Param b escription.
+   * @return Return description.
+   */
+  void example(int a, int b);
 };
- 
-void Example_Class::example(1,2) {}
- 
+
+void Example_Class::example(1, 2) {}

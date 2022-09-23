@@ -1,12 +1,8 @@
- *  note: arrow will not be used yet
- *  #include <arrow/api.h>
- *  #include <arrow/csv/api.h>
- *  #include <arrow/io/api.h>
- *  #include <arrow/ipc/api.h>
- *  #include <arrow/pretty_print.h>
- *  #include <arrow/result.h>
- *  #include <arrow/status.h>
- *  #include <arrow/table.h>
+*note : arrow will not be used yet * #include<arrow / api.h> *
+#include <arrow / csv / api.h> * #include<arrow / io / api.h> *
+#include <arrow / ipc / api.h> * #include<arrow / pretty_print.h> *
+#include <arrow / result.h> * #include<arrow / status.h> *
+#include <arrow / table.h>
 
 #include <algorithm>
 #include <cassert>
@@ -60,7 +56,7 @@
 #include "settings.h"
 #include "utils.h"
 
-extern std::map<char, int> BinopPrecedence;
+    extern std::map<char, int> BinopPrecedence;
 extern int CurTok;
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
@@ -90,8 +86,8 @@ std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 std::unique_ptr<llvm::DIBuilder> DBuilder;
 
 /**
- * @brief 
- * @return 
+ * @brief
+ * @return
  */
 llvm::DIType* DebugInfo::getDoubleTy() {
   if (DblTy) return DblTy;
@@ -101,8 +97,8 @@ llvm::DIType* DebugInfo::getDoubleTy() {
 }
 
 /**
- * @brief 
- * @param AST 
+ * @brief
+ * @param AST
  */
 void DebugInfo::emitLocation(ExprAST* AST) {
   if (!AST) return Builder->SetCurrentDebugLocation(llvm::DebugLoc());
@@ -116,7 +112,7 @@ void DebugInfo::emitLocation(ExprAST* AST) {
 }
 
 /**
- * @brief 
+ * @brief
  * @param NumArgs
  * @param Unit
  * @return
@@ -139,16 +135,16 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
 }
 
 /**
- * ===----------------------------------------------------------------------===  
+ * ===----------------------------------------------------------------------===
  *  Code Generation
- * ===----------------------------------------------------------------------=== 
+ * ===----------------------------------------------------------------------===
  */
 
 /**
  * @brief
  * @param Name
  * @return
- * 
+ *
  * First, see if the function has already been added to the current module.
  * If not, check whether we can codegen the declaration from some existing
  * prototype.
@@ -208,7 +204,7 @@ llvm::Value* VariableExprAST::codegen() {
 /**
  * @brief
  * @return
- *  
+ *
  */
 llvm::Value* UnaryExprAST::codegen() {
   llvm::Value* OperandV = Operand->codegen();
@@ -224,12 +220,13 @@ llvm::Value* UnaryExprAST::codegen() {
 /**
  * @brief
  * @return
- *  
+ *
  */
 llvm::Value* BinaryExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
-  /** Special case '=' because we don't want to emit the LHS as an expression.*/
+  /** Special case '=' because we don't want to emit the LHS as an
+   * expression.*/
   if (Op == '=') {
     /** Assignment requires the LHS to be an identifier.
      * This assume we're building without RTTI because LLVM builds that way by
@@ -281,10 +278,10 @@ llvm::Value* BinaryExprAST::codegen() {
 }
 
 /**
-  * @brief Look up the name in the global module table.
-  * @return 
-  * 
-  */
+ * @brief Look up the name in the global module table.
+ * @return
+ *
+ */
 llvm::Value* CallExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
@@ -304,8 +301,8 @@ llvm::Value* CallExprAST::codegen() {
 }
 
 /**
-  * @brief
-  */
+ * @brief
+ */
 llvm::Value* IfExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
@@ -321,9 +318,9 @@ llvm::Value* IfExprAST::codegen() {
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
   /**
-   *  Create blocks for the then and else cases.  Insert the 'then' block at the
-   *  end of the function.
-   */ 
+   *  Create blocks for the then and else cases.  Insert the 'then' block at
+   * the end of the function.
+   */
   llvm::BasicBlock* ThenBB =
       llvm::BasicBlock::Create(*TheContext, "then", TheFunction);
   llvm::BasicBlock* ElseBB = llvm::BasicBlock::Create(*TheContext, "else");
@@ -341,7 +338,8 @@ llvm::Value* IfExprAST::codegen() {
 
   Builder->CreateBr(MergeBB);
   /**
-   *  Codegen of 'Then' can change the current block, update ThenBB for the PHI.
+   *  Codegen of 'Then' can change the current block, update ThenBB for the
+   * PHI.
    */
   ThenBB = Builder->GetInsertBlock();
 
@@ -356,7 +354,8 @@ llvm::Value* IfExprAST::codegen() {
 
   Builder->CreateBr(MergeBB);
   /**
-   *  Codegen of 'Else' can change the current block, update ElseBB for the PHI.
+   *  Codegen of 'Else' can change the current block, update ElseBB for the
+   * PHI.
    */
   ElseBB = Builder->GetInsertBlock();
 
@@ -443,8 +442,8 @@ llvm::Value* ForExprAST::codegen() {
 
   /**
    *  Emit the body of the loop.  This, like any other expr, can change the
-   *  current BB.  Note that we ignore the value computed by the body, but don't
-   *  allow an error.
+   *  current BB.  Note that we ignore the value computed by the body, but
+   * don't allow an error.
    */
   if (!Body->codegen()) return nullptr;
 
@@ -475,7 +474,7 @@ llvm::Value* ForExprAST::codegen() {
   llvm::Value* CurVar = Builder->CreateLoad(Alloca, VarName.c_str());
   llvm::Value* NextVar = Builder->CreateFAdd(CurVar, StepVal, "nextvar");
   Builder->CreateStore(NextVar, Alloca);
-  
+
   /**
    *  Convert condition to a bool by comparing non-equal to 0.0.
    */
@@ -542,7 +541,7 @@ llvm::Value* VarExprAST::codegen() {
     if (Init) {
       InitVal = Init->codegen();
       if (!InitVal) return nullptr;
-    } else {   /** If not specified, use 0.0. */
+    } else { /** If not specified, use 0.0. */
       InitVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0));
     }
 
@@ -580,7 +579,7 @@ llvm::Value* VarExprAST::codegen() {
 
 /**
  * @brief
- * @return 
+ * @return
  *
  */
 llvm::Function* PrototypeAST::codegen() {
@@ -607,7 +606,7 @@ llvm::Function* PrototypeAST::codegen() {
 
 /**
  * @brief
- * @return 
+ * @return
  *
  */
 llvm::Function* FunctionAST::codegen() {
@@ -659,8 +658,8 @@ llvm::Function* FunctionAST::codegen() {
   KSDbgInfo.LexicalBlocks.push_back(SP);
 
   /**
-   *  Unset the location for the prologue emission (leading instructions with no
-   *  location in a function are considered part of the prologue and the
+   *  Unset the location for the prologue emission (leading instructions with
+   * no location in a function are considered part of the prologue and the
    *  debugger will run past them when breaking on a function)
    */
   KSDbgInfo.emitLocation(nullptr);
@@ -745,9 +744,9 @@ llvm::Function* FunctionAST::codegen() {
 }
 
 /**
- * ===----------------------------------------------------------------------===  
+ * ===----------------------------------------------------------------------===
  *  Top-Level parsing and JIT Driver
- * ===----------------------------------------------------------------------=== 
+ * ===----------------------------------------------------------------------===
  */
 
 /**
@@ -770,12 +769,12 @@ auto InitializeModuleAndPassManager() -> void {
   TheContext = std::make_unique<llvm::LLVMContext>();
   TheModule = std::make_unique<llvm::Module>("arx jit", *TheContext);
 
-   /** Create a new builder for the module. */
+  /** Create a new builder for the module. */
   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
 /**
- * @brief 
+ * @brief
  *
  */
 auto HandleDefinition() -> void {
@@ -789,7 +788,7 @@ auto HandleDefinition() -> void {
 }
 
 /**
- * @brief 
+ * @brief
  *
  */
 auto HandleExtern() -> void {
@@ -799,7 +798,7 @@ auto HandleExtern() -> void {
     else
       FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
   } else {
-     /**  Skip token for error recovery. */
+    /**  Skip token for error recovery. */
     getNextToken();
   }
 }
@@ -828,7 +827,7 @@ auto MainLoop() -> void {
     switch (CurTok) {
       case tok_eof:
         return;
-      case ';':   // ignore top-level semicolons.
+      case ';':  // ignore top-level semicolons.
         getNextToken();
         break;
       case tok_function:
@@ -845,9 +844,9 @@ auto MainLoop() -> void {
 }
 
 /**
- * ===----------------------------------------------------------------------=== 
+ * ===----------------------------------------------------------------------===
  *  "Library" functions that can be "extern'd" from user code.
- * ===----------------------------------------------------------------------===  
+ * ===----------------------------------------------------------------------===
  */
 #ifdef _WIN32
 #define DLLEXPORT __declspec(dllexport)
@@ -942,7 +941,7 @@ auto show_llvm() -> void {
 }
 
 /**
- * @brief 
+ * @brief
  *
  */
 auto compile() -> void {
@@ -1038,7 +1037,7 @@ auto compile_to_file() -> void {
 }
 
 /**
- * @brief 
+ * @brief
  *
  */
 auto open_shell() -> void {

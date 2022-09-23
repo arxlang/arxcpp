@@ -77,7 +77,7 @@ auto main_compile() {
  * @brief
  * @param argc
  * @param argv
- * @return 
+ * @return
  *
  */
 auto main(int argc, const char* argv[]) -> int {

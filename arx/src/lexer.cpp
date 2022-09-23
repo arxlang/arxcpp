@@ -180,11 +180,11 @@ auto gettok() -> int {
 }
 
 /**
- * @brief Provide a simple token buffer.  
+ * @brief Provide a simple token buffer.
  * @return
  * @param CurTok is the current token the parser is looking at.
- *  
- * getNextToken reads another token from the lexer and updates 
+ *
+ * getNextToken reads another token from the lexer and updates
  * CurTok with its results.
  */
 int CurTok;

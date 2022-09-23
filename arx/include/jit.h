@@ -47,12 +47,12 @@ class ArxJIT {
   JITDylib& MainJD;
 
  public:
- /**
-  * @param ES
-  * @param JTMB
-  * @param DL   
-  * @return 
-  */
+  /**
+   * @param ES
+   * @param JTMB
+   * @param DL
+   * @return
+   */
   ArxJIT(
       std::unique_ptr<ExecutionSession> ES,
       JITTargetMachineBuilder JTMB,

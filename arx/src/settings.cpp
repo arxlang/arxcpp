@@ -9,7 +9,7 @@ extern std::map<char, int> BinopPrecedence;
 
 /**
  * @brief Install standard binary operators.
- * 1 is lowest precedence. 
+ * 1 is lowest precedence.
  */
 void load_settings() {
   BinopPrecedence['='] = 2;
