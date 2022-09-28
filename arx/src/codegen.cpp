@@ -1,8 +1,13 @@
-*note : arrow will not be used yet * #include<arrow / api.h> *
-#include <arrow / csv / api.h> * #include<arrow / io / api.h> *
-#include <arrow / ipc / api.h> * #include<arrow / pretty_print.h> *
-#include <arrow / result.h> * #include<arrow / status.h> *
-#include <arrow / table.h>
+
+// note: arrow will not be used yet
+// #include <arrow/api.h>
+// #include <arrow/csv/api.h>
+// #include <arrow/io/api.h>
+// #include <arrow/ipc/api.h>
+// #include <arrow/pretty_print.h>
+// #include <arrow/result.h>
+// #include <arrow/status.h>
+// #include <arrow/table.h>
 
 #include <algorithm>
 #include <cassert>
@@ -56,7 +61,7 @@
 #include "settings.h"
 #include "utils.h"
 
-    extern std::map<char, int> BinopPrecedence;
+extern std::map<char, int> BinopPrecedence;
 extern int CurTok;
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
@@ -78,11 +83,11 @@ std::map<std::string, llvm::AllocaInst*> NamedValues;
 std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
-/**
- * ===----------------------------------------------------------------------===
- *  Debug Info Support
- * ===----------------------------------------------------------------------===
- */
+
+//===----------------------------------------------------------------------===
+// Debug Info Support
+//===----------------------------------------------------------------------===
+
 std::unique_ptr<llvm::DIBuilder> DBuilder;
 
 /**
@@ -122,9 +127,8 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
   llvm::SmallVector<llvm::Metadata*, 8> EltTys;
   llvm::DIType* DblTy = KSDbgInfo.getDoubleTy();
 
-  /**
-   *  Add the result type.
-   */
+  
+  // Add the result type.
   EltTys.push_back(DblTy);
 
   for (unsigned i = 0, e = NumArgs; i != e; ++i)
@@ -134,11 +138,11 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
       DBuilder->getOrCreateTypeArray(EltTys));
 }
 
-/**
- * ===----------------------------------------------------------------------===
- *  Code Generation
- * ===----------------------------------------------------------------------===
- */
+
+//===----------------------------------------------------------------------===//
+// Code Generation                                                            //
+//===----------------------------------------------------------------------===//
+
 
 /**
  * @brief
@@ -189,7 +193,6 @@ llvm::Value* NumberExprAST::codegen() {
 
 /**
  * @brief Stat a variable in the function.
- * @param NamedValues Variable to stat
  * @return The variable loaded into the llvm.
  *
  */
@@ -225,20 +228,20 @@ llvm::Value* UnaryExprAST::codegen() {
 llvm::Value* BinaryExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
-  /** Special case '=' because we don't want to emit the LHS as an
-   * expression.*/
+  //  Special case '=' because we don't want to emit the LHS as an
+  // expression.*/
   if (Op == '=') {
-    /** Assignment requires the LHS to be an identifier.
-     * This assume we're building without RTTI because LLVM builds that way by
-     * default.  If you build LLVM with RTTI this can be changed to a
-     * dynamic_cast for automatic error checking.*/
+    // Assignment requires the LHS to be an identifier.
+    // This assume we're building without RTTI because LLVM builds that way by
+    // default.  If you build LLVM with RTTI this can be changed to a
+    // dynamic_cast for automatic error checking.
     VariableExprAST* LHSE = static_cast<VariableExprAST*>(LHS.get());
     if (!LHSE) return LogErrorV("destination of '=' must be a variable");
-    /** Codegen the RHS.*/
+    // Codegen the RHS.//
     llvm::Value* Val = RHS->codegen();
     if (!Val) return nullptr;
 
-    /** Look up the name.*/
+    // Look up the name.//
     llvm::Value* Variable = NamedValues[LHSE->getName()];
     if (!Variable) return LogErrorV("Unknown variable name");
 
@@ -259,17 +262,16 @@ llvm::Value* BinaryExprAST::codegen() {
       return Builder->CreateFMul(L, R, "multmp");
     case '<':
       L = Builder->CreateFCmpULT(L, R, "cmptmp");
-      /** Convert bool 0/1 to double 0.0 or 1.0*/
+      // Convert bool 0/1 to double 0.0 or 1.0 //
       return Builder->CreateUIToFP(
           L, llvm::Type::getDoubleTy(*TheContext), "booltmp");
     default:
       break;
   }
 
-  /**
-   * If it wasn't a builtin binary operator, it must be a user defined one.
-   * Emit a call to it.
-   */
+  
+  // If it wasn't a builtin binary operator, it must be a user defined one.
+  // Emit a call to it.
   llvm::Function* F = getFunction(std::string("binary") + Op);
   assert(F && "binary operator not found!");
 
@@ -309,18 +311,14 @@ llvm::Value* IfExprAST::codegen() {
   llvm::Value* CondV = Cond->codegen();
   if (!CondV) return nullptr;
 
-  /**
-   *  Convert condition to a bool by comparing non-equal to 0.0.
-   */
+  // Convert condition to a bool by comparing non-equal to 0.0.
   CondV = Builder->CreateFCmpONE(
       CondV, llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0)), "ifcond");
 
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
-  /**
-   *  Create blocks for the then and else cases.  Insert the 'then' block at
-   * the end of the function.
-   */
+  // Create blocks for the then and else cases.  Insert the 'then' block at the
+  // end of the function.
   llvm::BasicBlock* ThenBB =
       llvm::BasicBlock::Create(*TheContext, "then", TheFunction);
   llvm::BasicBlock* ElseBB = llvm::BasicBlock::Create(*TheContext, "else");
@@ -328,24 +326,17 @@ llvm::Value* IfExprAST::codegen() {
 
   Builder->CreateCondBr(CondV, ThenBB, ElseBB);
 
-  /**
-   *  Emit then value.
-   */
+  // Emit then value.
   Builder->SetInsertPoint(ThenBB);
 
   llvm::Value* ThenV = Then->codegen();
   if (!ThenV) return nullptr;
 
   Builder->CreateBr(MergeBB);
-  /**
-   *  Codegen of 'Then' can change the current block, update ThenBB for the
-   * PHI.
-   */
+  // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
   ThenBB = Builder->GetInsertBlock();
 
-  /**
-   *  Emit else block.
-   */
+  // Emit else block.
   TheFunction->getBasicBlockList().push_back(ElseBB);
   Builder->SetInsertPoint(ElseBB);
 
@@ -353,15 +344,10 @@ llvm::Value* IfExprAST::codegen() {
   if (!ElseV) return nullptr;
 
   Builder->CreateBr(MergeBB);
-  /**
-   *  Codegen of 'Else' can change the current block, update ElseBB for the
-   * PHI.
-   */
+  // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
   ElseBB = Builder->GetInsertBlock();
 
-  /**
-   *  Emit merge block.
-   */
+  // Emit merge block.
   TheFunction->getBasicBlockList().push_back(MergeBB);
   Builder->SetInsertPoint(MergeBB);
   llvm::PHINode* PN =
@@ -398,118 +384,82 @@ llvm::Value* IfExprAST::codegen() {
 llvm::Value* ForExprAST::codegen() {
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
-  /**
-   *  Create an alloca for the variable in the entry block.
-   */
+  // Create an alloca for the variable in the entry block.
   llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(TheFunction, VarName);
 
   KSDbgInfo.emitLocation(this);
 
-  /**
-   *  Emit the start code first, without 'variable' in scope.
-   */
+  // Emit the start code first, without 'variable' in scope.
   llvm::Value* StartVal = Start->codegen();
   if (!StartVal) return nullptr;
 
-  /**
-   *  Store the value into the alloca.
-   */
+  // Store the value into the alloca.
   Builder->CreateStore(StartVal, Alloca);
 
-  /**
-   *  Make the new basic block for the loop header, inserting after current
-   *  block.
-   */
+  // Make the new basic block for the loop header, inserting after current
+  // block.
   llvm::BasicBlock* LoopBB =
       llvm::BasicBlock::Create(*TheContext, "loop", TheFunction);
 
-  /**
-   *  Insert an explicit fall through from the current block to the LoopBB.
-   */
+  // Insert an explicit fall through from the current block to the LoopBB.
   Builder->CreateBr(LoopBB);
 
-  /**
-   *  Start insertion in LoopBB.
-   */
+  // Start insertion in LoopBB.
   Builder->SetInsertPoint(LoopBB);
 
-  /**
-   *  Within the loop, the variable is defined equal to the PHI node.  If it
-   *  shadows an existing variable, we have to restore it, so save it now.
-   */
+  // Within the loop, the variable is defined equal to the PHI node.  If it
+  // shadows an existing variable, we have to restore it, so save it now.
   llvm::AllocaInst* OldVal = NamedValues[VarName];
   NamedValues[VarName] = Alloca;
 
-  /**
-   *  Emit the body of the loop.  This, like any other expr, can change the
-   *  current BB.  Note that we ignore the value computed by the body, but
-   * don't allow an error.
-   */
+  // Emit the body of the loop.  This, like any other expr, can change the
+  // current BB.  Note that we ignore the value computed by the body, but don't
+  // allow an error.
   if (!Body->codegen()) return nullptr;
 
-  /**
-   *  Emit the step value.
-   */
+  // Emit the step value.
   llvm::Value* StepVal = nullptr;
   if (Step) {
     StepVal = Step->codegen();
     if (!StepVal) return nullptr;
   } else {
-    /**
-     *  If not specified, use 1.0.
-     */
+    // If not specified, use 1.0.
     StepVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
   }
 
-  /**
-   *  Compute the end condition.
-   */
+  // Compute the end condition.
   llvm::Value* EndCond = End->codegen();
   if (!EndCond) return nullptr;
 
-  /**
-   *  Reload, increment, and restore the alloca.  This handles the case where
-   *  the body of the loop mutates the variable.
-   */
+  // Reload, increment, and restore the alloca.  This handles the case where
+  // the body of the loop mutates the variable.
   llvm::Value* CurVar = Builder->CreateLoad(Alloca, VarName.c_str());
   llvm::Value* NextVar = Builder->CreateFAdd(CurVar, StepVal, "nextvar");
   Builder->CreateStore(NextVar, Alloca);
 
-  /**
-   *  Convert condition to a bool by comparing non-equal to 0.0.
-   */
+  // Convert condition to a bool by comparing non-equal to 0.0.
   EndCond = Builder->CreateFCmpONE(
       EndCond,
       llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0)),
       "loopcond");
 
-  /**
-   *  Create the "after loop" block and insert it.
-   */
+  // Create the "after loop" block and insert it.
   llvm::BasicBlock* AfterBB =
       llvm::BasicBlock::Create(*TheContext, "afterloop", TheFunction);
 
-  /**
-   *  Insert the conditional branch into the end of LoopEndBB.
-   */
+  // Insert the conditional branch into the end of LoopEndBB.
   Builder->CreateCondBr(EndCond, LoopBB, AfterBB);
 
-  /**
-   *  Any new code will be inserted in AfterBB.
-   */
+  // Any new code will be inserted in AfterBB.
   Builder->SetInsertPoint(AfterBB);
 
-  /**
-   *  Restore the unshadowed variable.
-   */
+  // Restore the unshadowed variable.
   if (OldVal)
     NamedValues[VarName] = OldVal;
   else
     NamedValues.erase(VarName);
 
-  /**
-   *  for expr always returns 0.0.
-   */
+  // for expr always returns 0.0.
   return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*TheContext));
 }
 
@@ -523,57 +473,46 @@ llvm::Value* VarExprAST::codegen() {
 
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
-  /**
-   *  Register all variables and emit their initializer.
-   */
+  // Register all variables and emit their initializer.
   for (auto& i : VarNames) {
     const std::string& VarName = i.first;
     ExprAST* Init = i.second.get();
 
-    /**
-     *  Emit the initializer before adding the variable to scope, this prevents
-     *  the initializer from referencing the variable itself, and permits stuff
-     *  like this:
-     *   var a = 1 in
-     *     var a = a in ...   # refers to outer 'a'.
-     */
+    // Emit the initializer before adding the variable to scope, this prevents
+    // the initializer from referencing the variable itself, and permits stuff
+    // like this:
+    //  var a = 1 in
+    //    var a = a in ...   # refers to outer 'a'.
     llvm::Value* InitVal = nullptr;
     if (Init) {
       InitVal = Init->codegen();
       if (!InitVal) return nullptr;
-    } else { /** If not specified, use 0.0. */
+    } else {  // If not specified, use 0.0.
       InitVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0));
     }
 
     llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(TheFunction, VarName);
     Builder->CreateStore(InitVal, Alloca);
 
-    /**
-     *  Remember the old variable binding so that we can restore the binding
-     *  when we unrecurse.
-     */
+    // Remember the old variable binding so that we can restore the binding
+    // when we unrecurse.
     OldBindings.push_back(NamedValues[VarName]);
 
-    /**
-     *  Remember this binding.
-     */
+    // Remember this binding.
     NamedValues[VarName] = Alloca;
   }
 
   KSDbgInfo.emitLocation(this);
 
-  /**
-   *  Codegen the body, now that all vars are in scope.
-   */
+  // Codegen the body, now that all vars are in scope.
   llvm::Value* BodyVal = Body->codegen();
   if (!BodyVal) return nullptr;
 
-  /**
-   *  Pop all our variables from scope.
-   */
+  // Pop all our variables from scope.
   for (unsigned i = 0, e = VarNames.size(); i != e; ++i)
     NamedValues[VarNames[i].first] = OldBindings[i];
 
+  // Return the body computation.
   return BodyVal;
 }
 
@@ -583,9 +522,7 @@ llvm::Value* VarExprAST::codegen() {
  *
  */
 llvm::Function* PrototypeAST::codegen() {
-  /**
-   *  Make the function type:  double(double,double) etc.
-   */
+  // Make the function type:  double(double,double) etc.
   std::vector<llvm::Type*> Doubles(
       Args.size(), llvm::Type::getDoubleTy(*TheContext));
   llvm::FunctionType* FT = llvm::FunctionType::get(
@@ -594,9 +531,7 @@ llvm::Function* PrototypeAST::codegen() {
   llvm::Function* F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, Name, TheModule.get());
 
-  /**
-   *  Set names for all arguments.
-   */
+  // Set names for all arguments.
   unsigned Idx = 0;
   for (auto& Arg : F->args())
     Arg.setName(Args[Idx++]);
@@ -604,37 +539,30 @@ llvm::Function* PrototypeAST::codegen() {
   return F;
 }
 
+
 /**
  * @brief
  * @return
  *
+ * Transfer ownership of the prototype to the FunctionProtos map, but keep a
+ * reference to it for use below.
  */
 llvm::Function* FunctionAST::codegen() {
-  /**
-   *  Transfer ownership of the prototype to the FunctionProtos map, but keep a
-   *  reference to it for use below.
-   */
   auto& P = *Proto;
   FunctionProtos[Proto->getName()] = std::move(Proto);
   llvm::Function* TheFunction = getFunction(P.getName());
   if (!TheFunction) return nullptr;
 
-  /**
-   *  If this is an operator, install it.
-   */
+  // If this is an operator, install it.
   if (P.isBinaryOp())
     BinopPrecedence[P.getOperatorName()] = P.getBinaryPrecedence();
 
-  /**
-   *  Create a new basic block to start insertion into.
-   */
+  // Create a new basic block to start insertion into.
   llvm::BasicBlock* BB =
       llvm::BasicBlock::Create(*TheContext, "entry", TheFunction);
   Builder->SetInsertPoint(BB);
 
-  /**
-   *  Create a subprogram DIE for this function.
-   */
+  // Create a subprogram DIE for this function.
   llvm::DIFile* Unit = DBuilder->createFile(
       KSDbgInfo.TheCU->getFilename(), KSDbgInfo.TheCU->getDirectory());
   llvm::DIScope* FContext = Unit;
@@ -652,33 +580,23 @@ llvm::Function* FunctionAST::codegen() {
       llvm::DISubprogram::SPFlagDefinition);
   TheFunction->setSubprogram(SP);
 
-  /**
-   *  Push the current scope.
-   */
+  // Push the current scope.
   KSDbgInfo.LexicalBlocks.push_back(SP);
 
-  /**
-   *  Unset the location for the prologue emission (leading instructions with
-   * no location in a function are considered part of the prologue and the
-   *  debugger will run past them when breaking on a function)
-   */
+  // Unset the location for the prologue emission (leading instructions with no
+  // location in a function are considered part of the prologue and the
+  // debugger will run past them when breaking on a function)
   KSDbgInfo.emitLocation(nullptr);
 
-  /**
-   *  Record the function arguments in the NamedValues map.
-   */
+  // Record the function arguments in the NamedValues map.
   NamedValues.clear();
   unsigned ArgIdx = 0;
   for (auto& Arg : TheFunction->args()) {
-    /**
-     *  Create an alloca for this variable.
-     */
+    // Create an alloca for this variable.
     llvm::AllocaInst* Alloca =
         CreateEntryBlockAlloca(TheFunction, Arg.getName());
 
-    /**
-     *  Create a debug descriptor for the variable.
-     */
+    // Create a debug descriptor for the variable.
     llvm::DILocalVariable* D = DBuilder->createParameterVariable(
         SP,
         Arg.getName(),
@@ -695,49 +613,35 @@ llvm::Function* FunctionAST::codegen() {
         llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
         Builder->GetInsertBlock());
 
-    /**
-     *  Store the initial value into the alloca.
-     */
+    // Store the initial value into the alloca.
     Builder->CreateStore(&Arg, Alloca);
 
-    /**
-     *  Add arguments to variable symbol table.
-     */
+    // Add arguments to variable symbol table.
     NamedValues[std::string(Arg.getName())] = Alloca;
   }
 
   KSDbgInfo.emitLocation(Body.get());
 
   if (llvm::Value* RetVal = Body->codegen()) {
-    /**
-     *  Finish off the function.
-     */
+    // Finish off the function.
     Builder->CreateRet(RetVal);
 
-    /**
-     *  Pop off the lexical block for the function.
-     */
+    // Pop off the lexical block for the function.
     KSDbgInfo.LexicalBlocks.pop_back();
 
-    /**
-     *  Validate the generated code, checking for consistency.
-     */
+    // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
 
     return TheFunction;
   }
 
-  /**
-   *  Error reading body, remove function.
-   */
+  // Error reading body, remove function.
   TheFunction->eraseFromParent();
 
   if (P.isBinaryOp()) BinopPrecedence.erase(Proto->getOperatorName());
 
-  /**
-   *  Pop off the lexical block for the function since we added it
-   *  unconditionally.
-   */
+  // Pop off the lexical block for the function since we added it
+  // unconditionally.
   KSDbgInfo.LexicalBlocks.pop_back();
 
   return nullptr;
@@ -782,7 +686,7 @@ auto HandleDefinition() -> void {
     if (!FnAST->codegen())
       fprintf(stderr, "Error reading function definition:");
   } else {
-    /**  Skip token for error recovery.*/
+    //  Skip token for error recovery. //
     getNextToken();
   }
 }
@@ -798,7 +702,7 @@ auto HandleExtern() -> void {
     else
       FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
   } else {
-    /**  Skip token for error recovery. */
+    //  Skip token for error recovery. //
     getNextToken();
   }
 }
@@ -813,7 +717,7 @@ auto HandleTopLevelExpression() -> void {
       fprintf(stderr, "Error generating code for top level expr");
     }
   } else {
-    /**   Skip token for error recovery. */
+    //   Skip token for error recovery. //
     getNextToken();
   }
 }
@@ -843,11 +747,11 @@ auto MainLoop() -> void {
   }
 }
 
-/**
- * ===----------------------------------------------------------------------===
- *  "Library" functions that can be "extern'd" from user code.
- * ===----------------------------------------------------------------------===
- */
+
+//===----------------------------------------------------------------------===
+// "Library" functions that can be "extern'd" from user code.
+//===----------------------------------------------------------------------===
+
 #ifdef _WIN32
 #define DLLEXPORT __declspec(dllexport)
 #else
@@ -883,38 +787,29 @@ auto show_llvm() -> void {
 
   load_settings();
 
-  /**
-   *  Prime the first token.
-   */
+  // Prime the first token.
   getNextToken();
 
   TheJIT = ExitOnErr(llvm::orc::ArxJIT::Create());
 
   InitializeModule();
 
-  /**
-   *  Add the current debug info version into the module.
-   */
+  // Add the current debug info version into the module.
   TheModule->addModuleFlag(
       llvm::Module::Warning,
       "Debug Info Version",
       llvm::DEBUG_METADATA_VERSION);
-  /**
-   *  Darwin only supports dwarf2.
-   */
+
+  // Darwin only supports dwarf2.
   if (llvm::Triple(llvm::sys::getProcessTriple()).isOSDarwin())
     TheModule->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
 
-  /**
-   *  Construct the DIBuilder, we do this here because we need the module.
-   */
+  // Construct the DIBuilder, we do this here because we need the module.
   DBuilder = std::make_unique<llvm::DIBuilder>(*TheModule);
 
-  /**
-   *  Create the compile unit for the module.
-   *  Currently down as "fib" as a filename since we're redirecting stdin
-   *  but we'd like actual source locations.
-   */
+  // Create the compile unit for the module.
+  // Currently down as "fib" as a filename since we're redirecting stdin
+  // but we'd like actual source locations.
   KSDbgInfo.TheCU = DBuilder->createCompileUnit(
       llvm::dwarf::DW_LANG_C,
       DBuilder->createFile(OUTPUT_FILE, "."),
@@ -923,19 +818,13 @@ auto show_llvm() -> void {
       "",
       0);
 
-  /**
-   *  Run the main "interpreter loop" now.
-   */
+  // Run the main "interpreter loop" now.
   MainLoop();
 
-  /**
-   *  Finalize the debug info.
-   */
+  // Finalize the debug info.
   DBuilder->finalize();
 
-  /**
-   *  Print out all of the generated code.
-   */
+  // Print out all of the generated code.
   TheModule->print(llvm::errs(), nullptr);
   exit(0);
 }
@@ -951,17 +840,15 @@ auto compile() -> void {
 
   InitializeModuleAndPassManager();
 
-  /**
-   *  Run the main "interpreter loop" now.
-   */
+  
+  // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
 
   MainLoop();
 
   LOG(INFO) << "Initialize Target";
-  /**
-   *  Initialize the target registry etc.
-   */
+  
+  // Initialize the target registry etc.
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
@@ -975,11 +862,10 @@ auto compile() -> void {
 
   std::string Error;
   auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
-  /**
-   *  Print an error and exit if we couldn't find the requested target.
-   *  This generally occurs if we've forgotten to initialise the
-   *  TargetRegistry or we have a bogus target triple.
-   */
+
+  // Print an error and exit if we couldn't find the requested target.
+  // This generally occurs if we've forgotten to initialise the
+  // TargetRegistry or we have a bogus target triple.
   if (!Target) {
     llvm::errs() << Error;
     exit(1);
@@ -1041,9 +927,8 @@ auto compile_to_file() -> void {
  *
  */
 auto open_shell() -> void {
-  /**
-   *  Prime the first token.
-   */
+  
+  // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 

@@ -44,7 +44,6 @@ class ExprAST {
  public:
   /**
    * @param Loc
-   * @return
    */
   ExprAST(SourceLocation Loc = CurLoc) : Loc(Loc) {}
   virtual ~ExprAST() = default;
@@ -68,7 +67,7 @@ class ExprAST {
 class NumberExprAST : public ExprAST {
  public:
   /**
-   * @param Val
+   * 
    * @return
    */
   double Val;
@@ -90,7 +89,6 @@ class VariableExprAST : public ExprAST {
   /**
    * @param Loc
    * @param Name
-   * @return
    */
   VariableExprAST(SourceLocation Loc, std::string Name)
       : ExprAST(Loc), Name(std::move(Name)) {}
@@ -115,7 +113,6 @@ class UnaryExprAST : public ExprAST {
   /**
    * @param Opcode
    * @param Operand
-   * @return
    */
   UnaryExprAST(char Opcode, std::unique_ptr<ExprAST> Operand)
       : Opcode(Opcode), Operand(std::move(Operand)) {}
@@ -141,7 +138,6 @@ class BinaryExprAST : public ExprAST {
    * @param Op
    * @param LHS
    * @param RHS
-   * @return
    */
   BinaryExprAST(
       SourceLocation Loc,
@@ -171,7 +167,6 @@ class CallExprAST : public ExprAST {
    * @param Loc
    * @param Callee
    * @param Args
-   * @return
    */
   CallExprAST(
       SourceLocation Loc,
@@ -196,10 +191,10 @@ class IfExprAST : public ExprAST {
 
  public:
   /**
+   * @param Loc
    * @param Cond
    * @param Then
    * @param Else
-   * @return
    */
   IfExprAST(
       SourceLocation Loc,
@@ -236,7 +231,6 @@ class ForExprAST : public ExprAST {
    * @param End
    * @param Step
    * @param Body
-   * @return
    */
   ForExprAST(
       std::string VarName,
@@ -273,7 +267,6 @@ class VarExprAST : public ExprAST {
   /**
    * @param VarNames
    * @param Body
-   * @return
    */
   VarExprAST(
       std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
@@ -310,7 +303,6 @@ class PrototypeAST {
    * @param Args
    * @param IsOperator
    * @param Prec
-   * @return
    */
   PrototypeAST(
       SourceLocation Loc,
@@ -362,7 +354,6 @@ class FunctionAST {
   /**
    * @param Proto
    * @param Body
-   * @return
    */
   FunctionAST(
       std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
@@ -384,7 +375,7 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr();
 
 std::unique_ptr<ExprAST> ParsePrimary();
 
-/* declared as extern for testing */
+// declared as extern for testing //
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<IfExprAST> ParseIfExpr();
 std::unique_ptr<NumberExprAST> ParseNumberExpr();

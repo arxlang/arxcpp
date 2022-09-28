@@ -31,9 +31,8 @@ std::map<char, int> BinopPrecedence;
 auto GetTokPrecedence() -> int {
   if (!isascii(CurTok)) return -1;
 
-  /**
-   * Make sure it's a declared binop.
-   */
+  
+  // Make sure it's a declared binop. 
   int TokPrec = BinopPrecedence[CurTok];
   if (TokPrec <= 0) return -1;
   return TokPrec;
@@ -82,7 +81,7 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
   if (CurTok != '(')  // Simple variable ref.
     return std::make_unique<VariableExprAST>(LitLoc, IdName);
 
-  /** Call. */
+  // Call. //
   getNextToken();  // eat (
   std::vector<std::unique_ptr<ExprAST>> Args;
   if (CurTok != ')') {
@@ -195,7 +194,7 @@ std::unique_ptr<ForExprAST> ParseForExpr() {
     return nullptr;
   }
 
-  /** The step value is optional. */
+  // The step value is optional. //
   std::unique_ptr<ExprAST> Step;
   if (CurTok == ',') {
     getNextToken();
@@ -234,7 +233,7 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
 
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames;
 
-  /** At least one variable name is required. */
+  // At least one variable name is required. //
   if (CurTok != tok_identifier)
     return LogError<VarExprAST>("expected identifier after var");
 
@@ -242,7 +241,7 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
     std::string Name = IdentifierStr;
     getNextToken();  // eat identifier.
 
-    /** Read the optional initializer. */
+    // Read the optional initializer. //
     std::unique_ptr<ExprAST> Init = nullptr;
     if (CurTok == '=') {
       getNextToken();  // eat the '='.
@@ -255,7 +254,7 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
 
     VarNames.emplace_back(Name, std::move(Init));
 
-    /** End of var list, exit loop. */
+    // End of var list, exit loop. //
     if (CurTok != ',') {
       break;
     }
@@ -266,7 +265,7 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
     }
   }
 
-  /** At this point, we have to have 'in'. */
+  // At this point, we have to have 'in'. //
   if (CurTok != tok_in) {
     return LogError<VarExprAST>("expected 'in' keyword after 'var'");
   }
@@ -349,37 +348,33 @@ std::unique_ptr<ExprAST> ParseUnary() {
  */
 std::unique_ptr<ExprAST> ParseBinOpRHS(
     int ExprPrec, std::unique_ptr<ExprAST> LHS) {
-  /** If this is a binop, find its precedence. */
+  // If this is a binop, find its precedence. //
   while (true) {
     int TokPrec = GetTokPrecedence();
 
-    /**
-     * If this is a binop that binds at least as tightly as the current binop,
-     * consume it, otherwise we are done.
-     */
+    
+    // If this is a binop that binds at least as tightly as the current binop,
+    // consume it, otherwise we are done.
     if (TokPrec < ExprPrec) {
       return LHS;
     }
 
-    /**
-     * Okay, we know this is a binop.
-     */
+    
+    // Okay, we know this is a binop.
     int BinOp = CurTok;
     SourceLocation BinLoc = CurLoc;
     getNextToken();  // eat binop
 
-    /**
-     * Parse the unary expression after the binary operator.
-     */
+    
+    // Parse the unary expression after the binary operator.    
     auto RHS = ParseUnary();
     if (!RHS) {
       return nullptr;
     }
 
-    /**
-     * If BinOp binds less tightly with RHS than the operator after RHS, let
-     * the pending operator take RHS as its LHS.
-     */
+    
+    // If BinOp binds less tightly with RHS than the operator after RHS, let
+    // the pending operator take RHS as its LHS.
     int NextPrec = GetTokPrecedence();
     if (TokPrec < NextPrec) {
       RHS = ParseBinOpRHS(TokPrec + 1, std::move(RHS));
@@ -388,9 +383,8 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
       }
     }
 
-    /**
-     * Merge LHS/RHS.
-     */
+    
+    // Merge LHS/RHS.
     LHS = std::make_unique<BinaryExprAST>(
         BinLoc, BinOp, std::move(LHS), std::move(RHS));
   }
@@ -473,7 +467,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
   if (CurTok != ')')
     return LogError<PrototypeAST>("Expected ')' in the function definition.");
 
-  /** success. */
+  // success. //
   getNextToken();  // eat ')'.
 
   if (CurTok != ':') {
@@ -482,7 +476,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
 
   getNextToken();  // eat ':'.
 
-  /** Verify right number of names for operator. */
+  // Verify right number of names for operator. //
   if (Kind && ArgNames.size() != Kind)
     return LogError<PrototypeAST>("Invalid number of operands for operator");
 

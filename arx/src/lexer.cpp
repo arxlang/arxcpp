@@ -101,7 +101,7 @@ auto advance() -> int {
 auto gettok() -> int {
   static char LastChar = ' ';
 
-  /** Skip any whitespace. */
+  // Skip any whitespace.
   while (isspace(LastChar)) {
     LastChar = (char)advance();
   }
@@ -147,7 +147,7 @@ auto gettok() -> int {
     return tok_identifier;
   }
 
-  /** Number: [0-9.]+ */
+  // Number: [0-9.]+
   if (isdigit(LastChar) || LastChar == '.') {
     std::string NumStr;
     do {
@@ -159,7 +159,7 @@ auto gettok() -> int {
     return tok_number;
   }
 
-  /** Comment until end of line. */
+  // Comment until end of line.
   if (LastChar == '#') {
     do
       LastChar = advance();
@@ -168,12 +168,12 @@ auto gettok() -> int {
     if (LastChar != EOF) return gettok();
   }
 
-  /** Check for end of file.  Don't eat the EOF. */
+  // Check for end of file.  Don't eat the EOF.
   if (LastChar == EOF) {
     return tok_eof;
   }
 
-  /** Otherwise, just return the character as its ascii value. */
+  // Otherwise, just return the character as its ascii value.
   int ThisChar = LastChar;
   LastChar = advance();
   return ThisChar;
@@ -182,8 +182,8 @@ auto gettok() -> int {
 /**
  * @brief Provide a simple token buffer.
  * @return
- * @param CurTok is the current token the parser is looking at.
- *
+
+ * CurTok is the current token the parser is looking at.
  * getNextToken reads another token from the lexer and updates
  * CurTok with its results.
  */

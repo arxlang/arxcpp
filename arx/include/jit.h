@@ -51,7 +51,6 @@ class ArxJIT {
    * @param ES
    * @param JTMB
    * @param DL
-   * @return
    */
   ArxJIT(
       std::unique_ptr<ExecutionSession> ES,

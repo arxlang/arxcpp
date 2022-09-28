@@ -20,7 +20,6 @@ auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
 
 /**
  * @brief
- * @return
  *
  */
 auto show_version() -> void {
