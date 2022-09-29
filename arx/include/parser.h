@@ -13,22 +13,38 @@
 #include "lexer.h"
 #include "utils.h"
 
-// #include <llvm/IR/Function.h>
+/**
+ * @brief Include `llvm/IR/Function.h`
+ *
+ *
+ */
 namespace llvm {
 class Function;
 }
-// #include <llvm/IR/Value.h>
+
+/**
+ * @brief Include `llvm/IR/Value.h`
+ *
+ *
+ */
 namespace llvm {
 class Value;
 }
 
 extern SourceLocation CurLoc;
 
-/// ExprAST - Base class for all expression nodes.
+/**
+ * @brief Base class for all expression nodes.
+ *
+ *
+ */
 class ExprAST {
   SourceLocation Loc;
 
  public:
+  /**
+   * @param Loc
+   */
   ExprAST(SourceLocation Loc = CurLoc) : Loc(Loc) {}
   virtual ~ExprAST() = default;
   virtual llvm::Value* codegen() = 0;
@@ -43,9 +59,17 @@ class ExprAST {
   }
 };
 
-/// NumberExprAST - Expression class for numeric literals like "1.0".
+/**
+ * @brief Expression class for numeric literals like "1.0".
+ *
+ *
+ */
 class NumberExprAST : public ExprAST {
  public:
+  /**
+   *
+   * @return
+   */
   double Val;
   NumberExprAST(double Val) : Val(Val) {}
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
@@ -54,11 +78,18 @@ class NumberExprAST : public ExprAST {
   llvm::Value* codegen() override;
 };
 
-/// VariableExprAST - Expression class for referencing a variable, like "a".
+/**
+ * @brief Expression class for referencing a variable, like "a".
+ *
+ */
 class VariableExprAST : public ExprAST {
   std::string Name;
 
  public:
+  /**
+   * @param Loc
+   * @param Name
+   */
   VariableExprAST(SourceLocation Loc, std::string Name)
       : ExprAST(Loc), Name(std::move(Name)) {}
   const std::string& getName() const {
@@ -70,12 +101,19 @@ class VariableExprAST : public ExprAST {
   }
 };
 
-/// UnaryExprAST - Expression class for a unary operator.
+/**
+ * @brief Expression class for a unary operator.
+ *
+ */
 class UnaryExprAST : public ExprAST {
   char Opcode;
   std::unique_ptr<ExprAST> Operand;
 
  public:
+  /**
+   * @param Opcode
+   * @param Operand
+   */
   UnaryExprAST(char Opcode, std::unique_ptr<ExprAST> Operand)
       : Opcode(Opcode), Operand(std::move(Operand)) {}
   llvm::Value* codegen() override;
@@ -86,12 +124,21 @@ class UnaryExprAST : public ExprAST {
   }
 };
 
-/// BinaryExprAST - Expression class for a binary operator.
+/**
+ * @brief Expression class for a binary operator.
+ *
+ */
 class BinaryExprAST : public ExprAST {
   char Op;
   std::unique_ptr<ExprAST> LHS, RHS;
 
  public:
+  /**
+   * @param Loc
+   * @param Op
+   * @param LHS
+   * @param RHS
+   */
   BinaryExprAST(
       SourceLocation Loc,
       char Op,
@@ -107,12 +154,20 @@ class BinaryExprAST : public ExprAST {
   }
 };
 
-/// CallExprAST - Expression class for function calls.
+/**
+ * @brief Expression class for function calls.
+ *
+ */
 class CallExprAST : public ExprAST {
   std::string Callee;
   std::vector<std::unique_ptr<ExprAST>> Args;
 
  public:
+  /**
+   * @param Loc
+   * @param Callee
+   * @param Args
+   */
   CallExprAST(
       SourceLocation Loc,
       std::string Callee,
@@ -127,11 +182,20 @@ class CallExprAST : public ExprAST {
   }
 };
 
-/// IfExprAST - Expression class for if/then/else.
+/**
+ * @brief Expression class for if/then/else.
+ *
+ */
 class IfExprAST : public ExprAST {
   std::unique_ptr<ExprAST> Cond, Then, Else;
 
  public:
+  /**
+   * @param Loc
+   * @param Cond
+   * @param Then
+   * @param Else
+   */
   IfExprAST(
       SourceLocation Loc,
       std::unique_ptr<ExprAST> Cond,
@@ -151,12 +215,23 @@ class IfExprAST : public ExprAST {
   }
 };
 
-/// ForExprAST - Expression class for for/in.
+/**
+ * @brief Expression class for for/in.
+ *
+ *
+ */
 class ForExprAST : public ExprAST {
   std::string VarName;
   std::unique_ptr<ExprAST> Start, End, Step, Body;
 
  public:
+  /**
+   * @param VarName
+   * @param Start
+   * @param End
+   * @param Step
+   * @param Body
+   */
   ForExprAST(
       std::string VarName,
       std::unique_ptr<ExprAST> Start,
@@ -179,12 +254,20 @@ class ForExprAST : public ExprAST {
   }
 };
 
-/// VarExprAST - Expression class for var/in
+/**
+ * @brief Expression class for var/in
+ *
+ *
+ */
 class VarExprAST : public ExprAST {
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames;
   std::unique_ptr<ExprAST> Body;
 
  public:
+  /**
+   * @param VarNames
+   * @param Body
+   */
   VarExprAST(
       std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
       std::unique_ptr<ExprAST> Body)
@@ -200,9 +283,12 @@ class VarExprAST : public ExprAST {
   }
 };
 
-/// PrototypeAST - This class represents the "prototype" for a function,
-/// which captures its name, and its argument names (thus implicitly the number
-/// of arguments the function takes), as well as if it is an operator.
+/**
+ @brief This class represents the "prototype" for a function.
+
+ Captures a function's name, and its argument names (thus implicitly the number
+ of arguments the function takes), as well as if it is an operator.
+ */
 class PrototypeAST {
   std::string Name;
   std::vector<std::string> Args;
@@ -211,6 +297,13 @@ class PrototypeAST {
   int Line;
 
  public:
+  /**
+   * @param Loc
+   * @param Name
+   * @param Args
+   * @param IsOperator
+   * @param Prec
+   */
   PrototypeAST(
       SourceLocation Loc,
       std::string Name,
@@ -248,12 +341,20 @@ class PrototypeAST {
   }
 };
 
-/// FunctionAST - This class represents a function definition itself.
+/**
+ * @brief This class represents a function definition itself.
+ *
+ *
+ */
 class FunctionAST {
   std::unique_ptr<PrototypeAST> Proto;
   std::unique_ptr<ExprAST> Body;
 
  public:
+  /**
+   * @param Proto
+   * @param Body
+   */
   FunctionAST(
       std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
       : Proto(std::move(Proto)), Body(std::move(Body)) {}
@@ -274,7 +375,7 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr();
 
 std::unique_ptr<ExprAST> ParsePrimary();
 
-/* declared as extern for testing */
+// declared as extern for testing //
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<IfExprAST> ParseIfExpr();
 std::unique_ptr<NumberExprAST> ParseNumberExpr();

@@ -1,3 +1,4 @@
+
 // note: arrow will not be used yet
 // #include <arrow/api.h>
 // #include <arrow/csv/api.h>
@@ -66,10 +67,11 @@ extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern std::string ARX_VERSION;
 
-//===----------------------------------------------------------------------===//
-// Code Generation Globals
-//===----------------------------------------------------------------------===//
-
+/**
+ * ===----------------------------------------------------------------------===
+ *  Code Generation Globals
+ * ===----------------------------------------------------------------------===
+ */
 DebugInfo KSDbgInfo;
 
 std::unique_ptr<llvm::LLVMContext> TheContext;
@@ -81,12 +83,16 @@ std::map<std::string, llvm::AllocaInst*> NamedValues;
 std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
-//===----------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===
 // Debug Info Support
-//===----------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===
 
 std::unique_ptr<llvm::DIBuilder> DBuilder;
 
+/**
+ * @brief
+ * @return
+ */
 llvm::DIType* DebugInfo::getDoubleTy() {
   if (DblTy) return DblTy;
 
@@ -94,6 +100,10 @@ llvm::DIType* DebugInfo::getDoubleTy() {
   return DblTy;
 }
 
+/**
+ * @brief
+ * @param AST
+ */
 void DebugInfo::emitLocation(ExprAST* AST) {
   if (!AST) return Builder->SetCurrentDebugLocation(llvm::DebugLoc());
   llvm::DIScope* Scope = nullptr;
@@ -105,6 +115,12 @@ void DebugInfo::emitLocation(ExprAST* AST) {
       Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
 }
 
+/**
+ * @brief
+ * @param NumArgs
+ * @param Unit
+ * @return
+ */
 static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
     -> llvm::DISubroutineType* {
   llvm::SmallVector<llvm::Metadata*, 8> EltTys;
@@ -121,24 +137,37 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
 }
 
 //===----------------------------------------------------------------------===//
-// Code Generation
+// Code Generation //
 //===----------------------------------------------------------------------===//
 
+/**
+ * @brief
+ * @param Name
+ * @return
+ *
+ * First, see if the function has already been added to the current module.
+ * If not, check whether we can codegen the declaration from some existing
+ * prototype.
+ * If no existing prototype exists, return null.
+ */
 auto getFunction(std::string Name) -> llvm::Function* {
-  // First, see if the function has already been added to the current module.
   if (auto* F = TheModule->getFunction(Name)) return F;
 
-  // If not, check whether we can codegen the declaration from some existing
-  // prototype.
   auto FI = FunctionProtos.find(Name);
   if (FI != FunctionProtos.end()) return FI->second->codegen();
 
-  // If no existing prototype exists, return null.
   return nullptr;
 }
 
-/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
-/// the function.  This is used for mutable variables etc.
+/**
+ * @brief
+ * @param TheFunction
+ * @param VarName
+ * @return
+ *
+ * CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
+ * the function.  This is used for mutable variables etc.
+ */
 static auto CreateEntryBlockAlloca(
     llvm::Function* TheFunction, llvm::StringRef VarName)
     -> llvm::AllocaInst* {
@@ -148,21 +177,34 @@ static auto CreateEntryBlockAlloca(
       llvm::Type::getDoubleTy(*TheContext), nullptr, VarName);
 }
 
+/**
+ * @brief
+ * @return
+ *
+ */
 llvm::Value* NumberExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
   return llvm::ConstantFP::get(*TheContext, llvm::APFloat(Val));
 }
 
+/**
+ * @brief Stat a variable in the function.
+ * @return The variable loaded into the llvm.
+ *
+ */
 llvm::Value* VariableExprAST::codegen() {
-  // Look this variable up in the function.
   llvm::Value* V = NamedValues[Name];
   if (!V) return LogErrorV("Unknown variable name");
 
   KSDbgInfo.emitLocation(this);
-  // Load the value.
   return Builder->CreateLoad(V, Name.c_str());
 }
 
+/**
+ * @brief
+ * @return
+ *
+ */
 llvm::Value* UnaryExprAST::codegen() {
   llvm::Value* OperandV = Operand->codegen();
   if (!OperandV) return nullptr;
@@ -174,10 +216,16 @@ llvm::Value* UnaryExprAST::codegen() {
   return Builder->CreateCall(F, OperandV, "unop");
 }
 
+/**
+ * @brief
+ * @return
+ *
+ */
 llvm::Value* BinaryExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
-  // Special case '=' because we don't want to emit the LHS as an expression.
+  //  Special case '=' because we don't want to emit the LHS as an
+  // expression.*/
   if (Op == '=') {
     // Assignment requires the LHS to be an identifier.
     // This assume we're building without RTTI because LLVM builds that way by
@@ -185,11 +233,11 @@ llvm::Value* BinaryExprAST::codegen() {
     // dynamic_cast for automatic error checking.
     VariableExprAST* LHSE = static_cast<VariableExprAST*>(LHS.get());
     if (!LHSE) return LogErrorV("destination of '=' must be a variable");
-    // Codegen the RHS.
+    // Codegen the RHS.//
     llvm::Value* Val = RHS->codegen();
     if (!Val) return nullptr;
 
-    // Look up the name.
+    // Look up the name.//
     llvm::Value* Variable = NamedValues[LHSE->getName()];
     if (!Variable) return LogErrorV("Unknown variable name");
 
@@ -210,7 +258,7 @@ llvm::Value* BinaryExprAST::codegen() {
       return Builder->CreateFMul(L, R, "multmp");
     case '<':
       L = Builder->CreateFCmpULT(L, R, "cmptmp");
-      // Convert bool 0/1 to double 0.0 or 1.0
+      // Convert bool 0/1 to double 0.0 or 1.0 //
       return Builder->CreateUIToFP(
           L, llvm::Type::getDoubleTy(*TheContext), "booltmp");
     default:
@@ -226,14 +274,17 @@ llvm::Value* BinaryExprAST::codegen() {
   return Builder->CreateCall(F, Ops, "binop");
 }
 
+/**
+ * @brief Look up the name in the global module table.
+ * @return
+ *
+ */
 llvm::Value* CallExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
-  // Look up the name in the global module table.
   llvm::Function* CalleeF = getFunction(Callee);
   if (!CalleeF) return LogErrorV("Unknown function referenced");
 
-  // If argument mismatch error.
   if (CalleeF->arg_size() != Args.size())
     return LogErrorV("Incorrect # arguments passed");
 
@@ -246,6 +297,9 @@ llvm::Value* CallExprAST::codegen() {
   return Builder->CreateCall(CalleeF, ArgsV, "calltmp");
 }
 
+/**
+ * @brief
+ */
 llvm::Value* IfExprAST::codegen() {
   KSDbgInfo.emitLocation(this);
 
@@ -298,26 +352,30 @@ llvm::Value* IfExprAST::codegen() {
   PN->addIncoming(ElseV, ElseBB);
   return PN;
 }
-
-// Output for-loop as:
-//   var = alloca double
-//   ...
-//   start = startexpr
-//   store start -> var
-//   goto loop
-// loop:
-//   ...
-//   bodyexpr
-//   ...
-// loopend:
-//   step = stepexpr
-//   endcond = endexpr
-//
-//   curvar = load var
-//   nextvar = curvar + step
-//   store nextvar -> var
-//   br endcond, loop, endloop
-// outloop:
+/**
+ * @brief
+ * @return
+ *
+ * Output for-loop as:
+ *   var = alloca double
+ *   ...
+ *   start = startexpr
+ *   store start -> var
+ *   goto loop
+ * loop:
+ *   ...
+ *   bodyexpr
+ *   ...
+ * loopend:
+ *   step = stepexpr
+ *   endcond = endexpr
+ *
+ *   curvar = load var
+ *   nextvar = curvar + step
+ *   store nextvar -> var
+ *   br endcond, loop, endloop
+ * outloop:
+ */
 llvm::Value* ForExprAST::codegen() {
   llvm::Function* TheFunction = Builder->GetInsertBlock()->getParent();
 
@@ -400,6 +458,11 @@ llvm::Value* ForExprAST::codegen() {
   return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*TheContext));
 }
 
+/**
+ * @brief
+ * @return Return the body computation.
+ *
+ */
 llvm::Value* VarExprAST::codegen() {
   std::vector<llvm::AllocaInst*> OldBindings;
 
@@ -448,6 +511,11 @@ llvm::Value* VarExprAST::codegen() {
   return BodyVal;
 }
 
+/**
+ * @brief
+ * @return
+ *
+ */
 llvm::Function* PrototypeAST::codegen() {
   // Make the function type:  double(double,double) etc.
   std::vector<llvm::Type*> Doubles(
@@ -466,9 +534,14 @@ llvm::Function* PrototypeAST::codegen() {
   return F;
 }
 
+/**
+ * @brief
+ * @return
+ *
+ * Transfer ownership of the prototype to the FunctionProtos map, but keep a
+ * reference to it for use below.
+ */
 llvm::Function* FunctionAST::codegen() {
-  // Transfer ownership of the prototype to the FunctionProtos map, but keep a
-  // reference to it for use below.
   auto& P = *Proto;
   FunctionProtos[Proto->getName()] = std::move(Proto);
   llvm::Function* TheFunction = getFunction(P.getName());
@@ -568,12 +641,17 @@ llvm::Function* FunctionAST::codegen() {
   return nullptr;
 }
 
-//===----------------------------------------------------------------------===//
-// Top-Level parsing and JIT Driver
-//===----------------------------------------------------------------------===//
+/**
+ * ===----------------------------------------------------------------------===
+ *  Top-Level parsing and JIT Driver
+ * ===----------------------------------------------------------------------===
+ */
 
+/**
+ * @brief Open a new module.
+ *
+ */
 auto InitializeModule() -> void {
-  // Open a new module.
   TheContext = std::make_unique<llvm::LLVMContext>();
   TheModule = std::make_unique<llvm::Module>("arx-module", *TheContext);
   TheModule->setDataLayout(TheJIT->getDataLayout());
@@ -581,25 +659,36 @@ auto InitializeModule() -> void {
   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
+/**
+ * @brief Open a new module.
+ *
+ */
 auto InitializeModuleAndPassManager() -> void {
-  // Open a new module.
   TheContext = std::make_unique<llvm::LLVMContext>();
   TheModule = std::make_unique<llvm::Module>("arx jit", *TheContext);
 
-  // Create a new builder for the module.
+  /** Create a new builder for the module. */
   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
 }
 
+/**
+ * @brief
+ *
+ */
 auto HandleDefinition() -> void {
   if (auto FnAST = ParseDefinition()) {
     if (!FnAST->codegen())
       fprintf(stderr, "Error reading function definition:");
   } else {
-    // Skip token for error recovery.
+    //  Skip token for error recovery. //
     getNextToken();
   }
 }
 
+/**
+ * @brief
+ *
+ */
 auto HandleExtern() -> void {
   if (auto ProtoAST = ParseExtern()) {
     if (!ProtoAST->codegen())
@@ -607,24 +696,30 @@ auto HandleExtern() -> void {
     else
       FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
   } else {
-    // Skip token for error recovery.
+    //  Skip token for error recovery. //
     getNextToken();
   }
 }
 
+/**
+ * @brief Evaluate a top-level expression into an anonymous function.
+ *
+ */
 auto HandleTopLevelExpression() -> void {
-  // Evaluate a top-level expression into an anonymous function.
   if (auto FnAST = ParseTopLevelExpr()) {
     if (!FnAST->codegen()) {
       fprintf(stderr, "Error generating code for top level expr");
     }
   } else {
-    // Skip token for error recovery.
+    //   Skip token for error recovery. //
     getNextToken();
   }
 }
 
-/// top ::= definition | external | expression | ';'
+/**
+ * @brief
+ * top ::= definition | external | expression | ';'
+ */
 auto MainLoop() -> void {
   while (true) {
     switch (CurTok) {
@@ -646,9 +741,9 @@ auto MainLoop() -> void {
   }
 }
 
-//===----------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===
 // "Library" functions that can be "extern'd" from user code.
-//===----------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===
 
 #ifdef _WIN32
 #define DLLEXPORT __declspec(dllexport)
@@ -656,18 +751,28 @@ auto MainLoop() -> void {
 #define DLLEXPORT
 #endif
 
-/// putchard - putchar that takes a double and returns 0.
+/**
+ * @brief putchar that takes a double and returns 0.
+ *
+ */
 extern "C" DLLEXPORT auto putchard(double X) -> double {
   fputc((char)X, stderr);
   return 0;
 }
 
-/// printd - printf that takes a double prints it as "%f\n", returning 0.
+/**
+ * @brief printf that takes a double prints it as "%f\n", returning 0.
+ *
+ */
 extern "C" DLLEXPORT auto printd(double X) -> double {
   fprintf(stderr, "%f\n", X);
   return 0;
 }
 
+/**
+ * @brief
+ *
+ */
 auto show_llvm() -> void {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
@@ -717,6 +822,10 @@ auto show_llvm() -> void {
   exit(0);
 }
 
+/**
+ * @brief
+ *
+ */
 auto compile() -> void {
   load_settings();
 
@@ -796,11 +905,19 @@ auto compile() -> void {
   dest.flush();
 }
 
+/**
+ * @brief
+ *
+ */
 auto compile_to_file() -> void {
   compile();
   llvm::outs() << "Wrote " << OUTPUT_FILE << "\n";
 }
 
+/**
+ * @brief
+ *
+ */
 auto open_shell() -> void {
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());

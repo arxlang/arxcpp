@@ -109,6 +109,7 @@ docs-clean:
 docs-api:
 	mkdir -p build
 	doxygen Doxyfile
+	./scripts/format_releases.sh
 
 .PHONY: docs-build
 docs-build: docs-clean docs-api

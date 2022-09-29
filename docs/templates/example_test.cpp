@@ -1,8 +1,9 @@
 /**
+ * @private Hide from public index.
  * @file
  * @version 1.0
- * @author Ivan Ogasawara <ivan.ogasawara@gmail.com>
- * @date 2022-09-19
+ * @author Your Name Here <email@example.com>
+ * @date YYYY-MM-DD
  *
  * @section LICENSE
  *
@@ -20,27 +21,30 @@
  *
  * @section DESCRIPTION
  *
- *  This module handles errors.
- *
+ *  A more elaborate description of the module.
  */
 
 /**
- * @brief Prints error in stderr.
- * @param Str String of the error.
- * @return nullptr objetct.
+ * @author Optional class author name
+ * @brief A brief description of the class
+ * @note This is a note.
+ * @attention This is an attention.
+ * @warning This is an warning.
  *
- *  Class responsible for throw errors to stderr.
- *
+ *  An Example class.
+ *  More details about this class.
  */
 
-#include <cstdio>
+class Example_Class {
+ public:
+  /**
+   *  More details about this function.
+   * @see External link.
+   * @param a Param a escription.
+   * @param b Param b escription.
+   * @return Return description.
+   */
+  void example(int a, int b);
+};
 
-// #include <llvm/IR/Value.h>
-namespace llvm {
-class Value;
-}
-
-auto LogErrorV(const char* Str) -> llvm::Value* {
-  fprintf(stderr, "Error: %s\n", Str);
-  return nullptr;
-}
+void Example_Class::example(1, 2) {}

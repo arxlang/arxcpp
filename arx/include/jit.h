@@ -1,11 +1,16 @@
-//===- ArxJIT.h - A simple JIT for Arx --------*- C++
-//-*-===//
-//
-// Part of the LLVM Project, under the Apache License v2.0 with LLVM
-// Exceptions. See https://llvm.org/LICENSE.txt for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
+/**
+ *
+ * @brief Include ArxJIT.h - A simple JIT for Arx in C++
+ *
+ *
+ *
+ *
+ * Part of the LLVM Project, under the Apache License v2.0 with LLVM
+ * Exceptions. See https://llvm.org/LICENSE.txt for license information.
+ * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+ *
+ * ===----------------------------------------------------------------------===
+ */
 
 #ifndef LLVM_EXECUTIONENGINE_ORC_ArxJIT_H
 #define LLVM_EXECUTIONENGINE_ORC_ArxJIT_H
@@ -27,6 +32,11 @@
 namespace llvm {
 namespace orc {
 
+/**
+ * @brief Tokenize the known variables by the lexer
+ *
+ *
+ */
 class ArxJIT {
  private:
   std::unique_ptr<ExecutionSession> ES;
@@ -40,6 +50,11 @@ class ArxJIT {
   JITDylib& MainJD;
 
  public:
+  /**
+   * @param ES
+   * @param JTMB
+   * @param DL
+   */
   ArxJIT(
       std::unique_ptr<ExecutionSession> ES,
       JITTargetMachineBuilder JTMB,

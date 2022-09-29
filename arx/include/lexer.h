@@ -2,8 +2,12 @@
 
 #include <string>
 
-// The lexer returns tokens [0-255] if it is an unknown character, otherwise
-// one of these for known things.
+/**
+ * @brief Tokenize the known variables by the lexer
+ *
+ * The lexer returns tokens [0-255] if it is an unknown character, otherwise
+ * one of these for known things.
+ */
 enum Token {
   tok_eof = -1,
 
