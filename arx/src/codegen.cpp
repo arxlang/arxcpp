@@ -83,7 +83,6 @@ std::map<std::string, llvm::AllocaInst*> NamedValues;
 std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
-
 //===----------------------------------------------------------------------===
 // Debug Info Support
 //===----------------------------------------------------------------------===
@@ -127,7 +126,6 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
   llvm::SmallVector<llvm::Metadata*, 8> EltTys;
   llvm::DIType* DblTy = KSDbgInfo.getDoubleTy();
 
-  
   // Add the result type.
   EltTys.push_back(DblTy);
 
@@ -138,11 +136,9 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
       DBuilder->getOrCreateTypeArray(EltTys));
 }
 
-
 //===----------------------------------------------------------------------===//
-// Code Generation                                                            //
+// Code Generation //
 //===----------------------------------------------------------------------===//
-
 
 /**
  * @brief
@@ -269,7 +265,6 @@ llvm::Value* BinaryExprAST::codegen() {
       break;
   }
 
-  
   // If it wasn't a builtin binary operator, it must be a user defined one.
   // Emit a call to it.
   llvm::Function* F = getFunction(std::string("binary") + Op);
@@ -539,7 +534,6 @@ llvm::Function* PrototypeAST::codegen() {
   return F;
 }
 
-
 /**
  * @brief
  * @return
@@ -747,7 +741,6 @@ auto MainLoop() -> void {
   }
 }
 
-
 //===----------------------------------------------------------------------===
 // "Library" functions that can be "extern'd" from user code.
 //===----------------------------------------------------------------------===
@@ -840,14 +833,13 @@ auto compile() -> void {
 
   InitializeModuleAndPassManager();
 
-  
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
 
   MainLoop();
 
   LOG(INFO) << "Initialize Target";
-  
+
   // Initialize the target registry etc.
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -927,7 +919,6 @@ auto compile_to_file() -> void {
  *
  */
 auto open_shell() -> void {
-  
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");

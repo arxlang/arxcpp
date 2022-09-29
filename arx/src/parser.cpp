@@ -31,8 +31,7 @@ std::map<char, int> BinopPrecedence;
 auto GetTokPrecedence() -> int {
   if (!isascii(CurTok)) return -1;
 
-  
-  // Make sure it's a declared binop. 
+  // Make sure it's a declared binop.
   int TokPrec = BinopPrecedence[CurTok];
   if (TokPrec <= 0) return -1;
   return TokPrec;
@@ -352,27 +351,23 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
   while (true) {
     int TokPrec = GetTokPrecedence();
 
-    
     // If this is a binop that binds at least as tightly as the current binop,
     // consume it, otherwise we are done.
     if (TokPrec < ExprPrec) {
       return LHS;
     }
 
-    
     // Okay, we know this is a binop.
     int BinOp = CurTok;
     SourceLocation BinLoc = CurLoc;
     getNextToken();  // eat binop
 
-    
-    // Parse the unary expression after the binary operator.    
+    // Parse the unary expression after the binary operator.
     auto RHS = ParseUnary();
     if (!RHS) {
       return nullptr;
     }
 
-    
     // If BinOp binds less tightly with RHS than the operator after RHS, let
     // the pending operator take RHS as its LHS.
     int NextPrec = GetTokPrecedence();
@@ -383,7 +378,6 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
       }
     }
 
-    
     // Merge LHS/RHS.
     LHS = std::make_unique<BinaryExprAST>(
         BinLoc, BinOp, std::move(LHS), std::move(RHS));
