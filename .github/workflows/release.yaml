@@ -47,6 +47,8 @@ jobs:
 
     - name: Test release
       if: ${{ github.event_name != 'workflow_dispatch' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: make release-dry
 
     # note: semantic-release should be executed before the documentation
