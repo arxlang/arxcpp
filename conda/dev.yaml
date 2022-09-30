@@ -25,7 +25,9 @@ dependencies:
 - doxygen
 - gmock
 - gtest
+- jupyterlab
 - lcov
 - mkdocs
+- mkdocs-jupyter
 - nodejs
 - pre-commit

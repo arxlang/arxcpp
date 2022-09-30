@@ -65,6 +65,30 @@
 				<!-- Section -->
 				<section>
 					{{ page.content }}
+
+					{% for nav_item in nav %}
+
+						{% if nav_item.title == "Tutorials" and nav_item.children %}
+
+							{% for sub_nav_item in nav_item.children %}
+							{% if sub_nav_item.title != "main" %}
+
+							<div class="posts">
+								<article>
+									<a href="{{ sub_nav_item.url|url }}" class="image">
+										<img src="https://picsum.photos/id/{{ loop.index }}/400/200" alt="{{ sub_nav_item.title }}" />
+									</a>
+									<h3>{{ sub_nav_item.title }}</h3>
+									<p>{{ sub_nav_item.summary }}</p>
+									<ul class="actions">
+										<li><a href="{{ sub_nav_item.url|url }}" class="button">More</a></li>
+									</ul>
+								</article>
+							{% endif %}
+							{% endfor %}
+						</div>
+						{% endif %}
+					{% endfor %}
 				</section>
 
 			</div>

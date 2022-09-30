@@ -8,4 +8,4 @@ For now, it is strongly based on the Kaleidoscope compiler with a just few chang
 ## Arx Enhancement Proposals
 
 Any change to the language (syntax) should be done using a Enhancement Proposal
-via [https://github.com/arxlang/arx-design](arx-design) repository.
+via [https://github.com/arxlang/arx-proposals](arx-proposals) repository.

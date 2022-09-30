@@ -57,3 +57,6 @@ arxc
 
 # docs
 ./build
+
+# jupyter
+.ipynb_checkpoints
