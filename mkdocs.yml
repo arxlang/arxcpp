@@ -14,11 +14,16 @@ extra_css:
 
 nav:
   - Home: 'index.md'
-  - Tutorials: 'tutorials/index.md'
-  - "Getting Started": 'getting-started.md'
-  - "API Doc": '/api/'
+  - Tutorials:
+    - main: 'tutorials/index.md'
+    - 'Getting Started': 'tutorials/Getting-Started.ipynb'
+  - 'Getting Started': 'getting-started.md'
+  - 'API Doc': '/api/'
   - Sponsor: 'sponsor.md'
   - Roadmap: 'roadmap.md'
   - Governance: 'governance.md'
   - Partners: 'partners.md'
   - Code of Conduct: 'coc.md'
+
+plugins:
+  - mkdocs-jupyter
