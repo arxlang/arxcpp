@@ -29,6 +29,7 @@
 std::string ARX_VERSION = "1.4.1";  // semantic-release
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
+extern bool INPUT_FROM_STDIN;
 
 /**
  * @brief
@@ -36,7 +37,7 @@ extern std::string OUTPUT_FILE;
  *
  */
 auto main_open_shell(int count) {
-  load_input_to_buffer();
+  INPUT_FROM_STDIN = true;
   open_shell();
   exit(0);
 }
@@ -69,7 +70,7 @@ auto main_show_version(int count) {
  */
 auto main_compile() {
   load_input_to_buffer();
-  show_version();
+  compile();
   exit(0);
 }
 

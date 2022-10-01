@@ -9,6 +9,7 @@ dependencies:
 - clangdev 13.*
 - clangxx 13.*
 - cmake
+- libcxx 13.*
 - llvmdev 13.*
 - lld 13.*
 - meson
