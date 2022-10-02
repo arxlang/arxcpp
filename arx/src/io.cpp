@@ -1,3 +1,4 @@
+#include "io.h"
 #include <stdio.h>
 #include <filesystem>
 #include <fstream>  // IWYU pragma: keep
@@ -8,6 +9,7 @@
 std::stringstream input_buffer;
 std::string INPUT_FILE{""};
 std::string OUTPUT_FILE{""};
+bool INPUT_FROM_STDIN = false;
 
 /**
  * @brief
@@ -15,6 +17,9 @@ std::string OUTPUT_FILE{""};
  *
  */
 auto get_char() -> int {
+  if (INPUT_FROM_STDIN) {
+    return getchar();
+  }
   return input_buffer.get();
 }
 

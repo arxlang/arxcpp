@@ -72,7 +72,7 @@ test-sanitizer:
 
 .PHONY: test-examples-llvm
 test-show-llvm:
-	./tests/scripts/test-show-llvm.sh
+	./tests/scripts/test-show-llvm.sh ${ARGS}
 
 .ONESHELL:
 .PHONY: code-coverage
@@ -82,7 +82,7 @@ code-coverage:
 
 .PHONY: test-gen-object
 test-gen-object:
-	./tests/scripts/test-gen-objects.sh
+	./tests/scripts/test-gen-objects.sh ${ARGS}
 
 
 .PHONY: test-examples
