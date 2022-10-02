@@ -15,18 +15,24 @@
 # specific language governing permissions and limitations
 # under the License.
 ---
-BasedOnStyle: Google
-ColumnLimit: 79
-DerivePointerAlignment: false
-IncludeBlocks: Preserve
-AlignAfterOpenBracket: AlwaysBreak
-BinPackArguments: false
-BinPackParameters: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: false
+AlignAfterOpenBracket: AlwaysBreak
+AlignOperands: DontAlign
+BasedOnStyle: Google
+BinPackArguments: false
+BreakBeforeTernaryOperators: false
+BinPackParameters: false
+ColumnLimit: 79
+ContinuationIndentWidth: 2
+DerivePointerAlignment: false
+IncludeBlocks: Preserve
+NamespaceIndentation: All
 SpacesBeforeTrailingComments: 2
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseInsensitive
+SpaceAfterCStyleCast: true
 SpacesInLineCommentPrefix:
     Minimum: 1
 AllowShortIfStatementsOnASingleLine: Never
-# note: update it when using clang-format 14
-# RemoveBracesLLVM: false
+RemoveBracesLLVM: falses

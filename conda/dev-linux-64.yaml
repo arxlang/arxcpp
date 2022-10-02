@@ -4,21 +4,21 @@ channels:
 - conda-forge
 dependencies:
 # build
-- clangdev 13.*
-- clangxx 13.*
+- clangdev 14.*
+- clangxx 14.*
 - cmake
-- compiler-rt
+- compiler-rt 14.*
 - compilers
 # it would be nice to replace that by lldb, but
 # the latest version on conda-forge is very old.
 - gdb
 - glib
 - libclang-cpp 13.*
-- libcxx 13.*
+- libcxx 14.*
 - libstdcxx-devel_linux-64
 - libstdcxx-ng
-- lld 13.*
-- llvmdev 13.*
+- lld 14.*
+- llvmdev 14.*
 - meson
 - ninja
 - pkg-config

@@ -2,9 +2,9 @@
 
 #include <gtest/gtest.h>
 
-#include "../arx/include/io.h"
-#include "../arx/include/lexer.h"
-#include "../arx/include/utils.h"
+#include "../src/io.h"
+#include "../src/lexer.h"
+#include "../src/utils.h"
 
 TEST(LexerTest, TokenNameTest) {
   /* Test some results from getTokName */

@@ -5,7 +5,7 @@
  *
  */
 namespace llvm {
-class raw_ostream;
+  class raw_ostream;
 }
 
 llvm::raw_ostream& indent(llvm::raw_ostream&, int);

@@ -433,7 +433,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
       if (!isascii(CurTok))
         return LogError<PrototypeAST>("Expected unary operator");
       FnName = "unary";
-      FnName += (char)CurTok;
+      FnName += (char) CurTok;
       Kind = 1;
       getNextToken();
       break;
@@ -442,7 +442,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
       if (!isascii(CurTok))
         return LogError<PrototypeAST>("Expected binary operator");
       FnName = "binary";
-      FnName += (char)CurTok;
+      FnName += (char) CurTok;
       Kind = 2;
       getNextToken();
 
@@ -450,7 +450,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
       if (CurTok == tok_number) {
         if (NumVal < 1 || NumVal > 100)
           return LogError<PrototypeAST>("Invalid precedence: must be 1..100");
-        BinaryPrecedence = (unsigned)NumVal;
+        BinaryPrecedence = (unsigned) NumVal;
         getNextToken();
       }
       break;
@@ -523,4 +523,30 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
 std::unique_ptr<PrototypeAST> ParseExtern() {
   getNextToken();  // eat extern.
   return ParsePrototype();
+}
+
+/**
+ * @brief
+ *
+ * @tparam T
+ * @param ptr
+ * @return true
+ * @return false
+ */
+template <typename T>
+bool is_expr_ptr(T* ptr) {
+  return std::is_base_of<ExprAST, T>::value;
+}
+
+/**
+ * @brief
+ *
+ * @tparam T
+ * @param ptr
+ * @return true
+ * @return false
+ */
+template <typename T>
+bool is_expr_ptr(std::unique_ptr<T> const& ptr) {
+  return false;
 }

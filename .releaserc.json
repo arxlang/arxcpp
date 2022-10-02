@@ -22,12 +22,26 @@
             "countMatches": true
           },
           {
-            "files": ["arx/src/main.cpp"],
+            "files": ["meson.build"],
+            "from": "version : '.*',  # semantic-release",
+            "to":   "version : '${nextRelease.version}',  # semantic-release",
+            "results": [
+              {
+                "file": "meson.build",
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
+          },
+          {
+            "files": ["src/main.cpp"],
             "from": "std::string ARX_VERSION = \".*\";  // semantic-release",
             "to": "std::string ARX_VERSION = \"${nextRelease.version}\";  // semantic-release",
             "results": [
               {
-                "file": "arx/src/main.cpp",
+                "file": "src/main.cpp",
                 "hasChanged": true,
                 "numMatches": 1,
                 "numReplacements": 1
@@ -72,8 +86,9 @@
         "assets": [
           "CHANGELOG.md",
           "conda/recipe/meta.yaml",
-          "arx/src/main.cpp",
-          "Doxyfile"
+          "src/main.cpp",
+          "Doxyfile",
+          "meson.build"
         ],
         "message": "chore(release): ${nextRelease.version}"
       }

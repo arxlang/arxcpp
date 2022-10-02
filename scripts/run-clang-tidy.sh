@@ -14,7 +14,9 @@ sed -i s:\{\{CONDA_PREFIX\}\}:${CONDA_PREFIX}:g ${TMP_DIR}/compile_commands.json
 clang-tidy \
     --config-file="${PROJECT_PATH}/.clang-tidy" \
     --header-filter="${CONDA_PREFIX}/include" \
-    --extra-arg="-I${PROJECT_PATH}/arx/include" \
+    --extra-arg="-I${PROJECT_PATH}/src" \
     -p=${TMP_DIR} \
-    ${PROJECT_PATH}/arx/**/*.cpp \
-    ${PROJECT_PATH}/arx/**/*.h
+    ${PROJECT_PATH}/src/*.cpp \
+    ${PROJECT_PATH}/src/*.h \
+    ${PROJECT_PATH}/src/codegen/*.cpp \
+    ${PROJECT_PATH}/src/codegen/*.h

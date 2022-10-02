@@ -1,5 +1,5 @@
 #include "io.h"
-#include <stdio.h>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>  // IWYU pragma: keep
 #include <iostream>

@@ -5,12 +5,12 @@ channels:
 dependencies:
 # build
 - compilers
-- compiler-rt
-- clangdev 13.*
-- clangxx 13.*
+- compiler-rt 14.*
+- clangdev 14.*
+- clangxx 14.*
 - cmake
-- llvmdev 13.*
-- lld 13.*
+- llvmdev 14.*
+- lld 14.*
 - meson
 - ninja
 # run

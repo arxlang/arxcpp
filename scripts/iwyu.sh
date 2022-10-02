@@ -12,7 +12,7 @@ touch ${IWYU_PATCH_FILEPATH}
 EXIT_CODE=0
 
 GCC_INCLUDE_PATH=$(dirname $(find ${CONDA_PREFIX} -name cxxabi.h))
-CLANG_INCLUDE_PATH=$(dirname $(find ${CONDA_PREFIX}/lib/clang/ -name builtins.h ))
+CLANG_INCLUDE_PATH=$(dirname $(find ${CONDA_PREFIX}/lib/clang/ -name builtins.h))
 
 for FILEPATH in "$@"
 do
@@ -23,7 +23,7 @@ do
     --error_always \
     --verbose 0 \
     -I${CONDA_PREFIX}/include \
-    -I${PROJECT_PATH}/arx/include \
+    -I${PROJECT_PATH}/src \
     -I${GCC_INCLUDE_PATH} \
     -I${GCC_INCLUDE_PATH}/x86_64-conda-linux-gnu \
     -I${CLANG_INCLUDE_PATH} \

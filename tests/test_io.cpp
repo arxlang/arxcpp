@@ -4,8 +4,8 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
-#include "../arx/include/io.h"
-#include "../arx/include/lexer.h"
+#include "../src/io.h"
+#include "../src/lexer.h"
 
 TEST(InputTest, GetCharTest) {
   string_to_buffer((char*)"1");

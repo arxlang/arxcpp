@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../arx/include/utils.h"
+#include "../src/utils.h"
 
 // Demonstrate some basic assertions.
 TEST(UtilsTest, BasicAssertions) {

@@ -15,19 +15,26 @@
 #ifndef LLVM_EXECUTIONENGINE_ORC_ArxJIT_H
 #define LLVM_EXECUTIONENGINE_ORC_ArxJIT_H
 
-#include <memory>
-#include "llvm/ADT/StringRef.h"
-#include "llvm/ExecutionEngine/JITSymbol.h"
-#include "llvm/ExecutionEngine/Orc/CompileUtils.h"
-#include "llvm/ExecutionEngine/Orc/Core.h"
-#include "llvm/ExecutionEngine/Orc/ExecutionUtils.h"
-#include "llvm/ExecutionEngine/Orc/ExecutorProcessControl.h"
-#include "llvm/ExecutionEngine/Orc/IRCompileLayer.h"
-#include "llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h"
-#include "llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h"
-#include "llvm/ExecutionEngine/SectionMemoryManager.h"
-#include "llvm/IR/DataLayout.h"
-#include "llvm/IR/LLVMContext.h"
+#include <llvm/ADT/StringRef.h>                                 // for Strin...
+#include <llvm/ADT/Triple.h>                                    // for Triple
+#include <llvm/ExecutionEngine/Orc/CompileUtils.h>              // for Concu...
+#include <llvm/ExecutionEngine/Orc/Core.h>                      // for Execu...
+#include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>            // for Dynam...
+#include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>    // for Execu...
+#include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>            // for IRCom...
+#include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>   // for JITTa...
+#include <llvm/ExecutionEngine/Orc/Mangling.h>                  // for Mangl...
+#include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>  // for RTDyl...
+#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>          // for Threa...
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>          // for Secti...
+#include <llvm/IR/DataLayout.h>                                 // for DataL...
+#include <llvm/Support/Error.h>                                 // for Expected
+#include <memory>                                               // for __base
+#include <new>                                                  // for opera...
+
+namespace llvm {
+class JITEvaluatedSymbol;
+}
 
 namespace llvm {
 namespace orc {
@@ -73,6 +80,11 @@ class ArxJIT {
     MainJD.addGenerator(
         cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(
             DL.getGlobalPrefix())));
+
+    if (JTMB.getTargetTriple().isOSBinFormatCOFF()) {
+      ObjectLayer.setOverrideObjectFlagsWithResponsibilityFlags(true);
+      ObjectLayer.setAutoClaimResponsibilityForObjectSymbols(true);
+    }
   }
 
   ~ArxJIT() {

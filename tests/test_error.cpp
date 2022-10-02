@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../arx/include/error.h"
+#include "../src/error.h"
 
 // Demonstrate some basic assertions.
 TEST(ErrorTest, BasicAssertions) {

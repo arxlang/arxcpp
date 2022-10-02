@@ -4,10 +4,10 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
-#include "../arx/include/io.h"
-#include "../arx/include/lexer.h"
-#include "../arx/include/parser.h"
-#include "../arx/include/settings.h"
+#include "../src/io.h"
+#include "../src/lexer.h"
+#include "../src/parser.h"
+#include "../src/settings.h"
 
 extern int CurTok;
 extern SourceLocation CurLoc;
