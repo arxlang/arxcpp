@@ -37,8 +37,8 @@
           },
           {
             "files": ["Doxyfile"],
-            "from": "PROJECT_NUMBER         = \".*\"  # semantic-release",
-            "to": "PROJECT_NUMBER         = \"${nextRelease.version}\"  # semantic-release",
+            "from": "PROJECT_NUMBER         = .*  # semantic-release",
+            "to":   "PROJECT_NUMBER         = ${nextRelease.version}  # semantic-release",
             "results": [
               {
                 "file": "Doxyfile",
