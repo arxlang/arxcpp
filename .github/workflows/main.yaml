@@ -61,3 +61,7 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
       id: llvm-cov-report
       run: make code-coverage
+
+    - name: Check if PR title is a correct semantic-release prefix
+      if: ${{ github.event_name == 'pull_request' && always() }}
+      run: bash scripts/ci/pr-title-check.sh "${{ github.event.pull_request.title }}"
