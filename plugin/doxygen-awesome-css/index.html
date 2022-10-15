@@ -1,0 +1,311 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Doxygen Awesome -
+		ArxLang</title>
+	<meta charset="utf-8" />
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<link rel="stylesheet" href="/assets/css/custom.css" />
+	<link
+		href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+		rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+		crossorigin="anonymous">
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous">
+		</script>
+</head>
+
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+
+				<!-- Header -->
+				<header id="header">
+					<!--
+					<a href="index.html" class="logo" style="vertical-align:middle">
+						<img src="/images/arx.png" width="40px"/>
+						<strong>ArxLang</strong>
+					</a>
+					<ul class="icons">
+						<li>
+							<a href="https://twitter.com/arx_lang" class="icon brands fa-twitter">
+								<span class="label">Twitter</span>
+							</a>
+						</li>
+						<li>
+							<a href="https://github.com/arxlang/arx" class="icon brands fa-github">
+								<span class="label">GitHub</span>
+							</a>
+						</li>
+						<li>
+							<a href="/discord" class="icon brands fa-discord">
+								<span class="label">Discord</span>
+							</a>
+						</li>
+						<li>
+							<a href="mailto:arxcompiler@gmail.com" class="icon solid fa-envelope">
+								<span class="label">Email</span>
+							</a>
+						</li>
+					</ul>
+					-->
+				</header>
+
+				<!-- Section -->
+				<section>
+					<h1 id="doxygen-awesome">Doxygen Awesome</h1>
+<p><a href="https://github.com/jothepro/doxygen-awesome-css/releases/latest"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/jothepro/doxygen-awesome-css" /></a>
+<a href="https://github.com/jothepro/doxygen-awesome-css/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/jothepro/doxygen-awesome-css" /></a>
+<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/jothepro/doxygen-awesome-css" /></p>
+<div style="filter: drop-shadow(0px 3px 10px rgba(0,0,0,0.22)); max-width: 500px">
+
+![Screenshot of Doxygen Awesome CSS](img/screenshot.png)
+
+</div>
+
+<p><strong>Doxygen Awesome</strong> is a custom <strong>CSS theme for Doxygen HTML-documentation</strong> with lots of customization parameters.</p>
+<h2 id="motivation">Motivation</h2>
+<p>I really like how the Doxygen HTML-documentation is structured! But IMHO it looks a bit outdated.</p>
+<p>This theme is an attemt to update the visuals of Doxygen without changing it's overall layout too much.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>🌈 Clean, modern design</li>
+<li>🚀 Heavily customizable by adjusting CSS-variables</li>
+<li>🧩 No changes to the HTML structure of Doxygen required</li>
+<li>📱 Improved mobile usability</li>
+<li>🌘 Dark mode support!</li>
+<li>🥇 Works best with <strong>doxygen 1.9.1</strong> - <strong>1.9.3</strong></li>
+</ul>
+<h2 id="examples">Examples</h2>
+<ul>
+<li>Sidebar-Only theme: <a href="https://jothepro.github.io/doxygen-awesome-css/">Documentation of this repository</a></li>
+<li>Base theme: <a href="https://a4z.github.io/libsl3/">libsl3</a></li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Copy the file <code>doxygen-awesome.css</code> from this repository into your project or add this repository as submodule and check out the latest release:</p>
+<pre><code class="language-bash">git submodule add https://github.com/jothepro/doxygen-awesome-css.git
+cd doxygen-awesome-css
+git checkout v2.0.3
+</code></pre>
+<p>Choose one of the theme variants and configure Doxygen accordingly:</p>
+<p><span id="variants_image"></p>
+<p><img alt="Available theme variants" src="img/theme-variants.drawio.svg" /></p>
+<p></span></p>
+<ol>
+<li><strong>Base theme</strong>:</li>
+</ol>
+<pre><code># Doxyfile
+GENERATE_TREEVIEW      = YES # optional. Also works without treeview
+HTML_EXTRA_STYLESHEET  = doxygen-awesome-css/doxygen-awesome.css
+</code></pre>
+<ol>
+<li><strong>Sidebar-only theme</strong>:</li>
+</ol>
+<pre><code># Doxyfile
+GENERATE_TREEVIEW      = YES # required!
+HTML_EXTRA_STYLESHEET  = doxygen-awesome-css/doxygen-awesome.css \
+                         doxygen-awesome-css/doxygen-awesome-sidebar-only.css
+</code></pre>
+<p>Further installation instructions:</p>
+<ul>
+<li><a href="docs/extensions/">How to install extensions</a></li>
+<li><a href="docs/customization/">How to customize the theme (colors, spacing, border-radius, ...)</a></li>
+<li><a href="docs/tricks/">Tips and Tricks for further configuration</a></li>
+</ul>
+<h2 id="browser-support">Browser support</h2>
+<p>Tested with</p>
+<ul>
+<li>Chrome 98, Chrome 98 for Android, Chrome 87 for iOS</li>
+<li>Safari 15, Safari for iOS 15</li>
+<li>Firefox 97, Firefox Daylight 97 for Android, Firefox Daylight 96 for iOS</li>
+</ul>
+<h2 id="credits">Credits</h2>
+<ul>
+<li>This theme is inspired by the <a href="https://vuepress.vuejs.org/">vuepress</a> static site generator default theme.</li>
+<li>Thank you for all the feedback on github!</li>
+</ul>
+<p><span class="next_section_button"></p>
+<p>Read Next: <a href="docs/extensions/">Extensions</a>
+</span></p>
+				</section>
+
+			</div>
+		</div>
+
+		<!-- Sidebar -->
+		<div id="sidebar">
+			<div class="inner">
+
+				<!-- Search -->
+				<!--
+				<section id="search" class="alt">
+					<form method="post" action="#">
+						<input type="text" name="query" id="query" placeholder="Search" />
+					</form>
+				</section>
+
+				-->
+
+				<!-- Menu -->
+				<nav id="menu">
+					<header class="major">
+						<h2>
+							<a href="index.html" class="logo" style="vertical-align:middle">
+								<img src="/images/arx.png" width="40px" />
+								<strong>ArxLang</strong>
+							</a>
+						</h2>
+					</header>
+
+					
+					<ul>
+						
+
+						
+
+						<li>
+							<a href="../..">Home</a>
+						</li>
+						
+						
+
+						
+						<li>
+							
+							
+								<a href="../../tutorials/">Tutorials</a>
+							
+							
+							
+							
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="../../getting-started/">Getting Started</a>
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="/api/">API Doc</a>
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="../../sponsor/">Sponsor</a>
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="../../roadmap/">Roadmap</a>
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="../../governance/">Governance</a>
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="../../partners/">Partners</a>
+						</li>
+						
+						
+
+						
+
+						<li>
+							<a href="../../coc/">Code of Conduct</a>
+						</li>
+						
+						
+					</ul>
+					
+				</nav>
+
+				<section>
+					<header class="major">
+						<h2>Sponsors</h2>
+					</header>
+
+					<p>
+						Be our first sponsor!
+					</p>
+
+					<iframe src="https://github.com/sponsors/arxlang/button"
+						title="Sponsor ArxLang" height="35" width="116" style="border: 0;">
+					</iframe>
+				</section>
+
+				<section>
+					<header class="major">
+						<h2>Get in touch</h2>
+					</header>
+					<ul class="contact">
+						<li class="icon solid fa-envelope">
+							<a href="mailto:arxcompiler@gmail.com">arxcompiler@gmail.com</a>
+						</li>
+						<li class="icon solid brands fa-twitter">
+							<a href="https://twitter.com/arx_lang">Twitter</a>
+						</li>
+						<li class="icon solid brands fa-github">
+							<a href="https://twitter.com/arx_lang">GitHub</a>
+						</li>
+						<li class="icon solid brands fa-discord">
+							<a href="/discord">Discord</a>
+						</li>
+					</ul>
+				</section>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<p class="copyright">
+						&copy; ArxLang. All rights reserved.<br />
+						Design: <a href="https://html5up.net">HTML5 UP</a>.
+					</p>
+				</footer>
+
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/browser.min.js"></script>
+	<script src="/assets/js/breakpoints.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<script src="/assets/js/main.js"></script>
+
+</body>
+
+</html>
