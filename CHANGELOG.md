@@ -1,6 +1,15 @@
 Release Notes
 ---
 
+## [1.4.2](https://github.com/arxlang/arx/compare/1.4.1...1.4.2) (2022-10-15)
+
+
+### Bug Fixes
+
+* **arx-shell:** Fix arx shell ([#60](https://github.com/arxlang/arx/issues/60)) ([18b2262](https://github.com/arxlang/arx/commit/18b22621391e6d12af08b39b71c31fe26b9e5813))
+* Fix release workflow ([#62](https://github.com/arxlang/arx/issues/62)) ([e1db89a](https://github.com/arxlang/arx/commit/e1db89a81d9f0a163dbbe3c913789615af28d9ec))
+* **release:** Fix doxygen match ([#63](https://github.com/arxlang/arx/issues/63)) ([8670069](https://github.com/arxlang/arx/commit/8670069d05def7660973f565b4e73960471864c4))
+
 ## [1.4.1](https://github.com/arxlang/arx/compare/1.4.0...1.4.1) (2022-09-15)
 
 
