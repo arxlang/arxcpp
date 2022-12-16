@@ -165,7 +165,8 @@ auto gettok() -> int {
       LastChar = advance();
     while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
-    if (LastChar != EOF) return gettok();
+    if (LastChar != EOF)
+      return gettok();
   }
 
   // Check for end of file.  Don't eat the EOF.

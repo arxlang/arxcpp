@@ -73,7 +73,6 @@ extern std::string ARX_VERSION;
  *  Code Generation Globals
  * ===----------------------------------------------------------------------===
  */
-DebugInfo KSDbgInfo;
 
 std::unique_ptr<llvm::LLVMContext> TheContext;
 std::unique_ptr<llvm::Module> TheModule;
@@ -83,59 +82,6 @@ llvm::ExitOnError ExitOnErr;
 std::map<std::string, llvm::AllocaInst*> NamedValues;
 std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
-
-//===----------------------------------------------------------------------===
-// Debug Info Support
-//===----------------------------------------------------------------------===
-
-std::unique_ptr<llvm::DIBuilder> DBuilder;
-
-/**
- * @brief
- * @return
- */
-llvm::DIType* DebugInfo::getDoubleTy() {
-  if (DblTy) return DblTy;
-
-  DblTy = DBuilder->createBasicType("double", 64, llvm::dwarf::DW_ATE_float);
-  return DblTy;
-}
-
-/**
- * @brief
- * @param AST
- */
-void DebugInfo::emitLocation(ExprAST* AST) {
-  if (!AST) return Builder->SetCurrentDebugLocation(llvm::DebugLoc());
-  llvm::DIScope* Scope = nullptr;
-  if (LexicalBlocks.empty())
-    Scope = TheCU;
-  else
-    Scope = LexicalBlocks.back();
-  Builder->SetCurrentDebugLocation(llvm::DILocation::get(
-      Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
-}
-
-/**
- * @brief
- * @param NumArgs
- * @param Unit
- * @return
- */
-static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
-    -> llvm::DISubroutineType* {
-  llvm::SmallVector<llvm::Metadata*, 8> EltTys;
-  llvm::DIType* DblTy = KSDbgInfo.getDoubleTy();
-
-  // Add the result type.
-  EltTys.push_back(DblTy);
-
-  for (unsigned i = 0, e = NumArgs; i != e; ++i)
-    EltTys.push_back(DblTy);
-
-  return DBuilder->createSubroutineType(
-      DBuilder->getOrCreateTypeArray(EltTys));
-}
 
 //===----------------------------------------------------------------------===//
 // Code Generation //
@@ -152,10 +98,12 @@ static auto CreateFunctionType(unsigned NumArgs, llvm::DIFile* Unit)
  * If no existing prototype exists, return null.
  */
 auto getFunction(std::string Name) -> llvm::Function* {
-  if (auto* F = TheModule->getFunction(Name)) return F;
+  if (auto* F = TheModule->getFunction(Name))
+    return F;
 
   auto FI = FunctionProtos.find(Name);
-  if (FI != FunctionProtos.end()) return FI->second->codegen();
+  if (FI != FunctionProtos.end())
+    return FI->second->codegen();
 
   return nullptr;
 }
@@ -184,7 +132,6 @@ static auto CreateEntryBlockAlloca(
  *
  */
 llvm::Value* NumberExprAST::codegen() {
-  KSDbgInfo.emitLocation(this);
   return llvm::ConstantFP::get(*TheContext, llvm::APFloat(Val));
 }
 
@@ -195,9 +142,9 @@ llvm::Value* NumberExprAST::codegen() {
  */
 llvm::Value* VariableExprAST::codegen() {
   llvm::Value* V = NamedValues[Name];
-  if (!V) return LogErrorV("Unknown variable name");
+  if (!V)
+    return LogErrorV("Unknown variable name");
 
-  KSDbgInfo.emitLocation(this);
   return Builder->CreateLoad(V, Name.c_str());
 }
 
@@ -208,12 +155,13 @@ llvm::Value* VariableExprAST::codegen() {
  */
 llvm::Value* UnaryExprAST::codegen() {
   llvm::Value* OperandV = Operand->codegen();
-  if (!OperandV) return nullptr;
+  if (!OperandV)
+    return nullptr;
 
   llvm::Function* F = getFunction(std::string("unary") + Opcode);
-  if (!F) return LogErrorV("Unknown unary operator");
+  if (!F)
+    return LogErrorV("Unknown unary operator");
 
-  KSDbgInfo.emitLocation(this);
   return Builder->CreateCall(F, OperandV, "unop");
 }
 
@@ -223,8 +171,6 @@ llvm::Value* UnaryExprAST::codegen() {
  *
  */
 llvm::Value* BinaryExprAST::codegen() {
-  KSDbgInfo.emitLocation(this);
-
   //  Special case '=' because we don't want to emit the LHS as an
   // expression.*/
   if (Op == '=') {
@@ -233,14 +179,17 @@ llvm::Value* BinaryExprAST::codegen() {
     // default.  If you build LLVM with RTTI this can be changed to a
     // dynamic_cast for automatic error checking.
     VariableExprAST* LHSE = static_cast<VariableExprAST*>(LHS.get());
-    if (!LHSE) return LogErrorV("destination of '=' must be a variable");
+    if (!LHSE)
+      return LogErrorV("destination of '=' must be a variable");
     // Codegen the RHS.//
     llvm::Value* Val = RHS->codegen();
-    if (!Val) return nullptr;
+    if (!Val)
+      return nullptr;
 
     // Look up the name.//
     llvm::Value* Variable = NamedValues[LHSE->getName()];
-    if (!Variable) return LogErrorV("Unknown variable name");
+    if (!Variable)
+      return LogErrorV("Unknown variable name");
 
     Builder->CreateStore(Val, Variable);
     return Val;
@@ -248,7 +197,8 @@ llvm::Value* BinaryExprAST::codegen() {
 
   llvm::Value* L = LHS->codegen();
   llvm::Value* R = RHS->codegen();
-  if (!L || !R) return nullptr;
+  if (!L || !R)
+    return nullptr;
 
   switch (Op) {
     case '+':
@@ -281,10 +231,9 @@ llvm::Value* BinaryExprAST::codegen() {
  *
  */
 llvm::Value* CallExprAST::codegen() {
-  KSDbgInfo.emitLocation(this);
-
   llvm::Function* CalleeF = getFunction(Callee);
-  if (!CalleeF) return LogErrorV("Unknown function referenced");
+  if (!CalleeF)
+    return LogErrorV("Unknown function referenced");
 
   if (CalleeF->arg_size() != Args.size())
     return LogErrorV("Incorrect # arguments passed");
@@ -292,7 +241,8 @@ llvm::Value* CallExprAST::codegen() {
   std::vector<llvm::Value*> ArgsV;
   for (auto& Arg : Args) {
     ArgsV.push_back(Arg->codegen());
-    if (!ArgsV.back()) return nullptr;
+    if (!ArgsV.back())
+      return nullptr;
   }
 
   return Builder->CreateCall(CalleeF, ArgsV, "calltmp");
@@ -302,10 +252,9 @@ llvm::Value* CallExprAST::codegen() {
  * @brief
  */
 llvm::Value* IfExprAST::codegen() {
-  KSDbgInfo.emitLocation(this);
-
   llvm::Value* CondV = Cond->codegen();
-  if (!CondV) return nullptr;
+  if (!CondV)
+    return nullptr;
 
   // Convert condition to a bool by comparing non-equal to 0.0.
   CondV = Builder->CreateFCmpONE(
@@ -326,7 +275,8 @@ llvm::Value* IfExprAST::codegen() {
   Builder->SetInsertPoint(ThenBB);
 
   llvm::Value* ThenV = Then->codegen();
-  if (!ThenV) return nullptr;
+  if (!ThenV)
+    return nullptr;
 
   Builder->CreateBr(MergeBB);
   // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
@@ -337,7 +287,8 @@ llvm::Value* IfExprAST::codegen() {
   Builder->SetInsertPoint(ElseBB);
 
   llvm::Value* ElseV = Else->codegen();
-  if (!ElseV) return nullptr;
+  if (!ElseV)
+    return nullptr;
 
   Builder->CreateBr(MergeBB);
   // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
@@ -383,11 +334,10 @@ llvm::Value* ForExprAST::codegen() {
   // Create an alloca for the variable in the entry block.
   llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(TheFunction, VarName);
 
-  KSDbgInfo.emitLocation(this);
-
   // Emit the start code first, without 'variable' in scope.
   llvm::Value* StartVal = Start->codegen();
-  if (!StartVal) return nullptr;
+  if (!StartVal)
+    return nullptr;
 
   // Store the value into the alloca.
   Builder->CreateStore(StartVal, Alloca);
@@ -411,13 +361,15 @@ llvm::Value* ForExprAST::codegen() {
   // Emit the body of the loop.  This, like any other expr, can change the
   // current BB.  Note that we ignore the value computed by the body, but don't
   // allow an error.
-  if (!Body->codegen()) return nullptr;
+  if (!Body->codegen())
+    return nullptr;
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
   if (Step) {
     StepVal = Step->codegen();
-    if (!StepVal) return nullptr;
+    if (!StepVal)
+      return nullptr;
   } else {
     // If not specified, use 1.0.
     StepVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
@@ -425,7 +377,8 @@ llvm::Value* ForExprAST::codegen() {
 
   // Compute the end condition.
   llvm::Value* EndCond = End->codegen();
-  if (!EndCond) return nullptr;
+  if (!EndCond)
+    return nullptr;
 
   // Reload, increment, and restore the alloca.  This handles the case where
   // the body of the loop mutates the variable.
@@ -482,7 +435,8 @@ llvm::Value* VarExprAST::codegen() {
     llvm::Value* InitVal = nullptr;
     if (Init) {
       InitVal = Init->codegen();
-      if (!InitVal) return nullptr;
+      if (!InitVal)
+        return nullptr;
     } else {  // If not specified, use 0.0.
       InitVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0));
     }
@@ -498,11 +452,10 @@ llvm::Value* VarExprAST::codegen() {
     NamedValues[VarName] = Alloca;
   }
 
-  KSDbgInfo.emitLocation(this);
-
   // Codegen the body, now that all vars are in scope.
   llvm::Value* BodyVal = Body->codegen();
-  if (!BodyVal) return nullptr;
+  if (!BodyVal)
+    return nullptr;
 
   // Pop all our variables from scope.
   for (unsigned i = 0, e = VarNames.size(); i != e; ++i)
@@ -546,7 +499,8 @@ llvm::Function* FunctionAST::codegen() {
   auto& P = *Proto;
   FunctionProtos[Proto->getName()] = std::move(Proto);
   llvm::Function* TheFunction = getFunction(P.getName());
-  if (!TheFunction) return nullptr;
+  if (!TheFunction)
+    return nullptr;
 
   // If this is an operator, install it.
   if (P.isBinaryOp())
@@ -557,56 +511,12 @@ llvm::Function* FunctionAST::codegen() {
       llvm::BasicBlock::Create(*TheContext, "entry", TheFunction);
   Builder->SetInsertPoint(BB);
 
-  // Create a subprogram DIE for this function.
-  llvm::DIFile* Unit = DBuilder->createFile(
-      KSDbgInfo.TheCU->getFilename(), KSDbgInfo.TheCU->getDirectory());
-  llvm::DIScope* FContext = Unit;
-  unsigned LineNo = P.getLine();
-  unsigned ScopeLine = LineNo;
-  llvm::DISubprogram* SP = DBuilder->createFunction(
-      FContext,
-      P.getName(),
-      llvm::StringRef(),
-      Unit,
-      LineNo,
-      CreateFunctionType(TheFunction->arg_size(), Unit),
-      ScopeLine,
-      llvm::DINode::FlagPrototyped,
-      llvm::DISubprogram::SPFlagDefinition);
-  TheFunction->setSubprogram(SP);
-
-  // Push the current scope.
-  KSDbgInfo.LexicalBlocks.push_back(SP);
-
-  // Unset the location for the prologue emission (leading instructions with no
-  // location in a function are considered part of the prologue and the
-  // debugger will run past them when breaking on a function)
-  KSDbgInfo.emitLocation(nullptr);
-
   // Record the function arguments in the NamedValues map.
   NamedValues.clear();
-  unsigned ArgIdx = 0;
   for (auto& Arg : TheFunction->args()) {
     // Create an alloca for this variable.
     llvm::AllocaInst* Alloca =
         CreateEntryBlockAlloca(TheFunction, Arg.getName());
-
-    // Create a debug descriptor for the variable.
-    llvm::DILocalVariable* D = DBuilder->createParameterVariable(
-        SP,
-        Arg.getName(),
-        ++ArgIdx,
-        Unit,
-        LineNo,
-        KSDbgInfo.getDoubleTy(),
-        true);
-
-    DBuilder->insertDeclare(
-        Alloca,
-        D,
-        DBuilder->createExpression(),
-        llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
-        Builder->GetInsertBlock());
 
     // Store the initial value into the alloca.
     Builder->CreateStore(&Arg, Alloca);
@@ -615,14 +525,9 @@ llvm::Function* FunctionAST::codegen() {
     NamedValues[std::string(Arg.getName())] = Alloca;
   }
 
-  KSDbgInfo.emitLocation(Body.get());
-
   if (llvm::Value* RetVal = Body->codegen()) {
     // Finish off the function.
     Builder->CreateRet(RetVal);
-
-    // Pop off the lexical block for the function.
-    KSDbgInfo.LexicalBlocks.pop_back();
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
@@ -633,11 +538,8 @@ llvm::Function* FunctionAST::codegen() {
   // Error reading body, remove function.
   TheFunction->eraseFromParent();
 
-  if (P.isBinaryOp()) BinopPrecedence.erase(Proto->getOperatorName());
-
-  // Pop off the lexical block for the function since we added it
-  // unconditionally.
-  KSDbgInfo.LexicalBlocks.pop_back();
+  if (P.isBinaryOp())
+    BinopPrecedence.erase(Proto->getOperatorName());
 
   return nullptr;
 }
@@ -768,59 +670,6 @@ extern "C" DLLEXPORT auto putchard(double X) -> double {
 extern "C" DLLEXPORT auto printd(double X) -> double {
   fprintf(stderr, "%f\n", X);
   return 0;
-}
-
-/**
- * @brief
- *
- */
-auto show_llvm() -> void {
-  llvm::InitializeNativeTarget();
-  llvm::InitializeNativeTargetAsmPrinter();
-  llvm::InitializeNativeTargetAsmParser();
-
-  load_settings();
-
-  // Prime the first token.
-  getNextToken();
-
-  TheJIT = ExitOnErr(llvm::orc::ArxJIT::Create());
-
-  InitializeModule();
-
-  // Add the current debug info version into the module.
-  TheModule->addModuleFlag(
-      llvm::Module::Warning,
-      "Debug Info Version",
-      llvm::DEBUG_METADATA_VERSION);
-
-  // Darwin only supports dwarf2.
-  if (llvm::Triple(llvm::sys::getProcessTriple()).isOSDarwin())
-    TheModule->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
-
-  // Construct the DIBuilder, we do this here because we need the module.
-  DBuilder = std::make_unique<llvm::DIBuilder>(*TheModule);
-
-  // Create the compile unit for the module.
-  // Currently down as "fib" as a filename since we're redirecting stdin
-  // but we'd like actual source locations.
-  KSDbgInfo.TheCU = DBuilder->createCompileUnit(
-      llvm::dwarf::DW_LANG_C,
-      DBuilder->createFile(OUTPUT_FILE, "."),
-      "Arx Compiler",
-      false,
-      "",
-      0);
-
-  // Run the main "interpreter loop" now.
-  MainLoop();
-
-  // Finalize the debug info.
-  DBuilder->finalize();
-
-  // Print out all of the generated code.
-  TheModule->print(llvm::errs(), nullptr);
-  exit(0);
 }
 
 /**

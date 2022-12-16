@@ -29,11 +29,13 @@ std::map<char, int> BinopPrecedence;
  *
  */
 auto GetTokPrecedence() -> int {
-  if (!isascii(CurTok)) return -1;
+  if (!isascii(CurTok))
+    return -1;
 
   // Make sure it's a declared binop.
   int TokPrec = BinopPrecedence[CurTok];
-  if (TokPrec <= 0) return -1;
+  if (TokPrec <= 0)
+    return -1;
   return TokPrec;
 }
 
@@ -56,9 +58,11 @@ std::unique_ptr<NumberExprAST> ParseNumberExpr() {
 std::unique_ptr<ExprAST> ParseParenExpr() {
   getNextToken();  // eat (.
   auto V = ParseExpression();
-  if (!V) return nullptr;
+  if (!V)
+    return nullptr;
 
-  if (CurTok != ')') return LogError<ExprAST>("expected ')'");
+  if (CurTok != ')')
+    return LogError<ExprAST>("expected ')'");
   getNextToken();  // eat ).
   return V;
 }
@@ -486,7 +490,8 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
 std::unique_ptr<FunctionAST> ParseDefinition() {
   getNextToken();  // eat function.
   auto Proto = ParsePrototype();
-  if (!Proto) return nullptr;
+  if (!Proto)
+    return nullptr;
 
   if (auto E = ParseExpression()) {
     return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));

@@ -53,7 +53,9 @@ build: clean-optional
 .PHONY: build-with-tests
 build-with-tests:
 	set -ex
-	$(MAKE) build ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
+	$(MAKE) build \
+		BUILD_TYPE="debug" \
+		ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
 
 .ONESHELL:
 .PHONY: install
@@ -86,7 +88,7 @@ test-gen-object:
 
 
 .PHONY: test-examples
-test-examples: test-examples-llvm test-gen-object
+test-examples: test-gen-object
 
 .ONESHELL:
 .PHONY: run-tests
