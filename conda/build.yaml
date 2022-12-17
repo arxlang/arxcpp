@@ -6,5 +6,6 @@ dependencies:
   - boa
   - conda >=4.13.*
   - conda-build >=3.20
+  - conda-verify
   - mamba
   - shyaml

@@ -74,10 +74,6 @@ test-sanitizer:
 	set -ex
 	meson test -C build -v
 
-.PHONY: test-examples-llvm
-test-show-llvm:
-	./tests/scripts/test-show-llvm.sh ${ARGS}
-
 .ONESHELL:
 .PHONY: code-coverage
 code-coverage:
@@ -133,7 +129,7 @@ docs-watch: docs-clean docs-api
 .PHONY: conda-build
 conda-build: clean-optional
 	cd conda/recipe
-	mamba update conda conda-build
+	mamba update -y conda conda-build
 	conda build purge
 	conda mambabuild .
 
