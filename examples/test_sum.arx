@@ -1,4 +1,0 @@
-function sum(x):
-  x + 1;
-
-sum(7777)

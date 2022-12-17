@@ -40,7 +40,7 @@ jobs:
         environment-file: conda/dev-linux-64.yaml
 
     - name: build
-      run: make build-with-tests CLEAN=1
+      run: make build-dev CLEAN=1
 
     - name: test flags
       run: |

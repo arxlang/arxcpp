@@ -10,17 +10,20 @@ if [[ "${1}" == "--debug" ]]; then
   DEBUG="gdb --args"
 fi
 
-TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd . && pwd )"
+TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 
 # load utils functions
-. "${TEST_DIR_PATH}/utils.sh"
+. "${TEST_DIR_PATH}/scripts/utils.sh"
 
-ARX_CMD="${DEBUG} ./build/arx"
+ARX="${DEBUG} ./build/arx"
 
-print_header "fibonnaci"
-${ARX_CMD} --output "${TMP_DIR}/fibonacci" --input examples/test_fibonacci.arx
-# ${ARX_CMD} --output "${TMP_DIR}/fibonacci"  examples/test_fibonacci.arx
 
-print_header "sum"
-${ARX_CMD} --output "${TMP_DIR}/sum" --input examples/test_sum.arx
-# ${ARX_CMD} --output "${TMP_DIR}/sum" < examples/test_sum.arx
+for test_name in "fibonacci" "sum" "average"; do
+  print_header "${test_name}"
+  OBJECT_FILE="${TMP_DIR}/${test_name}"
+
+  ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
+
+  clang++ "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" ${OBJECT_FILE} -o main
+  ./main
+done

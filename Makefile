@@ -50,12 +50,12 @@ build: clean-optional
 	meson compile -C build
 
 .ONESHELL:
-.PHONY: build-with-tests
-build-with-tests:
+.PHONY: build-dev
+build-dev:
 	set -ex
 	$(MAKE) build \
 		BUILD_TYPE="debug" \
-		ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
+		ARGS="-Ddev=enabled -Db_coverage=true"  #  -Db_sanitize=address
 
 .ONESHELL:
 .PHONY: install
