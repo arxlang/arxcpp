@@ -25,7 +25,7 @@ for test_name in "fibonacci" "sum" "average"; do
   ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
   ls "${TMP_DIR}" | grep "\.o"
 
-  clang++ -v \
+  clang++ \
     "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
     ${OBJECT_FILE} \
     -o "${TMP_DIR}/main"

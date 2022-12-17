@@ -71,8 +71,9 @@ class ExprAST {
     return Loc.Col;
   }
 
-  virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    return out << ':' << getLine() << ':' << getCol() << '\n';
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -93,8 +94,9 @@ class NumberExprAST : public ExprAST {
     this->kind = ExprKind::NumberKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    return ExprAST::dump(out << Val, ind);
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -119,8 +121,9 @@ class VariableExprAST : public ExprAST {
     return Name;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    return ExprAST::dump(out << Name, ind);
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -142,10 +145,9 @@ class UnaryExprAST : public ExprAST {
     this->kind = ExprKind::UnaryKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "unary" << Opcode, ind);
-    Operand->dump(out, ind + 1);
-    return out;
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -173,11 +175,9 @@ class BinaryExprAST : public ExprAST {
     this->kind = ExprKind::BinaryKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "binary" << Op, ind);
-    LHS->dump(indent(out, ind) << "LHS:", ind + 1);
-    RHS->dump(indent(out, ind) << "RHS:", ind + 1);
-    return out;
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -203,11 +203,9 @@ class CallExprAST : public ExprAST {
     this->kind = ExprKind::CallKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "call " << Callee, ind);
-    for (const auto& Arg : Args)
-      Arg->dump(indent(out, ind + 1), ind + 1);
-    return out;
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -237,12 +235,9 @@ class IfExprAST : public ExprAST {
     this->kind = ExprKind::IfKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "if", ind);
-    Cond->dump(indent(out, ind) << "Cond:", ind + 1);
-    Then->dump(indent(out, ind) << "Then:", ind + 1);
-    Else->dump(indent(out, ind) << "Else:", ind + 1);
-    return out;
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -277,13 +272,9 @@ class ForExprAST : public ExprAST {
     this->kind = ExprKind::ForKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "for", ind);
-    Start->dump(indent(out, ind) << "Cond:", ind + 1);
-    End->dump(indent(out, ind) << "End:", ind + 1);
-    Step->dump(indent(out, ind) << "Step:", ind + 1);
-    Body->dump(indent(out, ind) << "Body:", ind + 1);
-    return out;
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -308,13 +299,9 @@ class VarExprAST : public ExprAST {
     this->kind = ExprKind::VarKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "var", ind);
-    for (const auto& NamedVar : VarNames)
-      NamedVar.second->dump(
-        indent(out, ind) << NamedVar.first << ':', ind + 1);
-    Body->dump(indent(out, ind) << "Body:", ind + 1);
-    return out;
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -377,6 +364,11 @@ class PrototypeAST : public ExprAST {
   int getLine() const {
     return Line;
   }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
+  }
 };
 
 /**
@@ -399,11 +391,9 @@ class FunctionAST : public ExprAST {
     this->kind = ExprKind::FunctionKind;
   }
 
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    indent(out, ind) << "FunctionAST\n";
-    ++ind;
-    indent(out, ind) << "Body:";
-    return Body ? Body->dump(out, ind) : out << "null\n";
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
