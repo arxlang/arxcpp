@@ -34,7 +34,7 @@ jobs:
         channels: conda-forge,nodefaults
         channel-priority: true
         activate-environment: arx
-        environment-file: conda/dev.yaml
+        environment-file: conda/dev-linux-64.yaml
 
     - name: Install release dependencies
       run: mamba env update -n arx --file conda/release.yaml
