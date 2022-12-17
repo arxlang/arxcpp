@@ -13,7 +13,7 @@ cxx = meson.get_compiler('cpp')
 
 deps = [
   dependency('arrow'),
-  dependency('llvm', version : '>=13.0.0'),
+  dependency('llvm', version : '>=14.0.0'),
   dependency('CLI11'),
   dependency('threads'),
   dependency('glog'),

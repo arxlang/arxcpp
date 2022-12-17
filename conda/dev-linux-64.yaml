@@ -13,7 +13,7 @@ dependencies:
 # the latest version on conda-forge is very old.
 - gdb
 - glib
-- libclang-cpp 13.*
+- libclang-cpp 14.*
 - libcxx 14.*
 - libstdcxx-devel_linux-64
 - libstdcxx-ng
