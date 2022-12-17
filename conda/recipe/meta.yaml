@@ -1,5 +1,5 @@
 {% set name = "arx" %}
-{% set version = "1.4.2" %}  # semantic-release
+{% set version = "1.5.0" %}  # semantic-release
 {% set llvm_version = "13.*" %}
 {% set arrow_version = "8.*" %}
 

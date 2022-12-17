@@ -1,6 +1,13 @@
 Release Notes
 ---
 
+# [1.5.0](https://github.com/arxlang/arx/compare/1.4.2...1.5.0) (2022-12-17)
+
+
+### Features
+
+* Move-back to use object generation instead of llvm ir ([#66](https://github.com/arxlang/arx/issues/66)) ([a12ca1c](https://github.com/arxlang/arx/commit/a12ca1c286f3f4c89bbec78b3eadcf7befd8f4de))
+
 ## [1.4.2](https://github.com/arxlang/arx/compare/1.4.1...1.4.2) (2022-10-15)
 
 
