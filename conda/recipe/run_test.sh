@@ -11,4 +11,4 @@ function fib(x):
 fib(10)
 
 ARX
-arx --show-llvm < /tmp/src.arx
+arx < /tmp/src.arx

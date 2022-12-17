@@ -27,5 +27,6 @@ AllowShortLoopsOnASingleLine: false
 SpacesBeforeTrailingComments: 2
 SpacesInLineCommentPrefix:
     Minimum: 1
+AllowShortIfStatementsOnASingleLine: Never
 # note: update it when using clang-format 14
 # RemoveBracesLLVM: false

@@ -30,7 +30,12 @@ requirements:
     - arrow-c-glib {{ arrow_version }}
     - cli11
     - clangdev {{ llvm_version }}
+    - clangxx {{ llvm_version }}
+    - glib
     - libclang-cpp {{ llvm_version }}
+    - libcxx {{ llvm_version }}
+    - libstdcxx-devel_linux-64
+    - libstdcxx-ng
     - lld {{ llvm_version }}
     - llvm {{ llvm_version }}
     - llvmdev {{ llvm_version }}

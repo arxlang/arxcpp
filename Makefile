@@ -50,10 +50,14 @@ build: clean-optional
 	meson compile -C build
 
 .ONESHELL:
-.PHONY: build-with-tests
-build-with-tests:
+.PHONY: build-dev
+build-dev:
 	set -ex
-	$(MAKE) build ARGS="-Ddev=enabled -Db_coverage=true -Db_sanitize=address"
+	# https://github.com/google/sanitizers/issues/723
+	export ASAN_OPTIONS="fast_unwind_on_malloc=0"
+	$(MAKE) build \
+		BUILD_TYPE="debug" \
+		ARGS="-Ddev=enabled -Db_coverage=true"  # -Db_sanitize=address
 
 .ONESHELL:
 .PHONY: install
@@ -70,10 +74,6 @@ test-sanitizer:
 	set -ex
 	meson test -C build -v
 
-.PHONY: test-examples-llvm
-test-show-llvm:
-	./tests/scripts/test-show-llvm.sh ${ARGS}
-
 .ONESHELL:
 .PHONY: code-coverage
 code-coverage:
@@ -86,7 +86,7 @@ test-gen-object:
 
 
 .PHONY: test-examples
-test-examples: test-examples-llvm test-gen-object
+test-examples: test-gen-object
 
 .ONESHELL:
 .PHONY: run-tests
@@ -129,7 +129,7 @@ docs-watch: docs-clean docs-api
 .PHONY: conda-build
 conda-build: clean-optional
 	cd conda/recipe
-	mamba update conda conda-build
+	mamba update -y conda conda-build
 	conda build purge
 	conda mambabuild .
 

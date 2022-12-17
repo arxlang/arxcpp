@@ -47,17 +47,6 @@ auto main_open_shell(int count) {
  * @param count
  *
  */
-auto main_show_llvm(int count) {
-  load_input_to_buffer();
-  show_llvm();
-  exit(0);
-}
-
-/**
- * @brief
- * @param count
- *
- */
 auto main_show_version(int count) {
   load_input_to_buffer();
   show_version();
@@ -91,7 +80,6 @@ auto main(int argc, const char* argv[]) -> int {
   app.add_option("--input", INPUT_FILE, "Input file.");
   app.add_option("--output", OUTPUT_FILE, "Output file.");
   app.add_flag("--shell", main_open_shell, "Open Arx Shell.");
-  app.add_flag("--show-llvm", main_show_llvm, "Show LLVM IR.");
   app.add_flag("--version", main_show_version, "Show ArxLang version.");
 
   CLI11_PARSE(app, argc, argv);
