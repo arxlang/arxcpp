@@ -145,7 +145,8 @@ llvm::Value* VariableExprAST::codegen() {
   if (!V)
     return LogErrorV("Unknown variable name");
 
-  return Builder->CreateLoad(V, Name.c_str());
+  return Builder->CreateLoad(
+      llvm::Type::getDoubleTy(*TheContext), V, Name.c_str());
 }
 
 /**
