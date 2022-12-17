@@ -524,29 +524,3 @@ std::unique_ptr<PrototypeAST> ParseExtern() {
   getNextToken();  // eat extern.
   return ParsePrototype();
 }
-
-/**
- * @brief
- *
- * @tparam T
- * @param ptr
- * @return true
- * @return false
- */
-template <typename T>
-bool is_expr_ptr(T* ptr) {
-  return std::is_base_of<ExprAST, T>::value;
-}
-
-/**
- * @brief
- *
- * @tparam T
- * @param ptr
- * @return true
- * @return false
- */
-template <typename T>
-bool is_expr_ptr(std::unique_ptr<T> const& ptr) {
-  return false;
-}

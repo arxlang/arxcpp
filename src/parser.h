@@ -419,25 +419,3 @@ std::unique_ptr<ExprAST> ParsePrimary();
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<IfExprAST> ParseIfExpr();
 std::unique_ptr<NumberExprAST> ParseNumberExpr();
-
-/**
- * @brief
- *
- * @tparam T
- * @param ptr
- * @return true
- * @return false
- */
-template <typename T>
-bool is_expr_ptr(T* ptr);
-
-/**
- * @brief
- *
- * @tparam T
- * @param ptr
- * @return true
- * @return false
- */
-template <typename T>
-bool is_expr_ptr(std::unique_ptr<T> const& ptr);

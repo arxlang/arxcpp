@@ -128,55 +128,6 @@ T codegen(std::unique_ptr<ExprAST>& expr, T code_result) {
   return codegen(_expr, code_result);
 }
 
-/*
-// DOWNCAST_CODEGEN
-
-#define DOWNCAST_CODEGEN(expr)                                     \
-  ({                                                               \
-    switch (expr->kind) { (NumberExprAST*) expr break; }           \
-    case ExprKind::VariableKind: {                                 \
-      code_result = codegen((VariableExprAST*) expr, code_result); \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::UnaryKind: {                                    \
-      code_result = codegen((UnaryExprAST*) expr, code_result);    \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::BinaryKind: {                                   \
-      code_result = codegen((BinaryExprAST*) expr, code_result);   \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::CallKind: {                                     \
-      code_result = codegen((CallExprAST*) expr, code_result);     \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::IfKind: {                                       \
-      code_result = codegen((IfExprAST*) expr, code_result);       \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::ForKind: {                                      \
-      code_result = codegen((ForExprAST*) expr, code_result);      \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::VarKind: {                                      \
-      code_result = codegen((VarExprAST*) expr, code_result);      \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::PrototypeKind: {                                \
-      code_result = codegen((PrototypeAST*) expr, code_result);    \
-      break;                                                       \
-    }                                                              \
-    case ExprKind::FunctionKind: {                                 \
-      code_result = codegen((FunctionAST*) expr, code_result);     \
-      break;                                                       \
-    }                                                              \
-    default: {                                                     \
-      std::cout << "[WW] DOWNCASTING_CODEGEN MATCH FAILED";        \
-      break;                                                       \
-    }                                                              \
-  })
-*/
-
 template <typename T>
 T codegen(ExprAST* expr, T code_result) {
   switch (expr->kind) {
@@ -240,7 +191,6 @@ T codegen(ExprAST* expr, T code_result) {
 static auto getFunction(std::string Name) -> llvm::Function* {
   if (auto* F = TheModule->getFunction(Name))
     return F;
-  ;
 
   auto FI = FunctionProtos.find(Name);
   if (FI != FunctionProtos.end()) {
@@ -363,12 +313,10 @@ llvm::Value* codegen(UnaryExprAST* expr, llvm::Value* code_result) {
 
   if (!OperandV)
     return nullptr;
-  ;
 
   llvm::Function* F = getFunction(std::string("unary") + expr->Opcode);
   if (!F)
     return LogErrorV("Unknown unary operator");
-  ;
 
   return Builder->CreateCall(F, OperandV, "unop");
 }
@@ -395,7 +343,6 @@ llvm::Value* codegen(BinaryExprAST* expr, llvm::Value* code_result) {
 
     if (!Val)
       return nullptr;
-    ;
 
     // Look up the name.//
     llvm::Value* Variable = NamedValues[LHSE->getName()];
@@ -413,7 +360,6 @@ llvm::Value* codegen(BinaryExprAST* expr, llvm::Value* code_result) {
 
   if (!L || !R)
     return nullptr;
-  ;
 
   switch (expr->Op) {
     case '+':
@@ -473,7 +419,6 @@ llvm::Value* codegen(IfExprAST* expr, llvm::Value* code_result) {
   codegen(expr->Cond.get(), CondV);
   if (!CondV)
     return nullptr;
-  ;
 
   // Convert condition to a bool by comparing non-equal to 0.0.
   CondV = Builder->CreateFCmpONE(
@@ -511,7 +456,6 @@ llvm::Value* codegen(IfExprAST* expr, llvm::Value* code_result) {
   codegen(expr->Else.get(), ElseV);
   if (!ElseV)
     return nullptr;
-  ;
 
   Builder->CreateBr(MergeBB);
   // Codegen of 'Else' can change the current block, update ElseBB for
@@ -570,7 +514,6 @@ llvm::Value* codegen(ForExprAST* expr, llvm::Value* code_result) {
   codegen(expr->Body.get(), BodyVal);
   if (!BodyVal)
     return nullptr;
-  ;
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
@@ -578,7 +521,6 @@ llvm::Value* codegen(ForExprAST* expr, llvm::Value* code_result) {
     codegen(expr->Step.get(), StepVal);
     if (!StepVal)
       return nullptr;
-    ;
   } else {
     // If not specified, use 1.0.
     StepVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
@@ -589,7 +531,6 @@ llvm::Value* codegen(ForExprAST* expr, llvm::Value* code_result) {
   EndCond = codegen(expr->End.get(), EndCond);
   if (!EndCond)
     return nullptr;
-  ;
 
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
@@ -649,7 +590,6 @@ llvm::Value* codegen(VarExprAST* expr, llvm::Value* code_result) {
       codegen(Init, InitVal);
       if (!InitVal)
         return nullptr;
-      ;
     } else {  // If not specified, use 0.0.
       InitVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0));
     }
@@ -713,6 +653,7 @@ llvm::Function* codegen(FunctionAST* expr, llvm::Function* code_result) {
   auto& P = *(expr->Proto);
   FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
   llvm::Function* TheFunction = getFunction(P.getName());
+
   if (!TheFunction)
     return nullptr;
 
