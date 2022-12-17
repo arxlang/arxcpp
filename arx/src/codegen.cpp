@@ -383,7 +383,8 @@ llvm::Value* ForExprAST::codegen() {
 
   // Reload, increment, and restore the alloca.  This handles the case where
   // the body of the loop mutates the variable.
-  llvm::Value* CurVar = Builder->CreateLoad(Alloca, VarName.c_str());
+  llvm::Value* CurVar = Builder->CreateLoad(
+      llvm::Type::getDoubleTy(*TheContext), Alloca, VarName.c_str());
   llvm::Value* NextVar = Builder->CreateFAdd(CurVar, StepVal, "nextvar");
   Builder->CreateStore(NextVar, Alloca);
 
