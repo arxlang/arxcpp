@@ -160,7 +160,7 @@ std::unique_ptr<IfExprAST> ParseIfExpr() {
   };
 
   return std::make_unique<IfExprAST>(
-      IfLoc, std::move(Cond), std::move(Then), std::move(Else));
+    IfLoc, std::move(Cond), std::move(Then), std::move(Else));
 }
 
 /**
@@ -218,11 +218,11 @@ std::unique_ptr<ForExprAST> ParseForExpr() {
   }
 
   return std::make_unique<ForExprAST>(
-      IdName,
-      std::move(Start),
-      std::move(End),
-      std::move(Step),
-      std::move(Body));
+    IdName,
+    std::move(Start),
+    std::move(End),
+    std::move(Step),
+    std::move(Body));
 }
 
 /**
@@ -350,7 +350,7 @@ std::unique_ptr<ExprAST> ParseUnary() {
  *   ::= ('+' unary)*
  */
 std::unique_ptr<ExprAST> ParseBinOpRHS(
-    int ExprPrec, std::unique_ptr<ExprAST> LHS) {
+  int ExprPrec, std::unique_ptr<ExprAST> LHS) {
   // If this is a binop, find its precedence. //
   while (true) {
     int TokPrec = GetTokPrecedence();
@@ -384,7 +384,7 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(
 
     // Merge LHS/RHS.
     LHS = std::make_unique<BinaryExprAST>(
-        BinLoc, BinOp, std::move(LHS), std::move(RHS));
+      BinLoc, BinOp, std::move(LHS), std::move(RHS));
   }
 }
 
@@ -479,7 +479,7 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
     return LogError<PrototypeAST>("Invalid number of operands for operator");
 
   return std::make_unique<PrototypeAST>(
-      FnLoc, FnName, ArgNames, Kind != 0, BinaryPrecedence);
+    FnLoc, FnName, ArgNames, Kind != 0, BinaryPrecedence);
 }
 
 /**
@@ -509,7 +509,7 @@ std::unique_ptr<FunctionAST> ParseTopLevelExpr() {
   if (auto E = ParseExpression()) {
     // Make an anonymous proto.
     auto Proto = std::make_unique<PrototypeAST>(
-        FnLoc, "__anon_expr", std::vector<std::string>());
+      FnLoc, "__anon_expr", std::vector<std::string>());
     return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
   }
   return nullptr;

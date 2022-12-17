@@ -144,4 +144,4 @@ release:
 
 .PHONY: release-dry
 release-dry:
-	$(SEMANTIC_RELEASE) --dry
+	$(SEMANTIC_RELEASE) --dry-run

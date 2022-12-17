@@ -35,4 +35,4 @@ SpaceAfterCStyleCast: true
 SpacesInLineCommentPrefix:
     Minimum: 1
 AllowShortIfStatementsOnASingleLine: Never
-RemoveBracesLLVM: falses
+RemoveBracesLLVM: false

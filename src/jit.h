@@ -33,103 +33,103 @@
 #include <new>                                                  // for opera...
 
 namespace llvm {
-class JITEvaluatedSymbol;
+  class JITEvaluatedSymbol;
 }
 
 namespace llvm {
-namespace orc {
+  namespace orc {
 
-/**
- * @brief Tokenize the known variables by the lexer
- *
- *
- */
-class ArxJIT {
- private:
-  std::unique_ptr<ExecutionSession> ES;
+    /**
+     * @brief Tokenize the known variables by the lexer
+     *
+     *
+     */
+    class ArxJIT {
+     private:
+      std::unique_ptr<ExecutionSession> ES;
 
-  DataLayout DL;
-  MangleAndInterner Mangle;
+      DataLayout DL;
+      MangleAndInterner Mangle;
 
-  RTDyldObjectLinkingLayer ObjectLayer;
-  IRCompileLayer CompileLayer;
+      RTDyldObjectLinkingLayer ObjectLayer;
+      IRCompileLayer CompileLayer;
 
-  JITDylib& MainJD;
+      JITDylib& MainJD;
 
- public:
-  /**
-   * @param ES
-   * @param JTMB
-   * @param DL
-   */
-  ArxJIT(
-      std::unique_ptr<ExecutionSession> ES,
-      JITTargetMachineBuilder JTMB,
-      DataLayout DL)
-      : ES(std::move(ES)),
-        DL(DL),
-        Mangle(*this->ES, this->DL),
-        ObjectLayer(
-            *this->ES,
-            []() { return std::make_unique<SectionMemoryManager>(); }),
-        CompileLayer(
-            *this->ES,
-            ObjectLayer,
-            std::make_unique<ConcurrentIRCompiler>(std::move(JTMB))),
-        MainJD(this->ES->createBareJITDylib("<main>")) {
-    MainJD.addGenerator(
-        cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(
+     public:
+      /**
+       * @param ES
+       * @param JTMB
+       * @param DL
+       */
+      ArxJIT(
+        std::unique_ptr<ExecutionSession> ES,
+        JITTargetMachineBuilder JTMB,
+        DataLayout DL)
+          : ES(std::move(ES)),
+            DL(DL),
+            Mangle(*this->ES, this->DL),
+            ObjectLayer(
+              *this->ES,
+              []() { return std::make_unique<SectionMemoryManager>(); }),
+            CompileLayer(
+              *this->ES,
+              ObjectLayer,
+              std::make_unique<ConcurrentIRCompiler>(std::move(JTMB))),
+            MainJD(this->ES->createBareJITDylib("<main>")) {
+        MainJD.addGenerator(
+          cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(
             DL.getGlobalPrefix())));
 
-    if (JTMB.getTargetTriple().isOSBinFormatCOFF()) {
-      ObjectLayer.setOverrideObjectFlagsWithResponsibilityFlags(true);
-      ObjectLayer.setAutoClaimResponsibilityForObjectSymbols(true);
-    }
-  }
+        if (JTMB.getTargetTriple().isOSBinFormatCOFF()) {
+          ObjectLayer.setOverrideObjectFlagsWithResponsibilityFlags(true);
+          ObjectLayer.setAutoClaimResponsibilityForObjectSymbols(true);
+        }
+      }
 
-  ~ArxJIT() {
-    if (auto Err = ES->endSession())
-      ES->reportError(std::move(Err));
-  }
+      ~ArxJIT() {
+        if (auto Err = ES->endSession())
+          ES->reportError(std::move(Err));
+      }
 
-  static Expected<std::unique_ptr<ArxJIT>> Create() {
-    auto EPC = SelfExecutorProcessControl::Create();
-    if (!EPC)
-      return EPC.takeError();
+      static Expected<std::unique_ptr<ArxJIT>> Create() {
+        auto EPC = SelfExecutorProcessControl::Create();
+        if (!EPC)
+          return EPC.takeError();
 
-    auto ES = std::make_unique<ExecutionSession>(std::move(*EPC));
+        auto ES = std::make_unique<ExecutionSession>(std::move(*EPC));
 
-    JITTargetMachineBuilder JTMB(
-        ES->getExecutorProcessControl().getTargetTriple());
+        JITTargetMachineBuilder JTMB(
+          ES->getExecutorProcessControl().getTargetTriple());
 
-    auto DL = JTMB.getDefaultDataLayoutForTarget();
-    if (!DL)
-      return DL.takeError();
+        auto DL = JTMB.getDefaultDataLayoutForTarget();
+        if (!DL)
+          return DL.takeError();
 
-    return std::make_unique<ArxJIT>(
-        std::move(ES), std::move(JTMB), std::move(*DL));
-  }
+        return std::make_unique<ArxJIT>(
+          std::move(ES), std::move(JTMB), std::move(*DL));
+      }
 
-  const DataLayout& getDataLayout() const {
-    return DL;
-  }
+      const DataLayout& getDataLayout() const {
+        return DL;
+      }
 
-  JITDylib& getMainJITDylib() {
-    return MainJD;
-  }
+      JITDylib& getMainJITDylib() {
+        return MainJD;
+      }
 
-  Error addModule(ThreadSafeModule TSM, ResourceTrackerSP RT = nullptr) {
-    if (!RT)
-      RT = MainJD.getDefaultResourceTracker();
-    return CompileLayer.add(RT, std::move(TSM));
-  }
+      Error addModule(ThreadSafeModule TSM, ResourceTrackerSP RT = nullptr) {
+        if (!RT)
+          RT = MainJD.getDefaultResourceTracker();
+        return CompileLayer.add(RT, std::move(TSM));
+      }
 
-  Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
-    return ES->lookup({&MainJD}, Mangle(Name.str()));
-  }
-};
+      Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
+        return ES->lookup({&MainJD}, Mangle(Name.str()));
+      }
+    };
 
-}  // end namespace orc
+  }  // end namespace orc
 }  // end namespace llvm
 
 #endif  // LLVM_EXECUTIONENGINE_ORC_ArxJIT_H

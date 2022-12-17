@@ -165,10 +165,10 @@ class BinaryExprAST : public ExprAST {
    * @param RHS
    */
   BinaryExprAST(
-      SourceLocation Loc,
-      char Op,
-      std::unique_ptr<ExprAST> LHS,
-      std::unique_ptr<ExprAST> RHS)
+    SourceLocation Loc,
+    char Op,
+    std::unique_ptr<ExprAST> LHS,
+    std::unique_ptr<ExprAST> RHS)
       : ExprAST(Loc), Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {
     this->kind = ExprKind::BinaryKind;
   }
@@ -196,9 +196,9 @@ class CallExprAST : public ExprAST {
    * @param Args
    */
   CallExprAST(
-      SourceLocation Loc,
-      std::string Callee,
-      std::vector<std::unique_ptr<ExprAST>> Args)
+    SourceLocation Loc,
+    std::string Callee,
+    std::vector<std::unique_ptr<ExprAST>> Args)
       : ExprAST(Loc), Callee(std::move(Callee)), Args(std::move(Args)) {
     this->kind = ExprKind::CallKind;
   }
@@ -226,10 +226,10 @@ class IfExprAST : public ExprAST {
    * @param Else
    */
   IfExprAST(
-      SourceLocation Loc,
-      std::unique_ptr<ExprAST> Cond,
-      std::unique_ptr<ExprAST> Then,
-      std::unique_ptr<ExprAST> Else)
+    SourceLocation Loc,
+    std::unique_ptr<ExprAST> Cond,
+    std::unique_ptr<ExprAST> Then,
+    std::unique_ptr<ExprAST> Else)
       : ExprAST(Loc),
         Cond(std::move(Cond)),
         Then(std::move(Then)),
@@ -264,11 +264,11 @@ class ForExprAST : public ExprAST {
    * @param Body
    */
   ForExprAST(
-      std::string VarName,
-      std::unique_ptr<ExprAST> Start,
-      std::unique_ptr<ExprAST> End,
-      std::unique_ptr<ExprAST> Step,
-      std::unique_ptr<ExprAST> Body)
+    std::string VarName,
+    std::unique_ptr<ExprAST> Start,
+    std::unique_ptr<ExprAST> End,
+    std::unique_ptr<ExprAST> Step,
+    std::unique_ptr<ExprAST> Body)
       : VarName(std::move(VarName)),
         Start(std::move(Start)),
         End(std::move(End)),
@@ -302,8 +302,8 @@ class VarExprAST : public ExprAST {
    * @param Body
    */
   VarExprAST(
-      std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
-      std::unique_ptr<ExprAST> Body)
+    std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
+    std::unique_ptr<ExprAST> Body)
       : VarNames(std::move(VarNames)), Body(std::move(Body)) {
     this->kind = ExprKind::VarKind;
   }
@@ -312,7 +312,7 @@ class VarExprAST : public ExprAST {
     ExprAST::dump(out << "var", ind);
     for (const auto& NamedVar : VarNames)
       NamedVar.second->dump(
-          indent(out, ind) << NamedVar.first << ':', ind + 1);
+        indent(out, ind) << NamedVar.first << ':', ind + 1);
     Body->dump(indent(out, ind) << "Body:", ind + 1);
     return out;
   }
@@ -340,11 +340,11 @@ class PrototypeAST : public ExprAST {
    * @param Prec
    */
   PrototypeAST(
-      SourceLocation Loc,
-      std::string Name,
-      std::vector<std::string> Args,
-      bool IsOperator = false,
-      unsigned Prec = 0)
+    SourceLocation Loc,
+    std::string Name,
+    std::vector<std::string> Args,
+    bool IsOperator = false,
+    unsigned Prec = 0)
       : Name(std::move(Name)),
         Args(std::move(Args)),
         IsOperator(IsOperator),
@@ -394,7 +394,7 @@ class FunctionAST : public ExprAST {
    * @param Body
    */
   FunctionAST(
-      std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
+    std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
       : Proto(std::move(Proto)), Body(std::move(Body)) {
     this->kind = ExprKind::FunctionKind;
   }

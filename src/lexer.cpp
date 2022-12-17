@@ -53,7 +53,7 @@ auto getTokName(int Tok) -> std::string {
     case tok_const:
       return "const";
   }
-  return std::string(1, (char)Tok);
+  return std::string(1, (char) Tok);
 }
 
 /**
@@ -103,14 +103,14 @@ auto gettok() -> int {
 
   // Skip any whitespace.
   while (isspace(LastChar)) {
-    LastChar = (char)advance();
+    LastChar = (char) advance();
   }
 
   CurLoc = LexLoc;
 
   if (is_identifier_first_char(LastChar)) {
-    IdentifierStr = (char)LastChar;
-    while (is_identifier_char((LastChar = (char)advance()))) {
+    IdentifierStr = (char) LastChar;
+    while (is_identifier_char((LastChar = (char) advance()))) {
       IdentifierStr += LastChar;
     }
 
@@ -151,8 +151,8 @@ auto gettok() -> int {
   if (isdigit(LastChar) || LastChar == '.') {
     std::string NumStr;
     do {
-      NumStr += (char)LastChar;
-      LastChar = (char)advance();
+      NumStr += (char) LastChar;
+      LastChar = (char) advance();
     } while (isdigit(LastChar) || LastChar == '.');
 
     NumVal = strtod(NumStr.c_str(), nullptr);
@@ -189,6 +189,7 @@ auto gettok() -> int {
  * CurTok with its results.
  */
 int CurTok;
+
 auto getNextToken() -> int {
   return CurTok = gettok();
 }

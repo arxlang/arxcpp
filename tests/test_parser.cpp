@@ -14,7 +14,7 @@ extern SourceLocation CurLoc;
 
 TEST(ParserTest, GetNextTokenTest) {
   /* Test gettok for main tokens */
-  string_to_buffer((char*)R""""(
+  string_to_buffer((char*) R""""(
   function math(x):
     if x > 10:
       x + 1
@@ -29,49 +29,49 @@ TEST(ParserTest, GetNextTokenTest) {
   getNextToken();
   EXPECT_EQ(CurTok, tok_identifier);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)'(');
+  EXPECT_EQ(CurTok, (int) '(');
   getNextToken();
   EXPECT_EQ(CurTok, tok_identifier);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)')');
+  EXPECT_EQ(CurTok, (int) ')');
   getNextToken();
-  EXPECT_EQ(CurTok, (int)':');
+  EXPECT_EQ(CurTok, (int) ':');
   getNextToken();
   EXPECT_EQ(CurTok, tok_if);
   getNextToken();
   EXPECT_EQ(CurTok, tok_identifier);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)'>');
+  EXPECT_EQ(CurTok, (int) '>');
   getNextToken();
   EXPECT_EQ(CurTok, tok_number);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)':');
+  EXPECT_EQ(CurTok, (int) ':');
   getNextToken();
   EXPECT_EQ(CurTok, tok_identifier);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)'+');
+  EXPECT_EQ(CurTok, (int) '+');
   getNextToken();
   EXPECT_EQ(CurTok, tok_number);
   getNextToken();
   EXPECT_EQ(CurTok, tok_else);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)':');
+  EXPECT_EQ(CurTok, (int) ':');
   getNextToken();
   EXPECT_EQ(CurTok, tok_identifier);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)'*');
+  EXPECT_EQ(CurTok, (int) '*');
   getNextToken();
   EXPECT_EQ(CurTok, tok_number);
   getNextToken();
   EXPECT_EQ(CurTok, tok_identifier);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)'(');
+  EXPECT_EQ(CurTok, (int) '(');
   getNextToken();
   EXPECT_EQ(CurTok, tok_number);
   getNextToken();
-  EXPECT_EQ(CurTok, (int)')');
+  EXPECT_EQ(CurTok, (int) ')');
   getNextToken();
-  EXPECT_EQ(CurTok, (int)';');
+  EXPECT_EQ(CurTok, (int) ';');
 }
 
 TEST(ParserTest, BinopPrecedenceTest) {
@@ -90,7 +90,7 @@ TEST(ParserTest, ParseNumberExprTest) {
   int tok;
 
   // TODO: check why it is necessary to add ; here
-  string_to_buffer((char*)"1 2;");
+  string_to_buffer((char*) "1 2;");
 
   tok = getNextToken();  // update CurTok
   EXPECT_EQ(tok, tok_number);
@@ -104,7 +104,7 @@ TEST(ParserTest, ParseNumberExprTest) {
   EXPECT_EQ(expr->Val, 2);
   expr.reset();
 
-  string_to_buffer((char*)"3");
+  string_to_buffer((char*) "3");
 
   tok = getNextToken();
   EXPECT_EQ(tok, tok_number);
@@ -116,7 +116,7 @@ TEST(ParserTest, ParseNumberExprTest) {
 
 TEST(ParserTest, ParseIfExprTest) {
   /* Test gettok for main tokens */
-  string_to_buffer((char*)R""""(
+  string_to_buffer((char*) R""""(
   if 1 > 2:
     a = 1
   else:

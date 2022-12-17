@@ -37,7 +37,7 @@
 
 // #include <llvm/IR/Value.h>
 namespace llvm {
-class Value;
+  class Value;
 }
 
 auto LogErrorV(const char* Str) -> llvm::Value* {

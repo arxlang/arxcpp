@@ -238,7 +238,8 @@ T codegen(ExprAST* expr, T code_result) {
  * existing prototype. If no existing prototype exists, return null.
  */
 static auto getFunction(std::string Name) -> llvm::Function* {
-  if (auto* F = TheModule->getFunction(Name)) return F;
+  if (auto* F = TheModule->getFunction(Name))
+    return F;
   ;
 
   auto FI = FunctionProtos.find(Name);
@@ -344,7 +345,8 @@ llvm::Value* codegen(NumberExprAST* expr, llvm::Value* code_result) {
  */
 llvm::Value* codegen(VariableExprAST* expr, llvm::Value* code_result) {
   llvm::Value* V = NamedValues[expr->Name];
-  if (!V) return LogErrorV("Unknown variable name");
+  if (!V)
+    return LogErrorV("Unknown variable name");
 
   return Builder->CreateLoad(
     llvm::Type::getDoubleTy(*TheContext), V, expr->Name.c_str());
@@ -359,11 +361,13 @@ llvm::Value* codegen(UnaryExprAST* expr, llvm::Value* code_result) {
   llvm::Value* OperandV = nullptr;
   codegen(expr->Operand.get(), OperandV);
 
-  if (!OperandV) return nullptr;
+  if (!OperandV)
+    return nullptr;
   ;
 
   llvm::Function* F = getFunction(std::string("unary") + expr->Opcode);
-  if (!F) return LogErrorV("Unknown unary operator");
+  if (!F)
+    return LogErrorV("Unknown unary operator");
   ;
 
   return Builder->CreateCall(F, OperandV, "unop");
@@ -383,17 +387,20 @@ llvm::Value* codegen(BinaryExprAST* expr, llvm::Value* code_result) {
     // way by default.  If you build LLVM with RTTI this can be changed
     // to a dynamic_cast for automatic error checking.
     VariableExprAST* LHSE = static_cast<VariableExprAST*>(expr->LHS.get());
-    if (!LHSE) return LogErrorV("destination of '=' must be a variable");
+    if (!LHSE)
+      return LogErrorV("destination of '=' must be a variable");
     // Codegen the RHS.//
     llvm::Value* Val = nullptr;
     codegen(expr->RHS.get(), Val);
 
-    if (!Val) return nullptr;
+    if (!Val)
+      return nullptr;
     ;
 
     // Look up the name.//
     llvm::Value* Variable = NamedValues[LHSE->getName()];
-    if (!Variable) return LogErrorV("Unknown variable name");
+    if (!Variable)
+      return LogErrorV("Unknown variable name");
 
     Builder->CreateStore(Val, Variable);
     return Val;
@@ -404,7 +411,8 @@ llvm::Value* codegen(BinaryExprAST* expr, llvm::Value* code_result) {
   llvm::Value* R = nullptr;
   codegen(expr->RHS.get(), R);
 
-  if (!L || !R) return nullptr;
+  if (!L || !R)
+    return nullptr;
   ;
 
   switch (expr->Op) {
@@ -439,7 +447,8 @@ llvm::Value* codegen(BinaryExprAST* expr, llvm::Value* code_result) {
  */
 llvm::Value* codegen(CallExprAST* expr, llvm::Value* code_result) {
   llvm::Function* CalleeF = getFunction(expr->Callee);
-  if (!CalleeF) return LogErrorV("Unknown function referenced");
+  if (!CalleeF)
+    return LogErrorV("Unknown function referenced");
 
   if (CalleeF->arg_size() != expr->Args.size())
     return LogErrorV("Incorrect # arguments passed");
@@ -449,7 +458,8 @@ llvm::Value* codegen(CallExprAST* expr, llvm::Value* code_result) {
     llvm::Value* ArgsV_item = nullptr;
     codegen(expr->Args[i].get(), ArgsV_item);
     ArgsV.push_back(ArgsV_item);
-    if (!ArgsV.back()) return nullptr;
+    if (!ArgsV.back())
+      return nullptr;
   }
 
   return Builder->CreateCall(CalleeF, ArgsV, "calltmp");
@@ -461,7 +471,8 @@ llvm::Value* codegen(CallExprAST* expr, llvm::Value* code_result) {
 llvm::Value* codegen(IfExprAST* expr, llvm::Value* code_result) {
   llvm::Value* CondV = nullptr;
   codegen(expr->Cond.get(), CondV);
-  if (!CondV) return nullptr;
+  if (!CondV)
+    return nullptr;
   ;
 
   // Convert condition to a bool by comparing non-equal to 0.0.
@@ -484,7 +495,8 @@ llvm::Value* codegen(IfExprAST* expr, llvm::Value* code_result) {
 
   llvm::Value* ThenV = nullptr;
   codegen(expr->Then.get(), ThenV);
-  if (!ThenV) return nullptr;
+  if (!ThenV)
+    return nullptr;
 
   Builder->CreateBr(MergeBB);
   // Codegen of 'Then' can change the current block, update ThenBB for
@@ -497,7 +509,8 @@ llvm::Value* codegen(IfExprAST* expr, llvm::Value* code_result) {
 
   llvm::Value* ElseV = nullptr;
   codegen(expr->Else.get(), ElseV);
-  if (!ElseV) return nullptr;
+  if (!ElseV)
+    return nullptr;
   ;
 
   Builder->CreateBr(MergeBB);
@@ -526,7 +539,8 @@ llvm::Value* codegen(ForExprAST* expr, llvm::Value* code_result) {
   // Emit the start code first, without 'variable' in scope.
   llvm::Value* StartVal = nullptr;
   codegen(expr->Start.get(), StartVal);
-  if (!StartVal) return nullptr;
+  if (!StartVal)
+    return nullptr;
 
   // Store the value into the alloca.
   Builder->CreateStore(StartVal, Alloca);
@@ -554,14 +568,16 @@ llvm::Value* codegen(ForExprAST* expr, llvm::Value* code_result) {
   // but don't allow an error.
   llvm::Value* BodyVal = nullptr;
   codegen(expr->Body.get(), BodyVal);
-  if (!BodyVal) return nullptr;
+  if (!BodyVal)
+    return nullptr;
   ;
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
   if (expr->Step) {
     codegen(expr->Step.get(), StepVal);
-    if (!StepVal) return nullptr;
+    if (!StepVal)
+      return nullptr;
     ;
   } else {
     // If not specified, use 1.0.
@@ -571,7 +587,8 @@ llvm::Value* codegen(ForExprAST* expr, llvm::Value* code_result) {
   // Compute the end condition.
   llvm::Value* EndCond = nullptr;
   EndCond = codegen(expr->End.get(), EndCond);
-  if (!EndCond) return nullptr;
+  if (!EndCond)
+    return nullptr;
   ;
 
   // Reload, increment, and restore the alloca.  This handles the case
@@ -630,7 +647,8 @@ llvm::Value* codegen(VarExprAST* expr, llvm::Value* code_result) {
     llvm::Value* InitVal = nullptr;
     if (Init) {
       codegen(Init, InitVal);
-      if (!InitVal) return nullptr;
+      if (!InitVal)
+        return nullptr;
       ;
     } else {  // If not specified, use 0.0.
       InitVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0));
@@ -650,7 +668,8 @@ llvm::Value* codegen(VarExprAST* expr, llvm::Value* code_result) {
   // Codegen the body, now that all vars are in scope.
   llvm::Value* BodyVal = nullptr;
   codegen(expr->Body.get(), BodyVal);
-  if (!BodyVal) return nullptr;
+  if (!BodyVal)
+    return nullptr;
 
   // Pop all our variables from scope.
   for (unsigned i = 0, e = expr->VarNames.size(); i != e; ++i)
@@ -694,7 +713,8 @@ llvm::Function* codegen(FunctionAST* expr, llvm::Function* code_result) {
   auto& P = *(expr->Proto);
   FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
   llvm::Function* TheFunction = getFunction(P.getName());
-  if (!TheFunction) return nullptr;
+  if (!TheFunction)
+    return nullptr;
 
   // If this is an operator, install it.
   std::cout << "If this is an operator, install it";
@@ -738,7 +758,8 @@ llvm::Function* codegen(FunctionAST* expr, llvm::Function* code_result) {
   // Error reading body, remove function.
   TheFunction->eraseFromParent();
 
-  if (P.isBinaryOp()) BinopPrecedence.erase(expr->Proto->getOperatorName());
+  if (P.isBinaryOp())
+    BinopPrecedence.erase(expr->Proto->getOperatorName());
 
   return nullptr;
 }
@@ -930,7 +951,8 @@ auto compile() -> void {
   LOG(INFO) << "dest output";
   std::error_code EC;
 
-  if (OUTPUT_FILE == "") OUTPUT_FILE = "./output.o";
+  if (OUTPUT_FILE == "")
+    OUTPUT_FILE = "./output.o";
 
   llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
 
