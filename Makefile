@@ -53,9 +53,11 @@ build: clean-optional
 .PHONY: build-dev
 build-dev:
 	set -ex
+	# https://github.com/google/sanitizers/issues/723
+	export ASAN_OPTIONS="fast_unwind_on_malloc=0"
 	$(MAKE) build \
 		BUILD_TYPE="debug" \
-		ARGS="-Ddev=enabled -Db_coverage=true"  #  -Db_sanitize=address
+		ARGS="-Ddev=enabled -Db_coverage=true"  # -Db_sanitize=address
 
 .ONESHELL:
 .PHONY: install
