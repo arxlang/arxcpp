@@ -148,51 +148,40 @@ template <typename T>
 T* ASTToObjectVisitor::visit(ExprAST* expr, T* code_result) {
   switch (expr->kind) {
     case ExprKind::NumberKind: {
-      code_result = ((NumberExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((NumberExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::VariableKind: {
-      code_result = ((VariableExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((VariableExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::UnaryKind: {
-      code_result = ((UnaryExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((UnaryExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::BinaryKind: {
-      code_result = ((BinaryExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((BinaryExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::CallKind: {
-      code_result = ((CallExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((CallExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::IfKind: {
-      code_result = ((IfExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((IfExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::ForKind: {
-      code_result = ((ForExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((ForExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::VarKind: {
-      code_result = ((VarExprAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((VarExprAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::PrototypeKind: {
-      code_result = ((PrototypeAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((PrototypeAST*) expr)->visit(codegen, code_result);
     }
     case ExprKind::FunctionKind: {
-      code_result = ((FunctionAST*) expr)->visit(codegen, code_result);
-      break;
+      return ((FunctionAST*) expr)->visit(codegen, code_result);
     }
     default: {
       std::cout << "[WW] DOWNCASTING_CODEGEN MATCH FAILED";
-      break;
+      return nullptr;
     }
   };
-  return code_result;
 }
 
 /**
