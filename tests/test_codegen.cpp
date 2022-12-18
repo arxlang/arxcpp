@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
-#include "../arx/include/codegen.h"
-#include "../arx/include/io.h"
+
+// #include "../src/codegen/ast-to-llvm.h"
+#include "../src/codegen/ast-to-object.h"
+#include "../src/io.h"
 
 // Check object generation
 TEST(CodeGenTest, ObjectGeneration) {
-  string_to_buffer((char*)R""""(
+  string_to_buffer((char*) R""""(
   function add_one(a):
     a + 1
 

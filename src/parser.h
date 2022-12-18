@@ -1,6 +1,6 @@
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <functional>
 #include <map>
 #include <memory>
@@ -19,7 +19,7 @@
  *
  */
 namespace llvm {
-class Function;
+  class Function;
 }
 
 /**
@@ -28,10 +28,23 @@ class Function;
  *
  */
 namespace llvm {
-class Value;
+  class Value;
 }
 
 extern SourceLocation CurLoc;
+
+enum class ExprKind {
+  NumberKind,
+  VariableKind,
+  UnaryKind,
+  BinaryKind,
+  CallKind,
+  IfKind,
+  ForKind,
+  VarKind,
+  PrototypeKind,
+  FunctionKind
+};
 
 /**
  * @brief Base class for all expression nodes.
@@ -39,23 +52,28 @@ extern SourceLocation CurLoc;
  *
  */
 class ExprAST {
+ public:
+  ExprKind kind;
   SourceLocation Loc;
 
- public:
   /**
    * @param Loc
    */
   ExprAST(SourceLocation Loc = CurLoc) : Loc(Loc) {}
+
   virtual ~ExprAST() = default;
-  virtual llvm::Value* codegen() = 0;
+
   int getLine() const {
     return Loc.Line;
   }
+
   int getCol() const {
     return Loc.Col;
   }
-  virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    return out << ':' << getLine() << ':' << getCol() << '\n';
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -71,11 +89,15 @@ class NumberExprAST : public ExprAST {
    * @return
    */
   double Val;
-  NumberExprAST(double Val) : Val(Val) {}
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    return ExprAST::dump(out << Val, ind);
+
+  NumberExprAST(double Val) : Val(Val) {
+    this->kind = ExprKind::NumberKind;
   }
-  llvm::Value* codegen() override;
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
+  }
 };
 
 /**
@@ -83,21 +105,25 @@ class NumberExprAST : public ExprAST {
  *
  */
 class VariableExprAST : public ExprAST {
+ public:
   std::string Name;
 
- public:
   /**
    * @param Loc
    * @param Name
    */
   VariableExprAST(SourceLocation Loc, std::string Name)
-      : ExprAST(Loc), Name(std::move(Name)) {}
+      : ExprAST(Loc), Name(std::move(Name)) {
+    this->kind = ExprKind::VariableKind;
+  }
+
   const std::string& getName() const {
     return Name;
   }
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    return ExprAST::dump(out << Name, ind);
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -106,21 +132,22 @@ class VariableExprAST : public ExprAST {
  *
  */
 class UnaryExprAST : public ExprAST {
+ public:
   char Opcode;
   std::unique_ptr<ExprAST> Operand;
 
- public:
   /**
    * @param Opcode
    * @param Operand
    */
   UnaryExprAST(char Opcode, std::unique_ptr<ExprAST> Operand)
-      : Opcode(Opcode), Operand(std::move(Operand)) {}
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "unary" << Opcode, ind);
-    Operand->dump(out, ind + 1);
-    return out;
+      : Opcode(Opcode), Operand(std::move(Operand)) {
+    this->kind = ExprKind::UnaryKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -129,10 +156,10 @@ class UnaryExprAST : public ExprAST {
  *
  */
 class BinaryExprAST : public ExprAST {
+ public:
   char Op;
   std::unique_ptr<ExprAST> LHS, RHS;
 
- public:
   /**
    * @param Loc
    * @param Op
@@ -140,17 +167,17 @@ class BinaryExprAST : public ExprAST {
    * @param RHS
    */
   BinaryExprAST(
-      SourceLocation Loc,
-      char Op,
-      std::unique_ptr<ExprAST> LHS,
-      std::unique_ptr<ExprAST> RHS)
-      : ExprAST(Loc), Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "binary" << Op, ind);
-    LHS->dump(indent(out, ind) << "LHS:", ind + 1);
-    RHS->dump(indent(out, ind) << "RHS:", ind + 1);
-    return out;
+    SourceLocation Loc,
+    char Op,
+    std::unique_ptr<ExprAST> LHS,
+    std::unique_ptr<ExprAST> RHS)
+      : ExprAST(Loc), Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {
+    this->kind = ExprKind::BinaryKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -159,26 +186,26 @@ class BinaryExprAST : public ExprAST {
  *
  */
 class CallExprAST : public ExprAST {
+ public:
   std::string Callee;
   std::vector<std::unique_ptr<ExprAST>> Args;
 
- public:
   /**
    * @param Loc
    * @param Callee
    * @param Args
    */
   CallExprAST(
-      SourceLocation Loc,
-      std::string Callee,
-      std::vector<std::unique_ptr<ExprAST>> Args)
-      : ExprAST(Loc), Callee(std::move(Callee)), Args(std::move(Args)) {}
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "call " << Callee, ind);
-    for (const auto& Arg : Args)
-      Arg->dump(indent(out, ind + 1), ind + 1);
-    return out;
+    SourceLocation Loc,
+    std::string Callee,
+    std::vector<std::unique_ptr<ExprAST>> Args)
+      : ExprAST(Loc), Callee(std::move(Callee)), Args(std::move(Args)) {
+    this->kind = ExprKind::CallKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -187,9 +214,9 @@ class CallExprAST : public ExprAST {
  *
  */
 class IfExprAST : public ExprAST {
+ public:
   std::unique_ptr<ExprAST> Cond, Then, Else;
 
- public:
   /**
    * @param Loc
    * @param Cond
@@ -197,21 +224,20 @@ class IfExprAST : public ExprAST {
    * @param Else
    */
   IfExprAST(
-      SourceLocation Loc,
-      std::unique_ptr<ExprAST> Cond,
-      std::unique_ptr<ExprAST> Then,
-      std::unique_ptr<ExprAST> Else)
+    SourceLocation Loc,
+    std::unique_ptr<ExprAST> Cond,
+    std::unique_ptr<ExprAST> Then,
+    std::unique_ptr<ExprAST> Else)
       : ExprAST(Loc),
         Cond(std::move(Cond)),
         Then(std::move(Then)),
-        Else(std::move(Else)) {}
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "if", ind);
-    Cond->dump(indent(out, ind) << "Cond:", ind + 1);
-    Then->dump(indent(out, ind) << "Then:", ind + 1);
-    Else->dump(indent(out, ind) << "Else:", ind + 1);
-    return out;
+        Else(std::move(Else)) {
+    this->kind = ExprKind::IfKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -221,10 +247,10 @@ class IfExprAST : public ExprAST {
  *
  */
 class ForExprAST : public ExprAST {
+ public:
   std::string VarName;
   std::unique_ptr<ExprAST> Start, End, Step, Body;
 
- public:
   /**
    * @param VarName
    * @param Start
@@ -233,24 +259,22 @@ class ForExprAST : public ExprAST {
    * @param Body
    */
   ForExprAST(
-      std::string VarName,
-      std::unique_ptr<ExprAST> Start,
-      std::unique_ptr<ExprAST> End,
-      std::unique_ptr<ExprAST> Step,
-      std::unique_ptr<ExprAST> Body)
+    std::string VarName,
+    std::unique_ptr<ExprAST> Start,
+    std::unique_ptr<ExprAST> End,
+    std::unique_ptr<ExprAST> Step,
+    std::unique_ptr<ExprAST> Body)
       : VarName(std::move(VarName)),
         Start(std::move(Start)),
         End(std::move(End)),
         Step(std::move(Step)),
-        Body(std::move(Body)) {}
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "for", ind);
-    Start->dump(indent(out, ind) << "Cond:", ind + 1);
-    End->dump(indent(out, ind) << "End:", ind + 1);
-    Step->dump(indent(out, ind) << "Step:", ind + 1);
-    Body->dump(indent(out, ind) << "Body:", ind + 1);
-    return out;
+        Body(std::move(Body)) {
+    this->kind = ExprKind::ForKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -260,26 +284,24 @@ class ForExprAST : public ExprAST {
  *
  */
 class VarExprAST : public ExprAST {
+ public:
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames;
   std::unique_ptr<ExprAST> Body;
 
- public:
   /**
    * @param VarNames
    * @param Body
    */
   VarExprAST(
-      std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
-      std::unique_ptr<ExprAST> Body)
-      : VarNames(std::move(VarNames)), Body(std::move(Body)) {}
-  llvm::Value* codegen() override;
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "var", ind);
-    for (const auto& NamedVar : VarNames)
-      NamedVar.second->dump(
-          indent(out, ind) << NamedVar.first << ':', ind + 1);
-    Body->dump(indent(out, ind) << "Body:", ind + 1);
-    return out;
+    std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
+    std::unique_ptr<ExprAST> Body)
+      : VarNames(std::move(VarNames)), Body(std::move(Body)) {
+    this->kind = ExprKind::VarKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 
@@ -289,14 +311,14 @@ class VarExprAST : public ExprAST {
  Captures a function's name, and its argument names (thus implicitly the number
  of arguments the function takes), as well as if it is an operator.
  */
-class PrototypeAST {
+class PrototypeAST : public ExprAST {
+ public:
   std::string Name;
   std::vector<std::string> Args;
   bool IsOperator;
   unsigned Precedence;  // Precedence if a binary op.
   int Line;
 
- public:
   /**
    * @param Loc
    * @param Name
@@ -305,17 +327,19 @@ class PrototypeAST {
    * @param Prec
    */
   PrototypeAST(
-      SourceLocation Loc,
-      std::string Name,
-      std::vector<std::string> Args,
-      bool IsOperator = false,
-      unsigned Prec = 0)
+    SourceLocation Loc,
+    std::string Name,
+    std::vector<std::string> Args,
+    bool IsOperator = false,
+    unsigned Prec = 0)
       : Name(std::move(Name)),
         Args(std::move(Args)),
         IsOperator(IsOperator),
         Precedence(Prec),
-        Line(Loc.Line) {}
-  llvm::Function* codegen();
+        Line(Loc.Line) {
+    this->kind = ExprKind::PrototypeKind;
+  }
+
   const std::string& getName() const {
     return Name;
   }
@@ -323,6 +347,7 @@ class PrototypeAST {
   bool isUnaryOp() const {
     return IsOperator && Args.size() == 1;
   }
+
   bool isBinaryOp() const {
     return IsOperator && Args.size() == 2;
   }
@@ -339,6 +364,11 @@ class PrototypeAST {
   int getLine() const {
     return Line;
   }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
+  }
 };
 
 /**
@@ -346,24 +376,24 @@ class PrototypeAST {
  *
  *
  */
-class FunctionAST {
+class FunctionAST : public ExprAST {
+ public:
   std::unique_ptr<PrototypeAST> Proto;
   std::unique_ptr<ExprAST> Body;
 
- public:
   /**
    * @param Proto
    * @param Body
    */
   FunctionAST(
-      std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
-      : Proto(std::move(Proto)), Body(std::move(Body)) {}
-  llvm::Function* codegen();
-  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    indent(out, ind) << "FunctionAST\n";
-    ++ind;
-    indent(out, ind) << "Body:";
-    return Body ? Body->dump(out, ind) : out << "null\n";
+    std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
+      : Proto(std::move(Proto)), Body(std::move(Body)) {
+    this->kind = ExprKind::FunctionKind;
+  }
+
+  template <typename V, typename T>
+  T* visit(V* visitor, T* output) {
+    return visitor->visit(this, output);
   }
 };
 

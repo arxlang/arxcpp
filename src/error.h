@@ -1,15 +1,15 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include <memory>
 
 namespace llvm {
-/**
- * @brief
- * "llvm/IR/Value.h"
- *
- */
-class Value;
+  /**
+   * @brief
+   * "llvm/IR/Value.h"
+   *
+   */
+  class Value;
 }  // namespace llvm
 
 /**

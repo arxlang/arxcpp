@@ -49,6 +49,9 @@ jobs:
     - name: run sanity tests
       run: make test-sanitizer
 
+    - name: run example tests
+      run: make test-examples
+
     - name: lint
       run: |
         pre-commit install

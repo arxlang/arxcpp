@@ -1,9 +1,4 @@
-# path
-ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-
 # build
-ROOT=cd arx
-COMPILER=$(ROOT) && clang++
 CLEAN=0
 CXX=clang++
 CC=clang
@@ -144,4 +139,4 @@ release:
 
 .PHONY: release-dry
 release-dry:
-	$(SEMANTIC_RELEASE) --dry
+	$(SEMANTIC_RELEASE) --dry-run

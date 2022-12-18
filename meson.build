@@ -1,6 +1,6 @@
 project('arx', 'cpp', 'c',
   license : 'Apache-2.0',
-  version : '1.4.0',  # semantic-release
+  version : '1.4.2',  # semantic-release
   default_options : [
     'warning_level=3',
     'cpp_std=c++20',
@@ -13,22 +13,24 @@ cxx = meson.get_compiler('cpp')
 
 deps = [
   dependency('arrow'),
-  dependency('llvm', version : '>=13.0.0'),
+  dependency('llvm', version : '>=14.0.0'),
   dependency('CLI11'),
   dependency('threads'),
   dependency('glog'),
 ]
 
-inc = include_directories('./arx/include')
+inc = include_directories('./src')
 
 project_src_files = files(
-  PROJECT_PATH + '/arx/src/io.cpp',
-  PROJECT_PATH + '/arx/src/lexer.cpp',
-  PROJECT_PATH + '/arx/src/parser.cpp',
-  PROJECT_PATH + '/arx/src/error.cpp',
-  PROJECT_PATH + '/arx/src/codegen.cpp',
-  PROJECT_PATH + '/arx/src/settings.cpp',
-  PROJECT_PATH + '/arx/src/utils.cpp',
+  # note: note working yet
+  # PROJECT_PATH + '/src/codegen/ast-to-llvm.cpp',
+  PROJECT_PATH + '/src/codegen/ast-to-object.cpp',
+  PROJECT_PATH + '/src/error.cpp',
+  PROJECT_PATH + '/src/io.cpp',
+  PROJECT_PATH + '/src/lexer.cpp',
+  PROJECT_PATH + '/src/parser.cpp',
+  PROJECT_PATH + '/src/settings.cpp',
+  PROJECT_PATH + '/src/utils.cpp',
 )
 
 gtest_dep = dependency('gtest', main : true, required: get_option('dev'))
@@ -50,7 +52,7 @@ endif
 
 arx_exe = executable(
   'arx',
-  project_src_files + files(PROJECT_PATH + '/arx/src/main.cpp'),
+  project_src_files + files(PROJECT_PATH + '/src/main.cpp'),
   dependencies : deps,
   include_directories : inc,
   install : true)

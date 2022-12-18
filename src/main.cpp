@@ -20,7 +20,9 @@
 
 #include <glog/logging.h>
 
-#include "codegen.h"
+// #include "codegen/ast-to-llvm.h"
+#include "codegen/ast-to-object.h"
+
 #include "io.h"
 #include "lexer.h"
 #include "settings.h"

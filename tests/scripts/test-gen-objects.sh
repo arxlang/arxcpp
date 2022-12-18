@@ -16,14 +16,20 @@ TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd ..
 . "${TEST_DIR_PATH}/scripts/utils.sh"
 
 ARX="${DEBUG} ./build/arx"
-
+MAIN_EXE="${TMP_DIR}/main"
 
 for test_name in "fibonacci" "sum" "average"; do
   print_header "${test_name}"
-  OBJECT_FILE="${TMP_DIR}/${test_name}"
+  OBJECT_FILE="${TMP_DIR}/${test_name}.o"
 
   ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
+  ls "${TMP_DIR}" | grep "\.o"
 
-  clang++ "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" ${OBJECT_FILE} -o main
-  ./main
+  clang++ \
+    "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
+    ${OBJECT_FILE} \
+    -o "${TMP_DIR}/main"
+
+  chmod +x ${MAIN_EXE}
+  ${MAIN_EXE}
 done
