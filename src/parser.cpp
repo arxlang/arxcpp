@@ -29,13 +29,15 @@ std::map<char, int> BinopPrecedence;
  *
  */
 auto GetTokPrecedence() -> int {
-  if (!isascii(CurTok))
+  if (!isascii(CurTok)) {
     return -1;
+  }
 
   // Make sure it's a declared binop.
   int TokPrec = BinopPrecedence[CurTok];
-  if (TokPrec <= 0)
+  if (TokPrec <= 0) {
     return -1;
+  }
   return TokPrec;
 }
 
@@ -58,11 +60,13 @@ std::unique_ptr<NumberExprAST> ParseNumberExpr() {
 std::unique_ptr<ExprAST> ParseParenExpr() {
   getNextToken();  // eat (.
   auto V = ParseExpression();
-  if (!V)
+  if (!V) {
     return nullptr;
+  }
 
-  if (CurTok != ')')
+  if (CurTok != ')') {
     return LogError<ExprAST>("expected ')'");
+  }
   getNextToken();  // eat ).
   return V;
 }
@@ -81,18 +85,20 @@ std::unique_ptr<ExprAST> ParseIdentifierExpr() {
 
   getNextToken();  // eat identifier.
 
-  if (CurTok != '(')  // Simple variable ref.
+  if (CurTok != '(') {  // Simple variable ref.
     return std::make_unique<VariableExprAST>(LitLoc, IdName);
+  }
 
   // Call. //
   getNextToken();  // eat (
   std::vector<std::unique_ptr<ExprAST>> Args;
   if (CurTok != ')') {
     while (true) {
-      if (auto Arg = ParseExpression())
+      if (auto Arg = ParseExpression()) {
         Args.push_back(std::move(Arg));
-      else
+      } else {
         return nullptr;
+      }
 
       if (CurTok == ')') {
         break;
@@ -237,8 +243,9 @@ std::unique_ptr<VarExprAST> ParseVarExpr() {
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames;
 
   // At least one variable name is required. //
-  if (CurTok != tok_identifier)
+  if (CurTok != tok_identifier) {
     return LogError<VarExprAST>("expected identifier after var");
+  }
 
   while (true) {
     std::string Name = IdentifierStr;
@@ -330,14 +337,16 @@ std::unique_ptr<ExprAST> ParsePrimary() {
  */
 std::unique_ptr<ExprAST> ParseUnary() {
   // If the current token is not an operator, it must be a primary expr.
-  if (!isascii(CurTok) || CurTok == '(' || CurTok == ',')
+  if (!isascii(CurTok) || CurTok == '(' || CurTok == ',') {
     return ParsePrimary();
+  }
 
   // If this is a unary operator, read it.
   int Opc = CurTok;
   getNextToken();
-  if (auto Operand = ParseUnary())
+  if (auto Operand = ParseUnary()) {
     return std::make_unique<UnaryExprAST>(Opc, std::move(Operand));
+  }
   return nullptr;
 }
 
@@ -430,8 +439,9 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
       break;
     case tok_unary:
       getNextToken();
-      if (!isascii(CurTok))
+      if (!isascii(CurTok)) {
         return LogError<PrototypeAST>("Expected unary operator");
+      }
       FnName = "unary";
       FnName += (char) CurTok;
       Kind = 1;
@@ -439,8 +449,9 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
       break;
     case tok_binary:
       getNextToken();
-      if (!isascii(CurTok))
+      if (!isascii(CurTok)) {
         return LogError<PrototypeAST>("Expected binary operator");
+      }
       FnName = "binary";
       FnName += (char) CurTok;
       Kind = 2;
@@ -448,22 +459,26 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
 
       /** Read the precedence if present. */
       if (CurTok == tok_number) {
-        if (NumVal < 1 || NumVal > 100)
+        if (NumVal < 1 || NumVal > 100) {
           return LogError<PrototypeAST>("Invalid precedence: must be 1..100");
+        }
         BinaryPrecedence = (unsigned) NumVal;
         getNextToken();
       }
       break;
   }
 
-  if (CurTok != '(')
+  if (CurTok != '(') {
     return LogError<PrototypeAST>("Expected '(' in the function definition.");
+  }
 
   std::vector<std::string> ArgNames;
-  while (getNextToken() == tok_identifier)
+  while (getNextToken() == tok_identifier) {
     ArgNames.push_back(IdentifierStr);
-  if (CurTok != ')')
+  }
+  if (CurTok != ')') {
     return LogError<PrototypeAST>("Expected ')' in the function definition.");
+  }
 
   // success. //
   getNextToken();  // eat ')'.
@@ -475,8 +490,9 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
   getNextToken();  // eat ':'.
 
   // Verify right number of names for operator. //
-  if (Kind && ArgNames.size() != Kind)
+  if (Kind && ArgNames.size() != Kind) {
     return LogError<PrototypeAST>("Invalid number of operands for operator");
+  }
 
   return std::make_unique<PrototypeAST>(
     FnLoc, FnName, ArgNames, Kind != 0, BinaryPrecedence);
@@ -490,8 +506,9 @@ std::unique_ptr<PrototypeAST> ParsePrototype() {
 std::unique_ptr<FunctionAST> ParseDefinition() {
   getNextToken();  // eat function.
   auto Proto = ParsePrototype();
-  if (!Proto)
+  if (!Proto) {
     return nullptr;
+  }
 
   if (auto E = ParseExpression()) {
     return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));

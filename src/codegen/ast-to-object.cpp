@@ -112,8 +112,9 @@ auto codegen = new ASTToObjectVisitor();
  * existing prototype. If no existing prototype exists, return null.
  */
 static auto getFunction(std::string Name) -> llvm::Function* {
-  if (auto* F = TheModule->getFunction(Name))
+  if (auto* F = TheModule->getFunction(Name)) {
     return F;
+  }
 
   auto FI = FunctionProtos.find(Name);
   if (FI != FunctionProtos.end()) {
@@ -203,8 +204,9 @@ llvm::Value* ASTToObjectVisitor::visit(
   VariableExprAST* expr, llvm::Value* code_result) {
   llvm::Value* V = NamedValues[expr->Name];
 
-  if (!V)
+  if (!V) {
     return LogErrorV("Unknown variable name");
+  }
 
   return Builder->CreateLoad(
     llvm::Type::getDoubleTy(*TheContext), V, expr->Name.c_str());
@@ -225,8 +227,9 @@ llvm::Value* ASTToObjectVisitor::visit(
   }
 
   llvm::Function* F = getFunction(std::string("unary") + expr->Opcode);
-  if (!F)
+  if (!F) {
     return LogErrorV("Unknown unary operator");
+  }
 
   return code_result = Builder->CreateCall(F, OperandV, "unop");
 }
@@ -273,8 +276,9 @@ llvm::Value* ASTToObjectVisitor::visit(
   llvm::Value* R = nullptr;
   R = expr->RHS.get()->visit(codegen, R);
 
-  if (!L || !R)
+  if (!L || !R) {
     return nullptr;
+  }
 
   switch (expr->Op) {
     case '+':
@@ -309,19 +313,22 @@ llvm::Value* ASTToObjectVisitor::visit(
 llvm::Value* ASTToObjectVisitor::visit(
   CallExprAST* expr, llvm::Value* code_result) {
   llvm::Function* CalleeF = getFunction(expr->Callee);
-  if (!CalleeF)
+  if (!CalleeF) {
     return LogErrorV("Unknown function referenced");
+  }
 
-  if (CalleeF->arg_size() != expr->Args.size())
+  if (CalleeF->arg_size() != expr->Args.size()) {
     return LogErrorV("Incorrect # arguments passed");
+  }
 
   std::vector<llvm::Value*> ArgsV;
   for (unsigned i = 0, e = expr->Args.size(); i != e; ++i) {
     llvm::Value* ArgsV_item = nullptr;
     ArgsV_item = expr->Args[i].get()->visit(codegen, ArgsV_item);
     ArgsV.push_back(ArgsV_item);
-    if (!ArgsV.back())
+    if (!ArgsV.back()) {
       return nullptr;
+    }
   }
 
   return Builder->CreateCall(CalleeF, ArgsV, "calltmp");
@@ -335,8 +342,9 @@ llvm::Value* ASTToObjectVisitor::visit(
   llvm::Value* CondV = nullptr;
 
   CondV = expr->Cond.get()->visit(codegen, CondV);
-  if (!CondV)
+  if (!CondV) {
     return nullptr;
+  }
 
   // Convert condition to a bool by comparing non-equal to 0.0.
   CondV = Builder->CreateFCmpONE(
@@ -358,8 +366,9 @@ llvm::Value* ASTToObjectVisitor::visit(
 
   llvm::Value* ThenV = nullptr;
   ThenV = expr->Then.get()->visit(codegen, ThenV);
-  if (!ThenV)
+  if (!ThenV) {
     return nullptr;
+  }
 
   Builder->CreateBr(MergeBB);
   // Codegen of 'Then' can change the current block, update ThenBB for
@@ -372,8 +381,9 @@ llvm::Value* ASTToObjectVisitor::visit(
 
   llvm::Value* ElseV = nullptr;
   ElseV = expr->Else.get()->visit(codegen, ElseV);
-  if (!ElseV)
+  if (!ElseV) {
     return nullptr;
+  }
 
   Builder->CreateBr(MergeBB);
   // Codegen of 'Else' can change the current block, update ElseBB for
@@ -402,8 +412,9 @@ llvm::Value* ASTToObjectVisitor::visit(
   // Emit the start code first, without 'variable' in scope.
   llvm::Value* StartVal = nullptr;
   StartVal = expr->Start.get()->visit(codegen, StartVal);
-  if (!StartVal)
+  if (!StartVal) {
     return nullptr;
+  }
 
   // Store the value into the alloca.
   Builder->CreateStore(StartVal, Alloca);
@@ -431,15 +442,17 @@ llvm::Value* ASTToObjectVisitor::visit(
   // but don't allow an error.
   llvm::Value* BodyVal = nullptr;
   BodyVal = expr->Body.get()->visit(codegen, BodyVal);
-  if (!BodyVal)
+  if (!BodyVal) {
     return nullptr;
+  }
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
   if (expr->Step) {
     StepVal = expr->Step.get()->visit(codegen, StepVal);
-    if (!StepVal)
+    if (!StepVal) {
       return nullptr;
+    }
   } else {
     // If not specified, use 1.0.
     StepVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(1.0));
@@ -448,8 +461,9 @@ llvm::Value* ASTToObjectVisitor::visit(
   // Compute the end condition.
   llvm::Value* EndCond = nullptr;
   EndCond = expr->End.get()->visit(codegen, EndCond);
-  if (!EndCond)
+  if (!EndCond) {
     return nullptr;
+  }
 
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
@@ -475,10 +489,11 @@ llvm::Value* ASTToObjectVisitor::visit(
   Builder->SetInsertPoint(AfterBB);
 
   // Restore the unshadowed variable.
-  if (OldVal)
+  if (OldVal) {
     NamedValues[expr->VarName] = OldVal;
-  else
+  } else {
     NamedValues.erase(expr->VarName);
+  }
 
   // for expr always returns 0.0.
   return llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*TheContext));
@@ -508,8 +523,9 @@ llvm::Value* ASTToObjectVisitor::visit(
     llvm::Value* InitVal = nullptr;
     if (Init) {
       InitVal = Init->visit(codegen, InitVal);
-      if (!InitVal)
+      if (!InitVal) {
         return nullptr;
+      }
     } else {  // If not specified, use 0.0.
       InitVal = llvm::ConstantFP::get(*TheContext, llvm::APFloat(0.0));
     }
@@ -528,12 +544,14 @@ llvm::Value* ASTToObjectVisitor::visit(
   // Codegen the body, now that all vars are in scope.
   llvm::Value* BodyVal = nullptr;
   BodyVal = expr->Body.get()->visit(codegen, BodyVal);
-  if (!BodyVal)
+  if (!BodyVal) {
     return nullptr;
+  }
 
   // Pop all our variables from scope.
-  for (unsigned i = 0, e = expr->VarNames.size(); i != e; ++i)
+  for (unsigned i = 0, e = expr->VarNames.size(); i != e; ++i) {
     NamedValues[expr->VarNames[i].first] = OldBindings[i];
+  }
 
   // Return the body computation.
   return BodyVal;
@@ -557,8 +575,9 @@ llvm::Function* ASTToObjectVisitor::visit(
 
   // Set names for all arguments.
   unsigned Idx = 0;
-  for (auto& Arg : F->args())
+  for (auto& Arg : F->args()) {
     Arg.setName(expr->Args[Idx++]);
+  }
 
   return F;
 }
@@ -576,13 +595,15 @@ llvm::Function* ASTToObjectVisitor::visit(
   FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
   llvm::Function* TheFunction = getFunction(P.getName());
 
-  if (!TheFunction)
+  if (!TheFunction) {
     return nullptr;
+  }
 
   // If this is an operator, install it.
   std::cout << "If this is an operator, install it";
-  if (P.isBinaryOp())
+  if (P.isBinaryOp()) {
     BinopPrecedence[P.getOperatorName()] = P.getBinaryPrecedence();
+  }
 
   // Create a new basic block to start insertion into.
   std::cout << "Create a new basic block to start insertion into";
@@ -621,8 +642,9 @@ llvm::Function* ASTToObjectVisitor::visit(
   // Error reading body, remove function.
   TheFunction->eraseFromParent();
 
-  if (P.isBinaryOp())
+  if (P.isBinaryOp()) {
     BinopPrecedence.erase(expr->Proto->getOperatorName());
+  }
 
   return nullptr;
 }
@@ -814,8 +836,9 @@ auto compile() -> void {
   LOG(INFO) << "dest output";
   std::error_code EC;
 
-  if (OUTPUT_FILE == "")
+  if (OUTPUT_FILE == "") {
     OUTPUT_FILE = "./output.o";
+  }
 
   llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
 

@@ -88,14 +88,16 @@ namespace llvm {
       }
 
       ~ArxJIT() {
-        if (auto Err = ES->endSession())
+        if (auto Err = ES->endSession()) {
           ES->reportError(std::move(Err));
+        }
       }
 
       static Expected<std::unique_ptr<ArxJIT>> Create() {
         auto EPC = SelfExecutorProcessControl::Create();
-        if (!EPC)
+        if (!EPC) {
           return EPC.takeError();
+        }
 
         auto ES = std::make_unique<ExecutionSession>(std::move(*EPC));
 
@@ -103,8 +105,9 @@ namespace llvm {
           ES->getExecutorProcessControl().getTargetTriple());
 
         auto DL = JTMB.getDefaultDataLayoutForTarget();
-        if (!DL)
+        if (!DL) {
           return DL.takeError();
+        }
 
         return std::make_unique<ArxJIT>(
           std::move(ES), std::move(JTMB), std::move(*DL));
@@ -119,8 +122,9 @@ namespace llvm {
       }
 
       Error addModule(ThreadSafeModule TSM, ResourceTrackerSP RT = nullptr) {
-        if (!RT)
+        if (!RT) {
           RT = MainJD.getDefaultResourceTracker();
+        }
         return CompileLayer.add(RT, std::move(TSM));
       }
 

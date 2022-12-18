@@ -1,7 +1,7 @@
 {% set name = "arx" %}
 {% set version = "1.5.0" %}  # semantic-release
-{% set llvm_version = "14.*" %}
-{% set arrow_version = "8.*" %}
+{% set llvm_version = "15.*" %}
+{% set arrow_version = "10.*" %}
 
 package:
   name: {{ name|lower }}
@@ -33,7 +33,7 @@ requirements:
     - clangxx {{ llvm_version }}
     - glib
     - libclang-cpp {{ llvm_version }}
-    - libcxx {{ llvm_version }}
+    # - libcxx {{ llvm_version }}
     - libstdcxx-devel_linux-64
     - libstdcxx-ng
     - lld {{ llvm_version }}
