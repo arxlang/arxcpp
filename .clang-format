@@ -36,3 +36,4 @@ SpacesInLineCommentPrefix:
     Minimum: 1
 AllowShortIfStatementsOnASingleLine: Never
 RemoveBracesLLVM: false
+InsertBraces: true

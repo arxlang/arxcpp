@@ -161,12 +161,13 @@ auto gettok() -> int {
 
   // Comment until end of line.
   if (LastChar == '#') {
-    do
+    do {
       LastChar = advance();
-    while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
+    } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
-    if (LastChar != EOF)
+    if (LastChar != EOF) {
       return gettok();
+    }
   }
 
   // Check for end of file.  Don't eat the EOF.

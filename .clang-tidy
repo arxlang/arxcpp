@@ -36,5 +36,5 @@ performance-*,
 '
 AnalyzeTemporaryDtors: false
 WarningsAsErrors: ''  # TODO: change to '*'
-CheckOptions:
+# CheckOptions:
 ...
