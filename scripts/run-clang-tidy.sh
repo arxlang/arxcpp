@@ -15,7 +15,7 @@ clang-tidy \
     --config-file="${PROJECT_PATH}/.clang-tidy" \
     --header-filter="${CONDA_PREFIX}/include" \
     --extra-arg="-I${PROJECT_PATH}/src" \
-    -p=${TMP_DIR} \
+    -p="${TMP_DIR}" \
     ${PROJECT_PATH}/src/*.cpp \
     ${PROJECT_PATH}/src/*.h \
     ${PROJECT_PATH}/src/codegen/*.cpp \
