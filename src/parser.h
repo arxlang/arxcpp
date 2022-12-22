@@ -46,6 +46,8 @@ enum class ExprKind {
   FunctionKind
 };
 
+class Visitor;
+
 /**
  * @brief Base class for all expression nodes.
  *
@@ -71,10 +73,7 @@ class ExprAST {
     return Loc.Col;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) = 0;
 };
 
 /**
@@ -94,10 +93,7 @@ class NumberExprAST : public ExprAST {
     this->kind = ExprKind::NumberKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -121,10 +117,7 @@ class VariableExprAST : public ExprAST {
     return Name;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -145,10 +138,7 @@ class UnaryExprAST : public ExprAST {
     this->kind = ExprKind::UnaryKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -175,10 +165,7 @@ class BinaryExprAST : public ExprAST {
     this->kind = ExprKind::BinaryKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -203,10 +190,7 @@ class CallExprAST : public ExprAST {
     this->kind = ExprKind::CallKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -235,10 +219,7 @@ class IfExprAST : public ExprAST {
     this->kind = ExprKind::IfKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -272,10 +253,7 @@ class ForExprAST : public ExprAST {
     this->kind = ExprKind::ForKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -299,10 +277,7 @@ class VarExprAST : public ExprAST {
     this->kind = ExprKind::VarKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -365,10 +340,7 @@ class PrototypeAST : public ExprAST {
     return Line;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -391,10 +363,22 @@ class FunctionAST : public ExprAST {
     this->kind = ExprKind::FunctionKind;
   }
 
-  template <typename V, typename T>
-  T* visit(V* visitor, T* output) {
-    return visitor->visit(this, output);
-  }
+  virtual void accept(Visitor* visitor) override;
+};
+
+class Visitor {
+ public:
+  virtual void visit(ExprAST*) = 0;
+  virtual void visit(NumberExprAST*) = 0;
+  virtual void visit(VariableExprAST*) = 0;
+  virtual void visit(UnaryExprAST*) = 0;
+  virtual void visit(BinaryExprAST*) = 0;
+  virtual void visit(CallExprAST*) = 0;
+  virtual void visit(IfExprAST*) = 0;
+  virtual void visit(ForExprAST*) = 0;
+  virtual void visit(VarExprAST*) = 0;
+  virtual void visit(PrototypeAST*) = 0;
+  virtual void visit(FunctionAST*) = 0;
 };
 
 extern std::map<char, int> BinopPrecedence;
