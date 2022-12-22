@@ -74,17 +74,17 @@ class ASTToObjectVisitor : public Visitor {
   llvm::Value* result_val;
   llvm::Function* result_func;
 
-  void visit(ExprAST*);
-  void visit(NumberExprAST*);
-  void visit(VariableExprAST*);
-  void visit(UnaryExprAST*);
-  void visit(BinaryExprAST*);
-  void visit(CallExprAST*);
-  void visit(IfExprAST*);
-  void visit(ForExprAST*);
-  void visit(VarExprAST*);
-  void visit(PrototypeAST*);
-  void visit(FunctionAST*);
+  virtual void visit(ExprAST*) override;
+  virtual void visit(NumberExprAST*) override;
+  virtual void visit(VariableExprAST*) override;
+  virtual void visit(UnaryExprAST*) override;
+  virtual void visit(BinaryExprAST*) override;
+  virtual void visit(CallExprAST*) override;
+  virtual void visit(IfExprAST*) override;
+  virtual void visit(ForExprAST*) override;
+  virtual void visit(VarExprAST*) override;
+  virtual void visit(PrototypeAST*) override;
+  virtual void visit(FunctionAST*) override;
 };
 
 /**
@@ -143,47 +143,55 @@ static auto CreateEntryBlockAlloca(
 }
 
 // visit methods implementation
-/*
-template <typename T>
-T* ASTToObjectVisitor::visit(ExprAST* expr, T* code_result) {
+auto ASTToObjectVisitor::visit(ExprAST* expr) -> void {
   switch (expr->kind) {
     case ExprKind::NumberKind: {
-      return ((NumberExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((NumberExprAST*) expr);
+      break;
     }
     case ExprKind::VariableKind: {
-      return ((VariableExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((VariableExprAST*) expr);
+      break;
     }
     case ExprKind::UnaryKind: {
-      return ((UnaryExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((UnaryExprAST*) expr);
+      break;
     }
     case ExprKind::BinaryKind: {
-      return ((BinaryExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((BinaryExprAST*) expr);
+      break;
     }
     case ExprKind::CallKind: {
-      return ((CallExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((CallExprAST*) expr);
+      break;
     }
     case ExprKind::IfKind: {
-      return ((IfExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((IfExprAST*) expr);
+      break;
     }
     case ExprKind::ForKind: {
-      return ((ForExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((ForExprAST*) expr);
+      break;
     }
     case ExprKind::VarKind: {
-      return ((VarExprAST*) expr)->visit(codegen, code_result);
+      codegen->visit((VarExprAST*) expr);
+      break;
     }
     case ExprKind::PrototypeKind: {
-      return ((PrototypeAST*) expr)->visit(codegen, code_result);
+      codegen->visit((PrototypeAST*) expr);
+      break;
     }
     case ExprKind::FunctionKind: {
-      return ((FunctionAST*) expr)->visit(codegen, code_result);
+      codegen->visit((FunctionAST*) expr);
+      break;
     }
     default: {
       std::cout << "[WW] DOWNCASTING_CODEGEN MATCH FAILED";
-      return nullptr;
+      codegen->result_val = nullptr;
+      codegen->result_func = nullptr;
     }
   };
 }
-*/
 
 /**
  * @brief

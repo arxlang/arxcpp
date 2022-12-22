@@ -366,8 +366,9 @@ class FunctionAST : public ExprAST {
   virtual void accept(Visitor* visitor) override;
 };
 
-struct Visitor {
+class Visitor {
  public:
+  virtual void visit(ExprAST*) = 0;
   virtual void visit(NumberExprAST*) = 0;
   virtual void visit(VariableExprAST*) = 0;
   virtual void visit(UnaryExprAST*) = 0;
@@ -379,6 +380,10 @@ struct Visitor {
   virtual void visit(PrototypeAST*) = 0;
   virtual void visit(FunctionAST*) = 0;
 };
+
+void ExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
 
 void NumberExprAST::accept(Visitor* visitor) {
   visitor->visit(this);
