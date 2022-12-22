@@ -381,50 +381,6 @@ class Visitor {
   virtual void visit(FunctionAST*) = 0;
 };
 
-void ExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void NumberExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void VariableExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void UnaryExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void BinaryExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void CallExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void IfExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void ForExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void VarExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void PrototypeAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void FunctionAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
 extern std::map<char, int> BinopPrecedence;
 
 std::unique_ptr<FunctionAST> ParseDefinition();

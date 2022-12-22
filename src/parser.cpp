@@ -23,6 +23,50 @@ extern int CurTok;
  */
 std::map<char, int> BinopPrecedence;
 
+void ExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void NumberExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void VariableExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void UnaryExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void BinaryExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void CallExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void IfExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void ForExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void VarExprAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void PrototypeAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
+void FunctionAST::accept(Visitor* visitor) {
+  visitor->visit(this);
+}
+
 /**
  * @brief Get the precedence of the pending binary operator token.
  * @return

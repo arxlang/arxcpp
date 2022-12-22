@@ -74,6 +74,11 @@ class ASTToObjectVisitor : public Visitor {
   llvm::Value* result_val;
   llvm::Function* result_func;
 
+  ~ASTToObjectVisitor() {
+    this->result_val = nullptr;
+    this->result_func = nullptr;
+  }
+
   virtual void visit(ExprAST*) override;
   virtual void visit(NumberExprAST*) override;
   virtual void visit(VariableExprAST*) override;
