@@ -9,7 +9,9 @@ ARGS:=
 BUILD_TYPE:=release
 
 # docker
-DOCKER=docker-compose --file docker/docker-compose.yaml
+CONTAINERS=docker-compose \
+	--env-file ./.env \
+	--file containers/compose.yaml
 
 # release
 SEMANTIC_RELEASE=npx --yes \
@@ -29,7 +31,6 @@ SEMANTIC_RELEASE=npx --yes \
 clean-optional:
 	bash ./scripts/optclean.sh
 	mkdir -p build
-
 
 .ONESHELL:
 .PHONY: build
@@ -127,6 +128,24 @@ conda-build: clean-optional
 	mamba update -y conda conda-build
 	conda build purge
 	conda mambabuild .
+
+
+# CONTAINERS
+# ==========
+
+.PHONY: create-env-file
+create-env-file:
+	touch .env
+	echo "HOST_UID=`id -u`\nHOST_GID=`id -g`" > .env
+
+.PHONY: container-build
+container-build: create-env-file
+	$(CONTAINERS) build
+
+
+.PHONY: container-run
+container-run:
+	$(CONTAINERS) run arx
 
 
 # RELEASE

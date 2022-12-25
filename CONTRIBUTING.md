@@ -80,6 +80,9 @@ $ make run-tests
 $ pre-commit run --all-files
 ```
 
+Note: if you want to remove all the build folder before starting to build
+you can run `make build-dev CLEAN=1`.
+
 6.  Commit your changes and push your branch to GitHub:
 ```bash
 $ git add .
@@ -98,6 +101,22 @@ Before you submit a pull request, check that it meets these guidelines:
     Put your new functionality into a function with a docstring, and add
     the feature to the list in README.md.
 
+
+## Containers
+
+If you want to build and run inside a container, you can run the following
+commands:
+
+```bash
+make container-build
+make container-run
+```
+
+Inside the container you can run the same make targets, for example:
+
+```bash
+make build-dev CLEAN=1
+```
 
 ## Release
 
