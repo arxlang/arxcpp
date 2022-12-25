@@ -60,3 +60,6 @@ arxc
 
 # jupyter
 .ipynb_checkpoints
+
+# env
+.env

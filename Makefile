@@ -9,7 +9,9 @@ ARGS:=
 BUILD_TYPE:=release
 
 # docker
-DOCKER=docker-compose --file docker/docker-compose.yaml
+CONTAINERS=docker-compose \
+	--env-file ./.env \
+	--file containers/compose.yaml
 
 # release
 SEMANTIC_RELEASE=npx --yes \
@@ -31,6 +33,9 @@ clean-optional:
 	mkdir -p build
 
 
+echo-path:
+	echo `dirname \`find ${CONDA_PREFIX} -name libgcc.a\``
+
 .ONESHELL:
 .PHONY: build
 build: clean-optional
@@ -38,9 +43,11 @@ build: clean-optional
 	meson setup \
 		--prefix ${CONDA_PREFIX} \
 		--libdir ${CONDA_PREFIX}/lib \
+		--libdir ${CONDA_PREFIX}/lib \
 		--includedir ${CONDA_PREFIX}/include \
 		--buildtype=${BUILD_TYPE} \
-		--native-file meson.native ${ARGS} \
+		--native-file meson.native \
+		--warnlevel 3 ${ARGS} \
 		build .
 	meson compile -C build
 
@@ -127,6 +134,24 @@ conda-build: clean-optional
 	mamba update -y conda conda-build
 	conda build purge
 	conda mambabuild .
+
+
+# CONTAINERS
+# ==========
+
+.PHONY: create-env-file
+create-env-file:
+	touch .env
+	echo "HOST_UID=`id -u`\nHOST_GID=`id -g`" > .env
+
+.PHONY: container-build
+container-build: create-env-file
+	$(CONTAINERS) build
+
+
+.PHONY: container-run
+container-run:
+	$(CONTAINERS) run arx
 
 
 # RELEASE

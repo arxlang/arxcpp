@@ -19,6 +19,7 @@ dependencies:
 - libstdcxx-ng
 - lld 15.*
 - llvmdev 15.*
+- make
 - meson
 - ninja
 - pkg-config
@@ -30,6 +31,7 @@ dependencies:
 - glog
 # dev
 - cppcheck
+- docker-compose
 - doxygen
 - gmock
 - gtest
