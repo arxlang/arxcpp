@@ -32,10 +32,6 @@ clean-optional:
 	bash ./scripts/optclean.sh
 	mkdir -p build
 
-
-echo-path:
-	echo `dirname \`find ${CONDA_PREFIX} -name libgcc.a\``
-
 .ONESHELL:
 .PHONY: build
 build: clean-optional
@@ -43,11 +39,9 @@ build: clean-optional
 	meson setup \
 		--prefix ${CONDA_PREFIX} \
 		--libdir ${CONDA_PREFIX}/lib \
-		--libdir ${CONDA_PREFIX}/lib \
 		--includedir ${CONDA_PREFIX}/include \
 		--buildtype=${BUILD_TYPE} \
-		--native-file meson.native \
-		--warnlevel 3 ${ARGS} \
+		--native-file meson.native ${ARGS} \
 		build .
 	meson compile -C build
 
