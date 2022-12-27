@@ -12,12 +12,12 @@ PROJECT_PATH = meson.source_root()
 cxx = meson.get_compiler('cpp')
 
 r  = run_command('echo', '$OSTYPE', check: true)
-operation_system = r.stdout().strip()
+operating_system = r.stdout().strip()
 
 # note: probably not a good approach but we should have both
 #       OS with the same pinning soon
 
-if 'Linux' in operation_system
+if 'Linux' in operating_system
   llvm_version = '>=15.0.0'
 else
   # osx
