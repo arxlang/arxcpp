@@ -24,8 +24,7 @@
 #include "codegen/ast-to-object.h"
 
 #include "io.h"
-#include "lexer.h"
-#include "settings.h"
+#include "parser.h"
 #include "utils.h"
 
 std::string ARX_VERSION = "1.5.0";  // semantic-release
@@ -75,9 +74,13 @@ auto main_compile() {
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 
-  CLI::App app{"ArxLang"};
+  Parser::BinopPrecedence['='] = 2;
+  Parser::BinopPrecedence['<'] = 10;
+  Parser::BinopPrecedence['+'] = 20;
+  Parser::BinopPrecedence['-'] = 20;
+  Parser::BinopPrecedence['*'] = 40;
 
-  load_settings();
+  CLI::App app{"ArxLang"};
 
   app.add_option("--input", INPUT_FILE, "Input file.");
   app.add_option("--output", OUTPUT_FILE, "Output file.");

@@ -41,13 +41,16 @@ struct SourceLocation {
   int Col;
 };
 
-std::string getTokName(int);
-int gettok();
-int advance();
-int getNextToken();
+class Lexer {
+ public:
+  static SourceLocation CurLoc;
+  static std::string IdentifierStr;  // Filled in if tok_identifier
+  static double NumVal;              // Filled in if tok_number
+  static int CurTok;
+  static SourceLocation LexLoc;
 
-extern SourceLocation CurLoc;
-extern std::string IdentifierStr;  // Filled in if tok_identifier
-extern double NumVal;              // Filled in if tok_number
-
-extern int CurTok;
+  static std::string getTokName(int);
+  static int gettok();
+  static int advance();
+  static int getNextToken();
+};

@@ -7,10 +7,6 @@
 #include "../src/io.h"
 #include "../src/lexer.h"
 #include "../src/parser.h"
-#include "../src/settings.h"
-
-extern int CurTok;
-extern SourceLocation CurLoc;
 
 TEST(ParserTest, GetNextTokenTest) {
   /* Test gettok for main tokens */
@@ -24,64 +20,62 @@ TEST(ParserTest, GetNextTokenTest) {
   math(1);
   )"""");
 
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_function);
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_identifier);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) '(');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_identifier);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) ')');
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) ':');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_if);
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_identifier);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) '>');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_number);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) ':');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_identifier);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) '+');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_number);
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_else);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) ':');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_identifier);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) '*');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_number);
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_identifier);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) '(');
-  getNextToken();
-  EXPECT_EQ(CurTok, tok_number);
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) ')');
-  getNextToken();
-  EXPECT_EQ(CurTok, (int) ';');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_function);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_identifier);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) '(');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_identifier);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) ')');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) ':');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_if);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_identifier);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) '>');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_number);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) ':');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_identifier);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) '+');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_number);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_else);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) ':');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_identifier);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) '*');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_number);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_identifier);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) '(');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, tok_number);
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) ')');
+  Lexer::getNextToken();
+  EXPECT_EQ(Lexer::CurTok, (int) ';');
 }
 
 TEST(ParserTest, BinopPrecedenceTest) {
-  load_settings();
-
-  EXPECT_EQ(BinopPrecedence['='], 2);
-  EXPECT_EQ(BinopPrecedence['<'], 10);
-  EXPECT_EQ(BinopPrecedence['+'], 20);
-  EXPECT_EQ(BinopPrecedence['-'], 20);
-  EXPECT_EQ(BinopPrecedence['*'], 40);
+  EXPECT_EQ(Parser::BinopPrecedence['='], 2);
+  EXPECT_EQ(Parser::BinopPrecedence['<'], 10);
+  EXPECT_EQ(Parser::BinopPrecedence['+'], 20);
+  EXPECT_EQ(Parser::BinopPrecedence['-'], 20);
+  EXPECT_EQ(Parser::BinopPrecedence['*'], 40);
 }
 
 TEST(ParserTest, ParseNumberExprTest) {
@@ -92,7 +86,7 @@ TEST(ParserTest, ParseNumberExprTest) {
   // TODO: check why it is necessary to add ; here
   string_to_buffer((char*) "1 2;");
 
-  tok = getNextToken();  // update CurTok
+  tok = Lexer::getNextToken();  // update Lexer::CurTok
   EXPECT_EQ(tok, tok_number);
   expr = ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
@@ -106,7 +100,7 @@ TEST(ParserTest, ParseNumberExprTest) {
 
   string_to_buffer((char*) "3");
 
-  tok = getNextToken();
+  tok = Lexer::getNextToken();
   EXPECT_EQ(tok, tok_number);
   expr = ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
@@ -123,6 +117,6 @@ TEST(ParserTest, ParseIfExprTest) {
     a = 2
   )"""");
 
-  getNextToken();  // update CurTok
+  Lexer::getNextToken();  // update Lexer::CurTok
   auto expr = ParsePrimary();
 }

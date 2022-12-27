@@ -7,13 +7,15 @@
 #include "../src/io.h"
 #include "../src/lexer.h"
 
+auto lexer = new Lexer();
+
 TEST(InputTest, GetCharTest) {
   string_to_buffer((char*) "1");
   EXPECT_EQ(get_char(), 49);
 
   string_to_buffer((char*) "2");
-  EXPECT_EQ(advance(), 50);
+  EXPECT_EQ(Lexer::advance(), 50);
 
   string_to_buffer((char*) "3");
-  EXPECT_EQ(advance(), 51);
+  EXPECT_EQ(Lexer::advance(), 51);
 }
