@@ -11,9 +11,22 @@ PROJECT_PATH = meson.source_root()
 
 cxx = meson.get_compiler('cpp')
 
+r  = run_command('echo', '$OSTYPE', check: true)
+operating_system = r.stdout().strip()
+
+# note: probably not a good approach but we should have both
+#       OS with the same pinning soon
+
+if 'Linux' in operating_system
+  llvm_version = '>=15.0.0'
+else
+  # osx
+  llvm_version = '>=14.0.0'
+endif
+
 deps = [
   dependency('arrow'),
-  dependency('llvm', version : '>=14.0.0'),
+  dependency('llvm', version : llvm_version),
   dependency('CLI11'),
   dependency('threads'),
   dependency('glog'),

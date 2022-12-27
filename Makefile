@@ -1,7 +1,7 @@
 # build
 CLEAN=0
-CXX=clang++
-CC=clang
+CXX:=clang++
+CC:=clang
 
 ARGS:=
 

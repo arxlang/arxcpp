@@ -12,11 +12,19 @@ on:
 jobs:
   main:
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            conda_env_file: dev-linux-64.yaml
+          - os: macos-latest
+            conda_env_file: dev-osx-64.yaml
+
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
 
     concurrency:
-      group: ci-main-${{ github.ref }}
+      group: ci-${{ matrix.os }}-main-${{ github.ref }}
       cancel-in-progress: true
 
     defaults:
@@ -37,10 +45,15 @@ jobs:
         channels: conda-forge,nodefaults
         channel-priority: true
         activate-environment: arx
-        environment-file: conda/dev-linux-64.yaml
+        environment-file: conda/${{ matrix.conda_env_file }}
 
-    - name: build
+    - name: Build on Linux
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: make build-dev CLEAN=1
+
+    - name: Build on OSX
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: make build-dev CLEAN=1 CC=clang-cl
 
     - name: test flags
       run: |
