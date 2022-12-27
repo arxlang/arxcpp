@@ -79,7 +79,6 @@ class ASTToObjectVisitor : public Visitor {
     this->result_func = nullptr;
   }
 
-  virtual void visit(ExprAST*) override;
   virtual void visit(NumberExprAST*) override;
   virtual void visit(VariableExprAST*) override;
   virtual void visit(UnaryExprAST*) override;
@@ -90,6 +89,7 @@ class ASTToObjectVisitor : public Visitor {
   virtual void visit(VarExprAST*) override;
   virtual void visit(PrototypeAST*) override;
   virtual void visit(FunctionAST*) override;
+  virtual void clean() override;
 };
 
 /**
@@ -147,55 +147,9 @@ static auto CreateEntryBlockAlloca(
     llvm::Type::getDoubleTy(*TheContext), nullptr, VarName);
 }
 
-// visit methods implementation
-auto ASTToObjectVisitor::visit(ExprAST* expr) -> void {
-  switch (expr->kind) {
-    case ExprKind::NumberKind: {
-      codegen->visit((NumberExprAST*) expr);
-      break;
-    }
-    case ExprKind::VariableKind: {
-      codegen->visit((VariableExprAST*) expr);
-      break;
-    }
-    case ExprKind::UnaryKind: {
-      codegen->visit((UnaryExprAST*) expr);
-      break;
-    }
-    case ExprKind::BinaryKind: {
-      codegen->visit((BinaryExprAST*) expr);
-      break;
-    }
-    case ExprKind::CallKind: {
-      codegen->visit((CallExprAST*) expr);
-      break;
-    }
-    case ExprKind::IfKind: {
-      codegen->visit((IfExprAST*) expr);
-      break;
-    }
-    case ExprKind::ForKind: {
-      codegen->visit((ForExprAST*) expr);
-      break;
-    }
-    case ExprKind::VarKind: {
-      codegen->visit((VarExprAST*) expr);
-      break;
-    }
-    case ExprKind::PrototypeKind: {
-      codegen->visit((PrototypeAST*) expr);
-      break;
-    }
-    case ExprKind::FunctionKind: {
-      codegen->visit((FunctionAST*) expr);
-      break;
-    }
-    default: {
-      std::cout << "[WW] DOWNCASTING_CODEGEN MATCH FAILED";
-      codegen->result_val = nullptr;
-      codegen->result_func = nullptr;
-    }
-  };
+auto ASTToObjectVisitor::clean() -> void {
+  this->result_val = nullptr;
+  this->result_func = nullptr;
 }
 
 /**

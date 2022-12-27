@@ -73,7 +73,7 @@ class ExprAST {
     return Loc.Col;
   }
 
-  virtual void accept(Visitor* visitor) = 0;
+  void accept(Visitor* visitor);
 };
 
 /**
@@ -92,8 +92,6 @@ class NumberExprAST : public ExprAST {
   NumberExprAST(double Val) : Val(Val) {
     this->kind = ExprKind::NumberKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -116,8 +114,6 @@ class VariableExprAST : public ExprAST {
   const std::string& getName() const {
     return Name;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -137,8 +133,6 @@ class UnaryExprAST : public ExprAST {
       : Opcode(Opcode), Operand(std::move(Operand)) {
     this->kind = ExprKind::UnaryKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -164,8 +158,6 @@ class BinaryExprAST : public ExprAST {
       : ExprAST(Loc), Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {
     this->kind = ExprKind::BinaryKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -189,8 +181,6 @@ class CallExprAST : public ExprAST {
       : ExprAST(Loc), Callee(std::move(Callee)), Args(std::move(Args)) {
     this->kind = ExprKind::CallKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -218,8 +208,6 @@ class IfExprAST : public ExprAST {
         Else(std::move(Else)) {
     this->kind = ExprKind::IfKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -252,8 +240,6 @@ class ForExprAST : public ExprAST {
         Body(std::move(Body)) {
     this->kind = ExprKind::ForKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -276,8 +262,6 @@ class VarExprAST : public ExprAST {
       : VarNames(std::move(VarNames)), Body(std::move(Body)) {
     this->kind = ExprKind::VarKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -339,8 +323,6 @@ class PrototypeAST : public ExprAST {
   int getLine() const {
     return Line;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 /**
@@ -362,13 +344,10 @@ class FunctionAST : public ExprAST {
       : Proto(std::move(Proto)), Body(std::move(Body)) {
     this->kind = ExprKind::FunctionKind;
   }
-
-  virtual void accept(Visitor* visitor) override;
 };
 
 class Visitor {
  public:
-  virtual void visit(ExprAST*) = 0;
   virtual void visit(NumberExprAST*) = 0;
   virtual void visit(VariableExprAST*) = 0;
   virtual void visit(UnaryExprAST*) = 0;
@@ -379,6 +358,7 @@ class Visitor {
   virtual void visit(VarExprAST*) = 0;
   virtual void visit(PrototypeAST*) = 0;
   virtual void visit(FunctionAST*) = 0;
+  virtual void clean() = 0;
 };
 
 extern std::map<char, int> BinopPrecedence;
