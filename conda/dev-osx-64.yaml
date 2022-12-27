@@ -7,7 +7,7 @@ dependencies:
 - clangdev 15.*
 - clangxx 15.*
 - cmake
-# - compiler-rt 15.*
+- compiler-rt 15.*
 - compilers
 # it would be nice to replace that by lldb, but
 # the latest version on conda-forge is very old.
