@@ -14,15 +14,12 @@ dependencies:
 - gdb
 - glib
 - libclang-cpp 15.*
-- libstdcxx-devel_linux-64
-- libstdcxx-ng
 - lld 15.*
 - llvmdev 15.*
 - make
 - meson
 - ninja
 - pkg-config
-- sysroot_linux-64  # [linux-64]
 # run
 - arrow-c-glib 10.*
 - arrow-cpp 10.*
