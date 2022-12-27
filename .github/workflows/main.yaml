@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 20
 
     concurrency:
-      group: ci-main-${{ github.ref }}
+      group: ci-${{ matrix.os }}-main-${{ github.ref }}
       cancel-in-progress: true
 
     defaults:
