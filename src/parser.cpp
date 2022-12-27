@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -24,47 +25,52 @@ extern int CurTok;
 std::map<char, int> BinopPrecedence;
 
 void ExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void NumberExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void VariableExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void UnaryExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void BinaryExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void CallExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void IfExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void ForExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void VarExprAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void PrototypeAST::accept(Visitor* visitor) {
-  visitor->visit(this);
-}
-
-void FunctionAST::accept(Visitor* visitor) {
-  visitor->visit(this);
+  switch (this->kind) {
+    case ExprKind::NumberKind: {
+      visitor->visit((NumberExprAST*) this);
+      break;
+    }
+    case ExprKind::VariableKind: {
+      visitor->visit((VariableExprAST*) this);
+      break;
+    }
+    case ExprKind::UnaryKind: {
+      visitor->visit((UnaryExprAST*) this);
+      break;
+    }
+    case ExprKind::BinaryKind: {
+      visitor->visit((BinaryExprAST*) this);
+      break;
+    }
+    case ExprKind::CallKind: {
+      visitor->visit((CallExprAST*) this);
+      break;
+    }
+    case ExprKind::IfKind: {
+      visitor->visit((IfExprAST*) this);
+      break;
+    }
+    case ExprKind::ForKind: {
+      visitor->visit((ForExprAST*) this);
+      break;
+    }
+    case ExprKind::VarKind: {
+      visitor->visit((VarExprAST*) this);
+      break;
+    }
+    case ExprKind::PrototypeKind: {
+      visitor->visit((PrototypeAST*) this);
+      break;
+    }
+    case ExprKind::FunctionKind: {
+      visitor->visit((FunctionAST*) this);
+      break;
+    }
+    default: {
+      std::cout << "[WW] DOWNCASTING_CODEGEN MATCH FAILED";
+      visitor->clean();
+    }
+  };
 }
 
 /**
