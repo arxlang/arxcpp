@@ -12,7 +12,7 @@ dependencies:
 # it would be nice to replace that by lldb, but
 # the latest version on conda-forge is very old.
 - gdb
-# - glib
+- glib
 - libclang-cpp 14.*
 - lld 14.*
 - llvmdev 14.*
@@ -21,8 +21,8 @@ dependencies:
 - ninja
 - pkg-config
 # run
-# - arrow-c-glib 10.*
-# - arrow-cpp 10.*
+- arrow-c-glib 10.*
+- arrow-cpp 10.*
 - cli11
 - glog
 # dev
@@ -31,10 +31,10 @@ dependencies:
 - doxygen
 - gmock
 - gtest
-# - include-what-you-use >=0.18
+- include-what-you-use >=0.18
 - jupyterlab
 - lcov
 - mkdocs
 - mkdocs-jupyter
-# - nodejs
+- nodejs
 - pre-commit
