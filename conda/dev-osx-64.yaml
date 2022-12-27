@@ -31,7 +31,7 @@ dependencies:
 - doxygen
 - gmock
 - gtest
-- include-what-you-use >=0.18
+# - include-what-you-use >=0.18
 - jupyterlab
 - lcov
 - mkdocs
