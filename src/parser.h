@@ -362,6 +362,14 @@ class Visitor {
 class Parser {
  public:
   static std::map<char, int> BinopPrecedence;
+
+  static void setup() {
+    Parser::BinopPrecedence['='] = 2;
+    Parser::BinopPrecedence['<'] = 10;
+    Parser::BinopPrecedence['+'] = 20;
+    Parser::BinopPrecedence['-'] = 20;
+    Parser::BinopPrecedence['*'] = 40;
+  }
 };
 
 std::unique_ptr<FunctionAST> ParseDefinition();

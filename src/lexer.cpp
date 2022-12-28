@@ -100,7 +100,7 @@ auto Lexer::advance() -> int {
  *
  */
 auto Lexer::gettok() -> int {
-  char LastChar = ' ';
+  static char LastChar = ' ';
 
   // Skip any whitespace.
   while (isspace(LastChar)) {

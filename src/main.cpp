@@ -74,11 +74,7 @@ auto main_compile() {
 auto main(int argc, const char* argv[]) -> int {
   google::InitGoogleLogging(argv[0]);
 
-  Parser::BinopPrecedence['='] = 2;
-  Parser::BinopPrecedence['<'] = 10;
-  Parser::BinopPrecedence['+'] = 20;
-  Parser::BinopPrecedence['-'] = 20;
-  Parser::BinopPrecedence['*'] = 40;
+  Parser::setup();
 
   CLI::App app{"ArxLang"};
 

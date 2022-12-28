@@ -71,6 +71,8 @@ TEST(ParserTest, GetNextTokenTest) {
 }
 
 TEST(ParserTest, BinopPrecedenceTest) {
+  Parser::setup();
+
   EXPECT_EQ(Parser::BinopPrecedence['='], 2);
   EXPECT_EQ(Parser::BinopPrecedence['<'], 10);
   EXPECT_EQ(Parser::BinopPrecedence['+'], 20);
