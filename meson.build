@@ -29,7 +29,6 @@ project_src_files = files(
   PROJECT_PATH + '/src/io.cpp',
   PROJECT_PATH + '/src/lexer.cpp',
   PROJECT_PATH + '/src/parser.cpp',
-  PROJECT_PATH + '/src/settings.cpp',
   PROJECT_PATH + '/src/utils.cpp',
 )
 

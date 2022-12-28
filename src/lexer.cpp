@@ -9,10 +9,11 @@
 
 std::stringstream buffer;
 
-SourceLocation CurLoc;
-SourceLocation LexLoc;
-std::string IdentifierStr;
-double NumVal;
+SourceLocation Lexer::CurLoc;
+std::string Lexer::IdentifierStr;  // Filled in if tok_identifier
+double Lexer::NumVal;              // Filled in if tok_number
+int Lexer::CurTok;
+SourceLocation Lexer::LexLoc;
 
 /**
  * @brief
@@ -20,7 +21,7 @@ double NumVal;
  * @return
  *
  */
-auto getTokName(int Tok) -> std::string {
+auto Lexer::getTokName(int Tok) -> std::string {
   switch (Tok) {
     case tok_eof:
       return "eof";
@@ -81,14 +82,14 @@ static auto is_identifier_char(char c) -> bool {
  * @return
  *
  */
-auto advance() -> int {
+auto Lexer::advance() -> int {
   int LastChar = get_char();
 
   if (LastChar == '\n' || LastChar == '\r') {
-    LexLoc.Line++;
-    LexLoc.Col = 0;
+    Lexer::LexLoc.Line++;
+    Lexer::LexLoc.Col = 0;
   } else {
-    LexLoc.Col++;
+    Lexer::LexLoc.Col++;
   }
   return LastChar;
 }
@@ -98,50 +99,50 @@ auto advance() -> int {
  * @return Return the next token from standard input.
  *
  */
-auto gettok() -> int {
+auto Lexer::gettok() -> int {
   static char LastChar = ' ';
 
   // Skip any whitespace.
   while (isspace(LastChar)) {
-    LastChar = (char) advance();
+    LastChar = (char) Lexer::advance();
   }
 
-  CurLoc = LexLoc;
+  Lexer::CurLoc = Lexer::LexLoc;
 
   if (is_identifier_first_char(LastChar)) {
-    IdentifierStr = (char) LastChar;
-    while (is_identifier_char((LastChar = (char) advance()))) {
-      IdentifierStr += LastChar;
+    Lexer::IdentifierStr = (char) LastChar;
+    while (is_identifier_char((LastChar = (char) Lexer::advance()))) {
+      Lexer::IdentifierStr += LastChar;
     }
 
-    if (IdentifierStr == "function") {
+    if (Lexer::IdentifierStr == "function") {
       return tok_function;
     }
-    if (IdentifierStr == "return") {
+    if (Lexer::IdentifierStr == "return") {
       return tok_return;
     }
-    if (IdentifierStr == "extern") {
+    if (Lexer::IdentifierStr == "extern") {
       return tok_extern;
     }
-    if (IdentifierStr == "if") {
+    if (Lexer::IdentifierStr == "if") {
       return tok_if;
     }
-    if (IdentifierStr == "else") {
+    if (Lexer::IdentifierStr == "else") {
       return tok_else;
     }
-    if (IdentifierStr == "for") {
+    if (Lexer::IdentifierStr == "for") {
       return tok_for;
     }
-    if (IdentifierStr == "in") {
+    if (Lexer::IdentifierStr == "in") {
       return tok_in;
     }
-    if (IdentifierStr == "binary") {
+    if (Lexer::IdentifierStr == "binary") {
       return tok_binary;
     }
-    if (IdentifierStr == "unary") {
+    if (Lexer::IdentifierStr == "unary") {
       return tok_unary;
     }
-    if (IdentifierStr == "var") {
+    if (Lexer::IdentifierStr == "var") {
       return tok_var;
     }
     return tok_identifier;
@@ -152,10 +153,10 @@ auto gettok() -> int {
     std::string NumStr;
     do {
       NumStr += (char) LastChar;
-      LastChar = (char) advance();
+      LastChar = (char) Lexer::advance();
     } while (isdigit(LastChar) || LastChar == '.');
 
-    NumVal = strtod(NumStr.c_str(), nullptr);
+    Lexer::NumVal = strtod(NumStr.c_str(), nullptr);
     return tok_number;
   }
 
@@ -166,7 +167,7 @@ auto gettok() -> int {
     } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
     if (LastChar != EOF) {
-      return gettok();
+      return Lexer::gettok();
     }
   }
 
@@ -177,7 +178,7 @@ auto gettok() -> int {
 
   // Otherwise, just return the character as its ascii value.
   int ThisChar = LastChar;
-  LastChar = advance();
+  LastChar = Lexer::advance();
   return ThisChar;
 }
 
@@ -189,8 +190,6 @@ auto gettok() -> int {
  * getNextToken reads another token from the lexer and updates
  * CurTok with its results.
  */
-int CurTok;
-
-auto getNextToken() -> int {
-  return CurTok = gettok();
+auto Lexer::getNextToken() -> int {
+  return Lexer::CurTok = Lexer::gettok();
 }

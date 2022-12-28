@@ -61,10 +61,7 @@
 #include "jit.h"
 #include "lexer.h"
 #include "parser.h"
-#include "settings.h"
 
-extern std::map<char, int> BinopPrecedence;
-extern int CurTok;
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern std::string ARX_VERSION;
@@ -593,7 +590,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   // If this is an operator, install it.
   std::cout << "If this is an operator, install it";
   if (P.isBinaryOp()) {
-    BinopPrecedence[P.getOperatorName()] = P.getBinaryPrecedence();
+    Parser::BinopPrecedence[P.getOperatorName()] = P.getBinaryPrecedence();
   }
 
   // Create a new basic block to start insertion into.
@@ -636,7 +633,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   TheFunction->eraseFromParent();
 
   if (P.isBinaryOp()) {
-    BinopPrecedence.erase(expr->Proto->getOperatorName());
+    Parser::BinopPrecedence.erase(expr->Proto->getOperatorName());
   }
 
   codegen->result_func = nullptr;
@@ -677,7 +674,7 @@ static auto HandleDefinition() -> void {
     }
   } else {
     //  Skip token for error recovery. //
-    getNextToken();
+    Lexer::getNextToken();
   }
 }
 
@@ -698,7 +695,7 @@ static auto HandleExtern() -> void {
     }
   } else {
     //  Skip token for error recovery. //
-    getNextToken();
+    Lexer::getNextToken();
   }
 }
 
@@ -711,7 +708,7 @@ static auto HandleTopLevelExpression() -> void {
     FnAST.get()->accept(codegen);
   } else {
     //   Skip token for error recovery. //
-    getNextToken();
+    Lexer::getNextToken();
   }
 }
 
@@ -721,11 +718,11 @@ static auto HandleTopLevelExpression() -> void {
  */
 static auto MainLoop() -> void {
   while (true) {
-    switch (CurTok) {
+    switch (Lexer::CurTok) {
       case tok_eof:
         return;
       case ';':  // ignore top-level semicolons.
-        getNextToken();
+        Lexer::getNextToken();
         break;
       case tok_function:
         HandleDefinition();
@@ -773,9 +770,7 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
  *
  */
 auto compile() -> void {
-  load_settings();
-
-  getNextToken();
+  Lexer::getNextToken();
 
   InitializeModuleAndPassManager();
 
