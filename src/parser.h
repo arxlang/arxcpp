@@ -370,15 +370,24 @@ class Parser {
     Parser::BinopPrecedence['-'] = 20;
     Parser::BinopPrecedence['*'] = 40;
   }
+
+  static ExprAST* parse();
+
+  static auto GetTokPrecedence() -> int;
+
+  static std::unique_ptr<FunctionAST> ParseDefinition();
+  static std::unique_ptr<PrototypeAST> ParseExtern();
+  static std::unique_ptr<FunctionAST> ParseTopLevelExpr();
+  static std::unique_ptr<ExprAST> ParsePrimary();
+  static std::unique_ptr<ExprAST> ParseExpression();
+  static std::unique_ptr<IfExprAST> ParseIfExpr();
+  static std::unique_ptr<NumberExprAST> ParseNumberExpr();
+  static std::unique_ptr<ExprAST> ParseParenExpr();
+  static std::unique_ptr<ExprAST> ParseIdentifierExpr();
+  static std::unique_ptr<ForExprAST> ParseForExpr();
+  static std::unique_ptr<VarExprAST> ParseVarExpr();
+  static std::unique_ptr<ExprAST> ParseUnary();
+  static std::unique_ptr<ExprAST> ParseBinOpRHS(
+    int ExprPrec, std::unique_ptr<ExprAST> LHS);
+  static std::unique_ptr<PrototypeAST> ParsePrototype();
 };
-
-std::unique_ptr<FunctionAST> ParseDefinition();
-std::unique_ptr<PrototypeAST> ParseExtern();
-std::unique_ptr<FunctionAST> ParseTopLevelExpr();
-
-std::unique_ptr<ExprAST> ParsePrimary();
-
-// declared as extern for testing //
-std::unique_ptr<ExprAST> ParseExpression();
-std::unique_ptr<IfExprAST> ParseIfExpr();
-std::unique_ptr<NumberExprAST> ParseNumberExpr();

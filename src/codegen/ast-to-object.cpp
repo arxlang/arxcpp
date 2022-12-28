@@ -662,7 +662,7 @@ static auto InitializeModuleAndPassManager() -> void {
  *
  */
 static auto HandleDefinition() -> void {
-  if (auto FnAST = ParseDefinition()) {
+  if (auto FnAST = Parser::ParseDefinition()) {
     // note: not sure if it would work properly
     FnAST.get()->accept(codegen);
     llvm::Function* FnIR = codegen->result_func;
@@ -683,7 +683,7 @@ static auto HandleDefinition() -> void {
  *
  */
 static auto HandleExtern() -> void {
-  if (auto ProtoAST = ParseExtern()) {
+  if (auto ProtoAST = Parser::ParseExtern()) {
     ProtoAST.get()->accept(codegen);
     llvm::Function* FnIR = codegen->result_func;
 
@@ -704,7 +704,7 @@ static auto HandleExtern() -> void {
  *
  */
 static auto HandleTopLevelExpression() -> void {
-  if (auto FnAST = ParseTopLevelExpr()) {
+  if (auto FnAST = Parser::ParseTopLevelExpr()) {
     FnAST.get()->accept(codegen);
   } else {
     //   Skip token for error recovery. //
