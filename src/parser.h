@@ -371,7 +371,7 @@ class Parser {
     Parser::BinopPrecedence['*'] = 40;
   }
 
-  static ExprAST* parse();
+  static auto parse() -> ExprAST*;
 
   static auto GetTokPrecedence() -> int;
 

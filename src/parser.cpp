@@ -587,3 +587,5 @@ std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
   Lexer::getNextToken();  // eat extern.
   return Parser::ParsePrototype();
 }
+
+auto Parser::parse() -> ExprAST* {}
