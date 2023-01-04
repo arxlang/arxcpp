@@ -588,4 +588,41 @@ std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
   return Parser::ParsePrototype();
 }
 
-auto Parser::parse() -> ExprAST* {}
+auto Parser::parse() -> TreeAST* {
+  TreeAST* ast = new TreeAST();
+  ExprAST* node = nullptr;
+
+  while (true) {
+    node = nullptr;
+    Lexer::getNextToken();
+
+    switch (Lexer::CurTok) {
+      case tok_eof:
+        return ast;
+      case ';':
+        // ignore top-level semicolons.
+        break;
+      case tok_function:
+        node = Parser::ParseDefinition().get();
+        break;
+      case tok_extern:
+        node = Parser::ParseExtern().get();
+        if (node != nullptr) {
+          ast->nodes.push_back(node);
+        }
+        break;
+      default:
+        node = Parser::ParseTopLevelExpr().get();
+        if (node != nullptr) {
+          ast->nodes.push_back(node);
+        }
+        break;
+    }
+
+    if (node != nullptr) {
+      ast->nodes.push_back(node);
+    } else {
+      Lexer::getNextToken();
+    }
+  }
+}

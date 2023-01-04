@@ -22,6 +22,7 @@
 
 // #include "codegen/ast-to-llvm.h"
 #include "codegen/ast-to-object.h"
+#include "codegen/ast-to-output.h"
 
 #include "io.h"
 #include "parser.h"
@@ -60,7 +61,8 @@ auto main_show_version(int count) {
  */
 auto main_compile() {
   load_input_to_buffer();
-  compile();
+  TreeAST* ast = Parser::parse();
+  // compile(ast);
   exit(0);
 }
 

@@ -13,5 +13,7 @@ TEST(CodeGenTest, ObjectGeneration) {
   add(1);
   )"""");
 
-  compile();
+  auto ast = new TreeAST();
+
+  compile(ast);
 }

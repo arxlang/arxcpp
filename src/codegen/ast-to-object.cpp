@@ -769,7 +769,7 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
  * @brief
  *
  */
-auto compile() -> void {
+auto compile(TreeAST* tree_ast) -> void {
   Lexer::getNextToken();
 
   InitializeModuleAndPassManager();
@@ -850,21 +850,12 @@ auto compile() -> void {
  * @brief
  *
  */
-auto compile_to_file() -> void {
-  compile();
-  llvm::outs() << "Wrote " << OUTPUT_FILE << "\n";
-}
-
-/**
- * @brief
- *
- */
 auto open_shell() -> void {
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile();
+  compile(nullptr);
 
   exit(0);
 }

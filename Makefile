@@ -94,6 +94,12 @@ run-test-opt:
 	# it requires a program that reads dot files (e.g. xdot)
 	llvm-as < tests/t.ll | opt -analyze -view-cfg
 
+.PHONY: run-debug
+run-debug:
+	LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
+		--args build/arx \
+		--input examples/test_fibonacci.arx \
+		--output "/tmp/fibonacci"
 # DOCS
 # ====
 

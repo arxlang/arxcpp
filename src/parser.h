@@ -344,6 +344,11 @@ class FunctionAST : public ExprAST {
   }
 };
 
+class TreeAST : public ExprAST {
+ public:
+  std::vector<ExprAST*> nodes;
+};
+
 class Visitor {
  public:
   virtual void visit(NumberExprAST*) = 0;
@@ -371,7 +376,7 @@ class Parser {
     Parser::BinopPrecedence['*'] = 40;
   }
 
-  static auto parse() -> ExprAST*;
+  static auto parse() -> TreeAST*;
 
   static auto GetTokPrecedence() -> int;
 
