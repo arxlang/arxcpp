@@ -594,7 +594,6 @@ auto Parser::parse() -> TreeAST* {
 
   while (true) {
     node = nullptr;
-    Lexer::getNextToken();
 
     switch (Lexer::CurTok) {
       case tok_eof:
@@ -607,15 +606,9 @@ auto Parser::parse() -> TreeAST* {
         break;
       case tok_extern:
         node = Parser::ParseExtern().get();
-        if (node != nullptr) {
-          ast->nodes.push_back(node);
-        }
         break;
       default:
         node = Parser::ParseTopLevelExpr().get();
-        if (node != nullptr) {
-          ast->nodes.push_back(node);
-        }
         break;
     }
 
