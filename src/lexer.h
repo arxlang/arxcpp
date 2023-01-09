@@ -33,7 +33,9 @@ enum Token {
 
   // var definition
   tok_var = -40,
-  tok_const = -41
+  tok_const = -41,
+
+  tok_not_initialized = -9999
 };
 
 struct SourceLocation {

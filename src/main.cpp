@@ -62,7 +62,7 @@ auto main_show_version(int count) {
 auto main_compile() {
   load_input_to_buffer();
   TreeAST* ast = Parser::parse();
-  // compile(ast);
+  print_ast(ast);
   exit(0);
 }
 

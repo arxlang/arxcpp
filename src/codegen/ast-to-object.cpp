@@ -587,12 +587,6 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     return;
   }
 
-  // If this is an operator, install it.
-  std::cout << "If this is an operator, install it";
-  if (P.isBinaryOp()) {
-    Parser::BinopPrecedence[P.getOperatorName()] = P.getBinaryPrecedence();
-  }
-
   // Create a new basic block to start insertion into.
   std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* BB =
@@ -631,10 +625,6 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
 
   // Error reading body, remove function.
   TheFunction->eraseFromParent();
-
-  if (P.isBinaryOp()) {
-    Parser::BinopPrecedence.erase(expr->Proto->getOperatorName());
-  }
 
   codegen->result_func = nullptr;
 }

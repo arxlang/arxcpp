@@ -61,8 +61,11 @@ void ExprAST::accept(Visitor* visitor) {
       visitor->visit((FunctionAST*) this);
       break;
     }
+    case ExprKind::GenericKind: {
+      std::cout << "[WW] Generic Kind doesn't have a downcasting";
+    }
     default: {
-      std::cout << "[WW] DOWNCASTING_CODEGEN MATCH FAILED";
+      std::cout << "[WW] DOWNCASTING MATCH FAILED";
       visitor->clean();
     }
   };
@@ -469,49 +472,16 @@ std::unique_ptr<ExprAST> Parser::ParseExpression() {
  */
 std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
   std::string FnName;
-
   SourceLocation FnLoc = Lexer::CurLoc;
 
-  unsigned Kind = 0;  // 0 = identifier, 1 = unary, 2 = binary.
-  unsigned BinaryPrecedence = 30;
-
   switch (Lexer::CurTok) {
-    default:
-      return LogError<PrototypeAST>("Expected function name in prototype");
     case tok_identifier:
       FnName = Lexer::IdentifierStr;
-      Kind = 0;
       Lexer::getNextToken();
       break;
-    case tok_unary:
-      Lexer::getNextToken();
-      if (!isascii(Lexer::CurTok)) {
-        return LogError<PrototypeAST>("Expected unary operator");
-      }
-      FnName = "unary";
-      FnName += (char) Lexer::CurTok;
-      Kind = 1;
-      Lexer::getNextToken();
-      break;
-    case tok_binary:
-      Lexer::getNextToken();
-      if (!isascii(Lexer::CurTok)) {
-        return LogError<PrototypeAST>("Expected binary operator");
-      }
-      FnName = "binary";
-      FnName += (char) Lexer::CurTok;
-      Kind = 2;
-      Lexer::getNextToken();
 
-      /** Read the precedence if present. */
-      if (Lexer::CurTok == tok_number) {
-        if (Lexer::NumVal < 1 || Lexer::NumVal > 100) {
-          return LogError<PrototypeAST>("Invalid precedence: must be 1..100");
-        }
-        BinaryPrecedence = (unsigned) Lexer::NumVal;
-        Lexer::getNextToken();
-      }
-      break;
+    default:
+      return LogError<PrototypeAST>("Expected function name in prototype");
   }
 
   if (Lexer::CurTok != '(') {
@@ -520,6 +490,7 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
 
   std::vector<std::string> ArgNames;
   while (Lexer::getNextToken() == tok_identifier) {
+    // std::cout << "[DEBUG] (" << Lexer::IdentifierStr << ")" << std::endl;
     ArgNames.push_back(Lexer::IdentifierStr);
   }
   if (Lexer::CurTok != ')') {
@@ -535,13 +506,7 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
 
   Lexer::getNextToken();  // eat ':'.
 
-  // Verify right number of names for operator. //
-  if (Kind && ArgNames.size() != Kind) {
-    return LogError<PrototypeAST>("Invalid number of operands for operator");
-  }
-
-  return std::make_unique<PrototypeAST>(
-    FnLoc, FnName, ArgNames, Kind != 0, BinaryPrecedence);
+  return std::make_unique<PrototypeAST>(FnLoc, FnName, ArgNames);
 }
 
 /**
@@ -590,32 +555,33 @@ std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
 
 auto Parser::parse() -> TreeAST* {
   TreeAST* ast = new TreeAST();
-  ExprAST* node = nullptr;
 
   while (true) {
-    node = nullptr;
+    // if (!ast->nodes.empty()) {
+    //   std::cout <<
+    //   static_cast<std::underlying_type<ExprKind>::type>(ast->nodes.back()->kind)
+    //   << std::endl;
+    // }
 
     switch (Lexer::CurTok) {
       case tok_eof:
-        return ast;
+        return std::move(ast);
+      case tok_not_initialized:
+        Lexer::getNextToken();
+        break;
       case ';':
+        Lexer::getNextToken();
         // ignore top-level semicolons.
         break;
       case tok_function:
-        node = Parser::ParseDefinition().get();
+        ast->nodes.push_back(Parser::ParseDefinition().get());
         break;
       case tok_extern:
-        node = Parser::ParseExtern().get();
+        ast->nodes.push_back(Parser::ParseExtern().get());
         break;
       default:
-        node = Parser::ParseTopLevelExpr().get();
+        ast->nodes.push_back(Parser::ParseTopLevelExpr().get());
         break;
-    }
-
-    if (node != nullptr) {
-      ast->nodes.push_back(node);
-    } else {
-      Lexer::getNextToken();
     }
   }
 }

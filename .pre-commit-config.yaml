@@ -45,7 +45,7 @@ repos:
 
       - id: cppcheck
         name: cppcheck
-        entry: "cppcheck --std=c++20 src/"
+        entry: "cppcheck --force --std=c++20 --error-exitcode=1 src/"
         language: system
         pass_filenames: false
         stages:

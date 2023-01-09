@@ -32,16 +32,17 @@ namespace llvm {
 }
 
 enum class ExprKind {
-  NumberKind,
-  VariableKind,
-  UnaryKind,
-  BinaryKind,
-  CallKind,
-  IfKind,
-  ForKind,
-  VarKind,
-  PrototypeKind,
-  FunctionKind
+  NumberKind = 1,
+  VariableKind = 2,
+  UnaryKind = 3,
+  BinaryKind = 4,
+  CallKind = 5,
+  IfKind = 6,
+  ForKind = 7,
+  VarKind = 8,
+  PrototypeKind = 9,
+  FunctionKind = 10,
+  GenericKind = -1
 };
 
 class Visitor;
@@ -59,7 +60,9 @@ class ExprAST {
   /**
    * @param Loc
    */
-  ExprAST(SourceLocation Loc = Lexer::CurLoc) : Loc(Loc) {}
+  ExprAST(SourceLocation Loc = Lexer::CurLoc) : Loc(Loc) {
+    this->kind = ExprKind::GenericKind;
+  }
 
   virtual ~ExprAST() = default;
 
@@ -272,50 +275,21 @@ class PrototypeAST : public ExprAST {
  public:
   std::string Name;
   std::vector<std::string> Args;
-  bool IsOperator;
-  unsigned Precedence;  // Precedence if a binary op.
   int Line;
 
   /**
    * @param Loc
    * @param Name
    * @param Args
-   * @param IsOperator
-   * @param Prec
    */
   PrototypeAST(
-    SourceLocation Loc,
-    std::string Name,
-    std::vector<std::string> Args,
-    bool IsOperator = false,
-    unsigned Prec = 0)
-      : Name(std::move(Name)),
-        Args(std::move(Args)),
-        IsOperator(IsOperator),
-        Precedence(Prec),
-        Line(Loc.Line) {
+    SourceLocation Loc, std::string Name, std::vector<std::string> Args)
+      : Name(std::move(Name)), Args(std::move(Args)), Line(Loc.Line) {
     this->kind = ExprKind::PrototypeKind;
   }
 
   const std::string& getName() const {
     return Name;
-  }
-
-  bool isUnaryOp() const {
-    return IsOperator && Args.size() == 1;
-  }
-
-  bool isBinaryOp() const {
-    return IsOperator && Args.size() == 2;
-  }
-
-  char getOperatorName() const {
-    assert(isUnaryOp() || isBinaryOp());
-    return Name[Name.size() - 1];
-  }
-
-  unsigned getBinaryPrecedence() const {
-    return Precedence;
   }
 
   int getLine() const {
