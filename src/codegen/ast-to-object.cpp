@@ -91,9 +91,6 @@ class ASTToObjectVisitor : public Visitor {
   virtual void clean() override;
 
   auto getFunction(std::string Name) -> void;
-  auto HandleDefinition() -> void;
-  auto HandleExtern() -> void;
-  auto HandleTopLevelExpression() -> void;
 };
 
 /**
@@ -650,61 +647,6 @@ static auto InitializeModuleAndPassManager() -> void {
 
   /** Create a new builder for the module. */
   Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
-}
-
-/**
- * @brief
- *
- */
-auto ASTToObjectVisitor::HandleDefinition() -> void {
-  if (auto FnAST = Parser::ParseDefinition()) {
-    // note: not sure if it would work properly
-    FnAST.get()->accept(this);
-    llvm::Function* FnIR = this->result_func;
-
-    if (FnIR) {
-      fprintf(stderr, "Read function definition:");
-      FnIR->print(llvm::errs());
-      fprintf(stderr, "\n");
-    }
-  } else {
-    //  Skip token for error recovery. //
-    Lexer::getNextToken();
-  }
-}
-
-/**
- * @brief
- *
- */
-auto ASTToObjectVisitor::HandleExtern() -> void {
-  if (auto ProtoAST = Parser::ParseExtern()) {
-    ProtoAST.get()->accept(this);
-    llvm::Function* FnIR = this->result_func;
-
-    if (FnIR) {
-      fprintf(stderr, "Read extern: ");
-      FnIR->print(llvm::errs());
-      fprintf(stderr, "\n");
-      FunctionProtos[ProtoAST->getName()] = std::move(ProtoAST);
-    }
-  } else {
-    //  Skip token for error recovery. //
-    Lexer::getNextToken();
-  }
-}
-
-/**
- * @brief Evaluate a top-level expression into an anonymous function.
- *
- */
-auto ASTToObjectVisitor::HandleTopLevelExpression() -> void {
-  if (auto FnAST = Parser::ParseTopLevelExpr()) {
-    FnAST.get()->accept(this);
-  } else {
-    //   Skip token for error recovery. //
-    Lexer::getNextToken();
-  }
 }
 
 /**
