@@ -65,6 +65,9 @@ void ExprAST::accept(Visitor* visitor) {
       std::cout << "[WW] Generic Kind doesn't have a downcasting";
     }
     default: {
+      std::cout << static_cast<std::underlying_type<ExprKind>::type>(
+                     this->kind)
+                << std::endl;
       std::cout << "[WW] DOWNCASTING MATCH FAILED";
       visitor->clean();
     }
@@ -488,10 +491,9 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
     return LogError<PrototypeAST>("Expected '(' in the function definition.");
   }
 
-  std::vector<std::string> ArgNames;
+  std::vector<VariableExprAST*> Args;
   while (Lexer::getNextToken() == tok_identifier) {
-    // std::cout << "[DEBUG] (" << Lexer::IdentifierStr << ")" << std::endl;
-    ArgNames.push_back(Lexer::IdentifierStr);
+    Args.push_back(new VariableExprAST(Lexer::CurLoc, Lexer::IdentifierStr));
   }
   if (Lexer::CurTok != ')') {
     return LogError<PrototypeAST>("Expected ')' in the function definition.");
@@ -506,7 +508,7 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
 
   Lexer::getNextToken();  // eat ':'.
 
-  return std::make_unique<PrototypeAST>(FnLoc, FnName, ArgNames);
+  return std::make_unique<PrototypeAST>(FnLoc, FnName, Args);
 }
 
 /**
@@ -537,7 +539,7 @@ std::unique_ptr<FunctionAST> Parser::ParseTopLevelExpr() {
   if (auto E = Parser::ParseExpression()) {
     // Make an anonymous proto.
     auto Proto = std::make_unique<PrototypeAST>(
-      FnLoc, "__anon_expr", std::vector<std::string>());
+      FnLoc, "__anon_expr", std::vector<VariableExprAST*>());
     return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
   }
   return nullptr;
@@ -557,15 +559,11 @@ auto Parser::parse() -> TreeAST* {
   TreeAST* ast = new TreeAST();
 
   while (true) {
-    // if (!ast->nodes.empty()) {
-    //   std::cout <<
-    //   static_cast<std::underlying_type<ExprKind>::type>(ast->nodes.back()->kind)
-    //   << std::endl;
-    // }
+    std::unique_ptr<ExprAST> node_uptr = nullptr;
 
     switch (Lexer::CurTok) {
       case tok_eof:
-        return std::move(ast);
+        return ast;
       case tok_not_initialized:
         Lexer::getNextToken();
         break;
@@ -574,13 +572,13 @@ auto Parser::parse() -> TreeAST* {
         // ignore top-level semicolons.
         break;
       case tok_function:
-        ast->nodes.push_back(Parser::ParseDefinition().get());
+        ast->nodes.emplace_back(std::move(Parser::ParseDefinition()));
         break;
       case tok_extern:
-        ast->nodes.push_back(Parser::ParseExtern().get());
+        ast->nodes.emplace_back(std::move(Parser::ParseExtern()));
         break;
       default:
-        ast->nodes.push_back(Parser::ParseTopLevelExpr().get());
+        ast->nodes.emplace_back(std::move(Parser::ParseTopLevelExpr()));
         break;
     }
   }

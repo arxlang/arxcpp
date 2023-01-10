@@ -85,8 +85,13 @@ test-gen-object:
 	./tests/scripts/test-gen-objects.sh ${ARGS}
 
 
+.PHONY: test-gen-ast
+test-gen-ast:
+	./tests/scripts/test-gen-ast.sh ${ARGS}
+
+
 .PHONY: test-examples
-test-examples: test-gen-object
+test-examples: test-gen-object test-gen-ast
 
 .ONESHELL:
 .PHONY: run-tests

@@ -38,7 +38,7 @@ extern bool INPUT_FROM_STDIN;
  * @param count
  *
  */
-auto main_open_shell(int count) {
+auto main_open_shell(int count) -> void {
   INPUT_FROM_STDIN = true;
   open_shell();
   exit(0);
@@ -59,10 +59,21 @@ auto main_show_version(int count) {
  * @brief
  *
  */
-auto main_compile() {
+auto main_show_ast(int count) -> void {
   load_input_to_buffer();
   TreeAST* ast = Parser::parse();
   print_ast(ast);
+  exit(0);
+}
+
+/**
+ * @brief
+ *
+ */
+auto main_compile() -> void {
+  load_input_to_buffer();
+  TreeAST* ast = Parser::parse();
+  compile(ast);
   exit(0);
 }
 
@@ -83,6 +94,7 @@ auto main(int argc, const char* argv[]) -> int {
   app.add_option("--input", INPUT_FILE, "Input file.");
   app.add_option("--output", OUTPUT_FILE, "Output file.");
   app.add_flag("--shell", main_open_shell, "Open Arx Shell.");
+  app.add_flag("--show-ast", main_show_ast, "Show AST from source.");
   app.add_flag("--version", main_show_version, "Show ArxLang version.");
 
   CLI11_PARSE(app, argc, argv);

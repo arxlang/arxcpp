@@ -563,7 +563,7 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
   // Set names for all arguments.
   unsigned Idx = 0;
   for (auto& Arg : F->args()) {
-    Arg.setName(expr->Args[Idx++]);
+    Arg.setName(expr->Args[Idx++]->Name);
   }
 
   codegen->result_func = F;

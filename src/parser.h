@@ -274,7 +274,7 @@ class VarExprAST : public ExprAST {
 class PrototypeAST : public ExprAST {
  public:
   std::string Name;
-  std::vector<std::string> Args;
+  std::vector<VariableExprAST*> Args;
   int Line;
 
   /**
@@ -283,7 +283,7 @@ class PrototypeAST : public ExprAST {
    * @param Args
    */
   PrototypeAST(
-    SourceLocation Loc, std::string Name, std::vector<std::string> Args)
+    SourceLocation Loc, std::string Name, std::vector<VariableExprAST*> Args)
       : Name(std::move(Name)), Args(std::move(Args)), Line(Loc.Line) {
     this->kind = ExprKind::PrototypeKind;
   }
@@ -320,7 +320,7 @@ class FunctionAST : public ExprAST {
 
 class TreeAST : public ExprAST {
  public:
-  std::vector<ExprAST*> nodes;
+  std::vector<std::unique_ptr<ExprAST>> nodes;
 };
 
 class Visitor {
