@@ -1,5 +1,6 @@
 #pragma once
 
-auto compile() -> void;
-auto compile_to_file() -> void;
+#include "parser.h"
+
+auto compile(TreeAST*) -> void;
 auto open_shell() -> void;

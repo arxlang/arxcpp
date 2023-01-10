@@ -10,10 +10,11 @@
 std::stringstream buffer;
 
 SourceLocation Lexer::CurLoc;
-std::string Lexer::IdentifierStr;  // Filled in if tok_identifier
-double Lexer::NumVal;              // Filled in if tok_number
-int Lexer::CurTok;
+std::string Lexer::IdentifierStr =
+  "<NOT DEFINED>";     // Filled in if tok_identifier
+double Lexer::NumVal;  // Filled in if tok_number
 SourceLocation Lexer::LexLoc;
+int Lexer::CurTok = tok_not_initialized;
 
 /**
  * @brief

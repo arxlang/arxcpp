@@ -32,16 +32,17 @@ namespace llvm {
 }
 
 enum class ExprKind {
-  NumberKind,
-  VariableKind,
-  UnaryKind,
-  BinaryKind,
-  CallKind,
-  IfKind,
-  ForKind,
-  VarKind,
-  PrototypeKind,
-  FunctionKind
+  NumberKind = 1,
+  VariableKind = 2,
+  UnaryKind = 3,
+  BinaryKind = 4,
+  CallKind = 5,
+  IfKind = 6,
+  ForKind = 7,
+  VarKind = 8,
+  PrototypeKind = 9,
+  FunctionKind = 10,
+  GenericKind = -1
 };
 
 class Visitor;
@@ -59,7 +60,9 @@ class ExprAST {
   /**
    * @param Loc
    */
-  ExprAST(SourceLocation Loc = Lexer::CurLoc) : Loc(Loc) {}
+  ExprAST(SourceLocation Loc = Lexer::CurLoc) : Loc(Loc) {
+    this->kind = ExprKind::GenericKind;
+  }
 
   virtual ~ExprAST() = default;
 
@@ -271,51 +274,22 @@ class VarExprAST : public ExprAST {
 class PrototypeAST : public ExprAST {
  public:
   std::string Name;
-  std::vector<std::string> Args;
-  bool IsOperator;
-  unsigned Precedence;  // Precedence if a binary op.
+  std::vector<VariableExprAST*> Args;
   int Line;
 
   /**
    * @param Loc
    * @param Name
    * @param Args
-   * @param IsOperator
-   * @param Prec
    */
   PrototypeAST(
-    SourceLocation Loc,
-    std::string Name,
-    std::vector<std::string> Args,
-    bool IsOperator = false,
-    unsigned Prec = 0)
-      : Name(std::move(Name)),
-        Args(std::move(Args)),
-        IsOperator(IsOperator),
-        Precedence(Prec),
-        Line(Loc.Line) {
+    SourceLocation Loc, std::string Name, std::vector<VariableExprAST*> Args)
+      : Name(std::move(Name)), Args(std::move(Args)), Line(Loc.Line) {
     this->kind = ExprKind::PrototypeKind;
   }
 
   const std::string& getName() const {
     return Name;
-  }
-
-  bool isUnaryOp() const {
-    return IsOperator && Args.size() == 1;
-  }
-
-  bool isBinaryOp() const {
-    return IsOperator && Args.size() == 2;
-  }
-
-  char getOperatorName() const {
-    assert(isUnaryOp() || isBinaryOp());
-    return Name[Name.size() - 1];
-  }
-
-  unsigned getBinaryPrecedence() const {
-    return Precedence;
   }
 
   int getLine() const {
@@ -344,6 +318,11 @@ class FunctionAST : public ExprAST {
   }
 };
 
+class TreeAST : public ExprAST {
+ public:
+  std::vector<std::unique_ptr<ExprAST>> nodes;
+};
+
 class Visitor {
  public:
   virtual void visit(NumberExprAST*) = 0;
@@ -370,15 +349,25 @@ class Parser {
     Parser::BinopPrecedence['-'] = 20;
     Parser::BinopPrecedence['*'] = 40;
   }
+
+  static auto parse() -> TreeAST*;
+
+  static auto GetTokPrecedence() -> int;
+
+  static std::unique_ptr<FunctionAST> ParseDefinition();
+  static std::unique_ptr<PrototypeAST> ParseExtern();
+  static std::unique_ptr<FunctionAST> ParseTopLevelExpr();
+  static std::unique_ptr<ExprAST> ParsePrimary();
+  static std::unique_ptr<ExprAST> ParseExpression();
+  static std::unique_ptr<IfExprAST> ParseIfExpr();
+  static std::unique_ptr<NumberExprAST> ParseNumberExpr();
+  static std::unique_ptr<ExprAST> ParseParenExpr();
+  static std::unique_ptr<ExprAST> ParseIdentifierExpr();
+  static std::unique_ptr<ForExprAST> ParseForExpr();
+  static std::unique_ptr<VarExprAST> ParseVarExpr();
+  static std::unique_ptr<ExprAST> ParseUnary();
+  static std::unique_ptr<ExprAST> ParseBinOpRHS(
+    int ExprPrec, std::unique_ptr<ExprAST> LHS);
+  static std::unique_ptr<PrototypeAST> ParsePrototype();
+  static std::unique_ptr<PrototypeAST> ParseExternPrototype();
 };
-
-std::unique_ptr<FunctionAST> ParseDefinition();
-std::unique_ptr<PrototypeAST> ParseExtern();
-std::unique_ptr<FunctionAST> ParseTopLevelExpr();
-
-std::unique_ptr<ExprAST> ParsePrimary();
-
-// declared as extern for testing //
-std::unique_ptr<ExprAST> ParseExpression();
-std::unique_ptr<IfExprAST> ParseIfExpr();
-std::unique_ptr<NumberExprAST> ParseNumberExpr();

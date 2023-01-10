@@ -90,12 +90,12 @@ TEST(ParserTest, ParseNumberExprTest) {
 
   tok = Lexer::getNextToken();  // update Lexer::CurTok
   EXPECT_EQ(tok, tok_number);
-  expr = ParseNumberExpr();
+  expr = Parser::ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 1);
   expr.reset();
 
-  expr = ParseNumberExpr();
+  expr = Parser::ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 2);
   expr.reset();
@@ -104,7 +104,7 @@ TEST(ParserTest, ParseNumberExprTest) {
 
   tok = Lexer::getNextToken();
   EXPECT_EQ(tok, tok_number);
-  expr = ParseNumberExpr();
+  expr = Parser::ParseNumberExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 3);
   expr.reset();
@@ -120,5 +120,5 @@ TEST(ParserTest, ParseIfExprTest) {
   )"""");
 
   Lexer::getNextToken();  // update Lexer::CurTok
-  auto expr = ParsePrimary();
+  auto expr = Parser::ParsePrimary();
 }

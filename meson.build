@@ -25,6 +25,7 @@ project_src_files = files(
   # note: note working yet
   # PROJECT_PATH + '/src/codegen/ast-to-llvm.cpp',
   PROJECT_PATH + '/src/codegen/ast-to-object.cpp',
+  PROJECT_PATH + '/src/codegen/ast-to-output.cpp',
   PROJECT_PATH + '/src/error.cpp',
   PROJECT_PATH + '/src/io.cpp',
   PROJECT_PATH + '/src/lexer.cpp',

@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-touch /tmp/src.arx
-cat > /tmp/src.arx <<- ARX
+TMP_DIR=/tmp/arx-tmp
+mkdir -p ${TMP_DIR}
+
+touch "${TMP_DIR}/fibonacci.arx"
+cat > "${TMP_DIR}/fibonacci.arx" <<- ARX
 function fib(x):
   if x < 3:
     1
   else:
     fib(x-1)+fib(x-2);
-
-fib(10)
-
 ARX
-arx < /tmp/src.arx
+
+arx --show-ast --input /tmp/src.arx
+arx --input "${TMP_DIR}/fibonacci.arx" --output "${TMP_DIR}/fibonacci.o"

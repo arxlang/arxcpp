@@ -32,6 +32,10 @@ clean-optional:
 	bash ./scripts/optclean.sh
 	mkdir -p build
 
+.PHONY: clean-gcda
+clean-gcda:
+	find . -name "*.gcda" -print0 | xargs -0 rm
+
 .ONESHELL:
 .PHONY: build
 build: clean-optional
@@ -53,7 +57,7 @@ build-dev:
 	export ASAN_OPTIONS="fast_unwind_on_malloc=0"
 	$(MAKE) build \
 		BUILD_TYPE="debug" \
-		ARGS="-Ddev=enabled -Db_coverage=true"  # -Db_sanitize=address
+		ARGS="-Ddev=enabled -Db_coverage=true -Doptimization=0"  # -Db_sanitize=address
 
 .ONESHELL:
 .PHONY: install
@@ -81,8 +85,13 @@ test-gen-object:
 	./tests/scripts/test-gen-objects.sh ${ARGS}
 
 
+.PHONY: test-gen-ast
+test-gen-ast:
+	./tests/scripts/test-gen-ast.sh ${ARGS}
+
+
 .PHONY: test-examples
-test-examples: test-gen-object
+test-examples: test-gen-object test-gen-ast
 
 .ONESHELL:
 .PHONY: run-tests
@@ -93,6 +102,14 @@ run-tests: test-sanitizer test-examples
 run-test-opt:
 	# it requires a program that reads dot files (e.g. xdot)
 	llvm-as < tests/t.ll | opt -analyze -view-cfg
+
+.PHONY: run-debug
+run-debug:
+	LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
+		--args build/arx \
+		--input `pwd`/examples/fibonacci.arx \
+		--output "/tmp/fibonacci"
+
 
 # DOCS
 # ====
