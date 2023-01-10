@@ -369,4 +369,5 @@ class Parser {
   static std::unique_ptr<ExprAST> ParseBinOpRHS(
     int ExprPrec, std::unique_ptr<ExprAST> LHS);
   static std::unique_ptr<PrototypeAST> ParsePrototype();
+  static std::unique_ptr<PrototypeAST> ParseExternPrototype();
 };

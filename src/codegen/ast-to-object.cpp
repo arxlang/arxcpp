@@ -71,6 +71,8 @@ class ASTToObjectVisitor : public Visitor {
   llvm::Value* result_val;
   llvm::Function* result_func;
 
+  std::map<std::string, llvm::AllocaInst*> NamedValues;
+
   ~ASTToObjectVisitor() {
     this->result_val = nullptr;
     this->result_func = nullptr;
@@ -87,6 +89,11 @@ class ASTToObjectVisitor : public Visitor {
   virtual void visit(PrototypeAST*) override;
   virtual void visit(FunctionAST*) override;
   virtual void clean() override;
+
+  auto getFunction(std::string Name) -> void;
+  auto HandleDefinition() -> void;
+  auto HandleExtern() -> void;
+  auto HandleTopLevelExpression() -> void;
 };
 
 /**
@@ -100,11 +107,8 @@ std::unique_ptr<llvm::Module> TheModule;
 std::unique_ptr<llvm::IRBuilder<>> Builder;
 llvm::ExitOnError ExitOnErr;
 
-std::map<std::string, llvm::AllocaInst*> NamedValues;
 std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
 std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
-
-auto codegen = new ASTToObjectVisitor();
 
 /**
  * @brief
@@ -115,15 +119,15 @@ auto codegen = new ASTToObjectVisitor();
  * module. If not, check whether we can codegen the declaration from some
  * existing prototype. If no existing prototype exists, return null.
  */
-static auto getFunction(std::string Name) -> void {
+auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
   if (auto* F = TheModule->getFunction(Name)) {
-    codegen->result_func = F;
+    this->result_func = F;
     return;
   }
 
   auto FI = FunctionProtos.find(Name);
   if (FI != FunctionProtos.end()) {
-    FI->second->accept(codegen);
+    FI->second->accept(this);
   };
 }
 
@@ -155,7 +159,7 @@ auto ASTToObjectVisitor::clean() -> void {
  *
  */
 auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
-  codegen->result_val =
+  this->result_val =
     llvm::ConstantFP::get(*TheContext, llvm::APFloat(expr->Val));
 }
 
@@ -165,14 +169,15 @@ auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
-  llvm::Value* V = NamedValues[expr->Name];
+  llvm::Value* V = this->NamedValues[expr->Name];
 
   if (!V) {
-    codegen->result_val = LogErrorV("Unknown variable name");
+    auto msg = std::string("Unknown variable name: ") + expr->Name;
+    this->result_val = LogErrorV(msg.c_str());
     return;
   }
 
-  codegen->result_val = Builder->CreateLoad(
+  this->result_val = Builder->CreateLoad(
     llvm::Type::getDoubleTy(*TheContext), V, expr->Name.c_str());
 }
 
@@ -182,22 +187,22 @@ auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
-  expr->Operand.get()->accept(codegen);
-  llvm::Value* OperandV = codegen->result_val;
+  expr->Operand.get()->accept(this);
+  llvm::Value* OperandV = this->result_val;
 
   if (!OperandV) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
-  getFunction(std::string("unary") + expr->Opcode);
-  llvm::Function* F = codegen->result_func;
+  this->getFunction(std::string("unary") + expr->Opcode);
+  llvm::Function* F = this->result_func;
   if (!F) {
-    codegen->result_val = LogErrorV("Unknown unary operator");
+    this->result_val = LogErrorV("Unknown unary operator");
     return;
   }
 
-  codegen->result_val = Builder->CreateCall(F, OperandV, "unop");
+  this->result_val = Builder->CreateCall(F, OperandV, "unop");
 }
 
 /**
@@ -215,66 +220,66 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     // to a dynamic_cast for automatic error checking.
     VariableExprAST* LHSE = static_cast<VariableExprAST*>(expr->LHS.get());
     if (!LHSE) {
-      codegen->result_val = LogErrorV("destination of '=' must be a variable");
+      this->result_val = LogErrorV("destination of '=' must be a variable");
       return;
     }
 
     // Codegen the RHS.//
-    expr->RHS.get()->accept(codegen);
-    llvm::Value* Val = codegen->result_val;
+    expr->RHS.get()->accept(this);
+    llvm::Value* Val = this->result_val;
 
     if (!Val) {
-      codegen->result_val = nullptr;
+      this->result_val = nullptr;
       return;
     };
 
     // Look up the name.//
-    llvm::Value* Variable = NamedValues[LHSE->getName()];
+    llvm::Value* Variable = this->NamedValues[LHSE->getName()];
     if (!Variable) {
-      codegen->result_val = LogErrorV("Unknown variable name");
+      this->result_val = LogErrorV("Unknown variable name");
       return;
     }
 
     Builder->CreateStore(Val, Variable);
-    codegen->result_val = Val;
+    this->result_val = Val;
   }
 
-  expr->LHS.get()->accept(codegen);
-  llvm::Value* L = codegen->result_val;
-  expr->RHS.get()->accept(codegen);
-  llvm::Value* R = codegen->result_val;
+  expr->LHS.get()->accept(this);
+  llvm::Value* L = this->result_val;
+  expr->RHS.get()->accept(this);
+  llvm::Value* R = this->result_val;
 
   if (!L || !R) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
   switch (expr->Op) {
     case '+':
-      codegen->result_val = Builder->CreateFAdd(L, R, "addtmp");
+      this->result_val = Builder->CreateFAdd(L, R, "addtmp");
       return;
     case '-':
-      codegen->result_val = Builder->CreateFSub(L, R, "subtmp");
+      this->result_val = Builder->CreateFSub(L, R, "subtmp");
       return;
     case '*':
-      codegen->result_val = Builder->CreateFMul(L, R, "multmp");
+      this->result_val = Builder->CreateFMul(L, R, "multmp");
       return;
     case '<':
       L = Builder->CreateFCmpULT(L, R, "cmptmp");
       // Convert bool 0/1 to double 0.0 or 1.0 //
-      codegen->result_val = Builder->CreateUIToFP(
+      this->result_val = Builder->CreateUIToFP(
         L, llvm::Type::getDoubleTy(*TheContext), "booltmp");
       return;
   }
 
   // If it wasn't a builtin binary operator, it must be a user defined
   // one. Emit a call to it.
-  getFunction(std::string("binary") + expr->Op);
-  llvm::Function* F = codegen->result_func;
+  this->getFunction(std::string("binary") + expr->Op);
+  llvm::Function* F = this->result_func;
   assert(F && "binary operator not found!");
 
   llvm::Value* Ops[] = {L, R};
-  codegen->result_val = Builder->CreateCall(F, Ops, "binop");
+  this->result_val = Builder->CreateCall(F, Ops, "binop");
 }
 
 /**
@@ -283,41 +288,41 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
-  getFunction(expr->Callee);
-  llvm::Function* CalleeF = codegen->result_func;
+  this->getFunction(expr->Callee);
+  llvm::Function* CalleeF = this->result_func;
   if (!CalleeF) {
-    codegen->result_val = LogErrorV("Unknown function referenced");
+    this->result_val = LogErrorV("Unknown function referenced");
     return;
   }
 
   if (CalleeF->arg_size() != expr->Args.size()) {
-    codegen->result_val = LogErrorV("Incorrect # arguments passed");
+    this->result_val = LogErrorV("Incorrect # arguments passed");
     return;
   }
 
   std::vector<llvm::Value*> ArgsV;
   for (unsigned i = 0, e = expr->Args.size(); i != e; ++i) {
-    expr->Args[i].get()->accept(codegen);
-    llvm::Value* ArgsV_item = codegen->result_val;
+    expr->Args[i].get()->accept(this);
+    llvm::Value* ArgsV_item = this->result_val;
     ArgsV.push_back(ArgsV_item);
     if (!ArgsV.back()) {
-      codegen->result_val = nullptr;
+      this->result_val = nullptr;
       return;
     }
   }
 
-  codegen->result_val = Builder->CreateCall(CalleeF, ArgsV, "calltmp");
+  this->result_val = Builder->CreateCall(CalleeF, ArgsV, "calltmp");
 }
 
 /**
  * @brief
  */
 auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
-  expr->Cond.get()->accept(codegen);
-  llvm::Value* CondV = codegen->result_val;
+  expr->Cond.get()->accept(this);
+  llvm::Value* CondV = this->result_val;
 
   if (!CondV) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
@@ -339,10 +344,10 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   // Emit then value.
   Builder->SetInsertPoint(ThenBB);
 
-  expr->Then.get()->accept(codegen);
-  llvm::Value* ThenV = codegen->result_val;
+  expr->Then.get()->accept(this);
+  llvm::Value* ThenV = this->result_val;
   if (!ThenV) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
@@ -355,10 +360,10 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   TheFunction->getBasicBlockList().push_back(ElseBB);
   Builder->SetInsertPoint(ElseBB);
 
-  expr->Else.get()->accept(codegen);
-  llvm::Value* ElseV = codegen->result_val;
+  expr->Else.get()->accept(this);
+  llvm::Value* ElseV = this->result_val;
   if (!ElseV) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
@@ -376,7 +381,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   PN->addIncoming(ThenV, ThenBB);
   PN->addIncoming(ElseV, ElseBB);
 
-  codegen->result_val = PN;
+  this->result_val = PN;
   return;
 }
 
@@ -388,10 +393,10 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
     CreateEntryBlockAlloca(TheFunction, expr->VarName);
 
   // Emit the start code first, without 'variable' in scope.
-  expr->Start.get()->accept(codegen);
-  llvm::Value* StartVal = codegen->result_val;
+  expr->Start.get()->accept(this);
+  llvm::Value* StartVal = this->result_val;
   if (!StartVal) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
@@ -413,27 +418,27 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Within the loop, the variable is defined equal to the PHI node.  If
   // it shadows an existing variable, we have to restore it, so save it
   // now.
-  llvm::AllocaInst* OldVal = NamedValues[expr->VarName];
-  NamedValues[expr->VarName] = Alloca;
+  llvm::AllocaInst* OldVal = this->NamedValues[expr->VarName];
+  this->NamedValues[expr->VarName] = Alloca;
 
   // Emit the body of the loop.  This, like any other expr, can change
   // the current BB.  Note that we ignore the value computed by the body,
   // but don't allow an error.
-  expr->Body.get()->accept(codegen);
-  llvm::Value* BodyVal = codegen->result_val;
+  expr->Body.get()->accept(this);
+  llvm::Value* BodyVal = this->result_val;
 
   if (!BodyVal) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
   if (expr->Step) {
-    expr->Step.get()->accept(codegen);
-    StepVal = codegen->result_val;
+    expr->Step.get()->accept(this);
+    StepVal = this->result_val;
     if (!StepVal) {
-      codegen->result_val = nullptr;
+      this->result_val = nullptr;
       return;
     }
   } else {
@@ -442,10 +447,10 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   }
 
   // Compute the end condition.
-  expr->End.get()->accept(codegen);
-  llvm::Value* EndCond = codegen->result_val;
+  expr->End.get()->accept(this);
+  llvm::Value* EndCond = this->result_val;
   if (!EndCond) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
@@ -474,13 +479,13 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 
   // Restore the unshadowed variable.
   if (OldVal) {
-    NamedValues[expr->VarName] = OldVal;
+    this->NamedValues[expr->VarName] = OldVal;
   } else {
-    NamedValues.erase(expr->VarName);
+    this->NamedValues.erase(expr->VarName);
   }
 
   // for expr always returns 0.0.
-  codegen->result_val =
+  this->result_val =
     llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*TheContext));
 }
 
@@ -507,10 +512,10 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 
     llvm::Value* InitVal = nullptr;
     if (Init) {
-      Init->accept(codegen);
-      InitVal = codegen->result_val;
+      Init->accept(this);
+      InitVal = this->result_val;
       if (!InitVal) {
-        codegen->result_val = nullptr;
+        this->result_val = nullptr;
         return;
       }
     } else {  // If not specified, use 0.0.
@@ -522,27 +527,27 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 
     // Remember the old variable binding so that we can restore the
     // binding when we unrecurse.
-    OldBindings.push_back(NamedValues[VarName]);
+    OldBindings.push_back(this->NamedValues[VarName]);
 
     // Remember this binding.
-    NamedValues[VarName] = Alloca;
+    this->NamedValues[VarName] = Alloca;
   }
 
   // Codegen the body, now that all vars are in scope.
-  expr->Body.get()->accept(codegen);
-  llvm::Value* BodyVal = codegen->result_val;
+  expr->Body.get()->accept(this);
+  llvm::Value* BodyVal = this->result_val;
   if (!BodyVal) {
-    codegen->result_val = nullptr;
+    this->result_val = nullptr;
     return;
   }
 
   // Pop all our variables from scope.
   for (unsigned i = 0, e = expr->VarNames.size(); i != e; ++i) {
-    NamedValues[expr->VarNames[i].first] = OldBindings[i];
+    this->NamedValues[expr->VarNames[i].first] = OldBindings[i];
   }
 
   // Return the body computation.
-  codegen->result_val = BodyVal;
+  this->result_val = BodyVal;
 }
 
 /**
@@ -566,7 +571,7 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
     Arg.setName(expr->Args[Idx++]->Name);
   }
 
-  codegen->result_func = F;
+  this->result_func = F;
 }
 
 /**
@@ -579,23 +584,23 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
 auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   auto& P = *(expr->Proto);
   FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
-  getFunction(P.getName());
-  llvm::Function* TheFunction = codegen->result_func;
+  this->getFunction(P.getName());
+  llvm::Function* TheFunction = this->result_func;
 
   if (!TheFunction) {
-    codegen->result_func = nullptr;
+    this->result_func = nullptr;
     return;
   }
 
   // Create a new basic block to start insertion into.
-  std::cout << "Create a new basic block to start insertion into";
+  // std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* BB =
     llvm::BasicBlock::Create(*TheContext, "entry", TheFunction);
   Builder->SetInsertPoint(BB);
 
   // Record the function arguments in the NamedValues map.
-  std::cout << "Record the function arguments in the NamedValues map.";
-  NamedValues.clear();
+  // std::cout << "Record the function arguments in the NamedValues map.";
+  this->NamedValues.clear();
 
   for (auto& Arg : TheFunction->args()) {
     // Create an alloca for this variable.
@@ -606,11 +611,11 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     Builder->CreateStore(&Arg, Alloca);
 
     // Add arguments to variable symbol table.
-    NamedValues[std::string(Arg.getName())] = Alloca;
+    this->NamedValues[std::string(Arg.getName())] = Alloca;
   }
 
-  expr->Body->accept(codegen);
-  llvm::Value* RetVal = codegen->result_val;
+  expr->Body->accept(this);
+  llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
     // Finish off the function.
@@ -619,14 +624,14 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
 
-    codegen->result_func = TheFunction;
+    this->result_func = TheFunction;
     return;
   }
 
   // Error reading body, remove function.
   TheFunction->eraseFromParent();
 
-  codegen->result_func = nullptr;
+  this->result_func = nullptr;
 }
 
 /**
@@ -651,11 +656,11 @@ static auto InitializeModuleAndPassManager() -> void {
  * @brief
  *
  */
-static auto HandleDefinition() -> void {
+auto ASTToObjectVisitor::HandleDefinition() -> void {
   if (auto FnAST = Parser::ParseDefinition()) {
     // note: not sure if it would work properly
-    FnAST.get()->accept(codegen);
-    llvm::Function* FnIR = codegen->result_func;
+    FnAST.get()->accept(this);
+    llvm::Function* FnIR = this->result_func;
 
     if (FnIR) {
       fprintf(stderr, "Read function definition:");
@@ -672,10 +677,10 @@ static auto HandleDefinition() -> void {
  * @brief
  *
  */
-static auto HandleExtern() -> void {
+auto ASTToObjectVisitor::HandleExtern() -> void {
   if (auto ProtoAST = Parser::ParseExtern()) {
-    ProtoAST.get()->accept(codegen);
-    llvm::Function* FnIR = codegen->result_func;
+    ProtoAST.get()->accept(this);
+    llvm::Function* FnIR = this->result_func;
 
     if (FnIR) {
       fprintf(stderr, "Read extern: ");
@@ -693,9 +698,9 @@ static auto HandleExtern() -> void {
  * @brief Evaluate a top-level expression into an anonymous function.
  *
  */
-static auto HandleTopLevelExpression() -> void {
+auto ASTToObjectVisitor::HandleTopLevelExpression() -> void {
   if (auto FnAST = Parser::ParseTopLevelExpr()) {
-    FnAST.get()->accept(codegen);
+    FnAST.get()->accept(this);
   } else {
     //   Skip token for error recovery. //
     Lexer::getNextToken();
@@ -706,24 +711,11 @@ static auto HandleTopLevelExpression() -> void {
  * @brief
  * top ::= definition | external | expression | ';'
  */
-static auto MainLoop() -> void {
-  while (true) {
-    switch (Lexer::CurTok) {
-      case tok_eof:
-        return;
-      case ';':  // ignore top-level semicolons.
-        Lexer::getNextToken();
-        break;
-      case tok_function:
-        HandleDefinition();
-        break;
-      case tok_extern:
-        HandleExtern();
-        break;
-      default:
-        HandleTopLevelExpression();
-        break;
-    }
+static auto MainLoop(TreeAST* ast) -> void {
+  auto codegen = new ASTToObjectVisitor();
+
+  for (auto node = ast->nodes.begin(); node != ast->nodes.end(); ++node) {
+    node->get()->accept(codegen);
   }
 }
 
@@ -767,7 +759,7 @@ auto compile(TreeAST* tree_ast) -> void {
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
 
-  MainLoop();
+  MainLoop(tree_ast);
 
   LOG(INFO) << "Initialize Target";
 
@@ -845,7 +837,7 @@ auto open_shell() -> void {
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile(nullptr);
+  compile(new TreeAST());
 
   exit(0);
 }

@@ -18,7 +18,7 @@ TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd ..
 ARX="${DEBUG} ./build/arx"
 MAIN_EXE="${TMP_DIR}/main"
 
-for test_name in "fibonacci" "sum" "average" "arithmetic-progression"; do
+for test_name in "fibonacci" "sum" "average" "print-star"; do
   print_header "${test_name}"
   ${ARX} --show-ast --input "examples/${test_name}.arx"
 done

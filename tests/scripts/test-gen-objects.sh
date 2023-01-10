@@ -18,12 +18,13 @@ TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd ..
 ARX="${DEBUG} ./build/arx"
 MAIN_EXE="${TMP_DIR}/main"
 
-for test_name in "fibonacci" "sum" "average" "arithmetic-progression"; do
+rm --force "${TMP_DIR}/*.o"
+
+for test_name in "fibonacci" "sum" "average" "print-star"; do
   print_header "${test_name}"
   OBJECT_FILE="${TMP_DIR}/${test_name}.o"
 
   ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
-  ls "${TMP_DIR}" | grep "\.o"
 
   clang++ \
     "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
