@@ -93,5 +93,6 @@
         "message": "chore(release): ${nextRelease.version}"
       }
     ]
-  ]
+  ],
+  "preset": "conventionalcommits"
 }
