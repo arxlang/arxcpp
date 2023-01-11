@@ -1,4 +1,4 @@
-#include "ast-to-output.h"
+#include "ast-to-stdout.h"
 #include <iostream>
 #include "parser.h"
 
@@ -21,7 +21,8 @@ class ASTToOutputVisitor : public Visitor {
   virtual void visit(VarExprAST*) override;
   virtual void visit(PrototypeAST*) override;
   virtual void visit(FunctionAST*) override;
-  virtual void clean() override{};
+
+  virtual void clean() override {}
 
   auto indentation() -> std::string {
     std::string _indent(this->indent, ' ');
@@ -30,13 +31,13 @@ class ASTToOutputVisitor : public Visitor {
 
   auto set_annotation(std::string annotation) -> void {
     this->annotation = annotation;
-  };
+  }
 
   auto get_annotation() -> std::string {
     std::string _anno = this->annotation;
     this->annotation = "";
     return _anno;
-  };
+  }
 };
 
 void ASTToOutputVisitor::visit(NumberExprAST* expr) {
@@ -173,14 +174,24 @@ void ASTToOutputVisitor::visit(ForExprAST* expr) {
 
 void ASTToOutputVisitor::visit(VarExprAST* expr) {
   // TODO: implement it
-  std::cout << "(VarExprAST"
-            << ")" << std::endl;
+  std::cout << "(VarExprAST " << std::endl;
+  this->indent += INDENT_SIZE;
+
+  for (auto var_expr = expr->VarNames.begin();
+       var_expr != expr->VarNames.end();
+       ++var_expr) {
+    var_expr->second->accept(this);
+    std::cout << "," << std::endl;
+  }
+
+  this->indent -= INDENT_SIZE;
+
+  std::cout << ")" << std::endl;
 }
 
 void ASTToOutputVisitor::visit(PrototypeAST* expr) {
   // TODO: implement it
-  std::cout << "(PrototypeAST"
-            << ")" << std::endl;
+  std::cout << "(PrototypeAST " << expr->Name << ")" << std::endl;
 }
 
 void ASTToOutputVisitor::visit(FunctionAST* expr) {

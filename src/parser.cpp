@@ -76,7 +76,7 @@ void ExprAST::accept(Visitor* visitor) {
 
 /**
  * @brief Get the precedence of the pending binary operator token.
- * @return
+ * @return The token precedence.
  *
  */
 auto Parser::GetTokPrecedence() -> int {
@@ -93,18 +93,18 @@ auto Parser::GetTokPrecedence() -> int {
 }
 
 /**
- * @brief
+ * @brief Parse the number expression.
  * @return
  * numberexpr ::= number
  */
 std::unique_ptr<NumberExprAST> Parser::ParseNumberExpr() {
   auto Result = std::make_unique<NumberExprAST>(Lexer::NumVal);
   Lexer::getNextToken();  // consume the number
-  return std::move(Result);
+  return Result;
 }
 
 /**
- * @brief
+ * @brief Parse the parenthesis expression.
  * @return
  * parenexpr ::= '(' expression ')'
  */
@@ -123,7 +123,7 @@ std::unique_ptr<ExprAST> Parser::ParseParenExpr() {
 }
 
 /**
- * @brief
+ * @brief Parse the identifier expression.
  * @return
  * identifierexpr
  *   ::= identifier
@@ -170,7 +170,7 @@ std::unique_ptr<ExprAST> Parser::ParseIdentifierExpr() {
 }
 
 /**
- * @brief
+ * @brief Parse the `if` expression.
  * @return
  * ifexpr ::= 'if' expression 'then' expression 'else' expression
  */
@@ -222,7 +222,7 @@ std::unique_ptr<IfExprAST> Parser::ParseIfExpr() {
 }
 
 /**
- * @brief
+ * @brief Parse the `for` expression.
  * @return
  * forexpr ::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
  */
@@ -284,7 +284,7 @@ std::unique_ptr<ForExprAST> Parser::ParseForExpr() {
 }
 
 /**
- * @brief
+ * @brief Parse the `var` declaration expression.
  * @return
  * varexpr ::= 'var' identifier ('=' expression)?
  *                    (',' identifier ('=' expression)?)* 'in' expression
@@ -343,7 +343,7 @@ std::unique_ptr<VarExprAST> Parser::ParseVarExpr() {
 }
 
 /**
- * @brief
+ * @brief Parse the primary expression.
  * @return
  * primary
  *   ::= identifierexpr
@@ -382,7 +382,7 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 }
 
 /**
- * @brief
+ * @brief Parse a unary expression.
  * @return
  * unary
  *   ::= primary
@@ -405,9 +405,9 @@ std::unique_ptr<ExprAST> Parser::ParseUnary() {
 }
 
 /**
- * @brief
- * @param ExprPrec
- * @param LHS
+ * @brief Parse a binary expression.
+ * @param ExprPrec Expression Pression (deprecated)
+ * @param LHS Left hand side Expression
  * @return
  * binoprhs
  *   ::= ('+' unary)*
@@ -452,7 +452,7 @@ std::unique_ptr<ExprAST> Parser::ParseBinOpRHS(
 }
 
 /**
- * @brief
+ * @brief Parse an expression.
  * @return
  * expression
  *   ::= unary binoprhs
@@ -468,7 +468,7 @@ std::unique_ptr<ExprAST> Parser::ParseExpression() {
 }
 
 /**
- * @brief
+ * @brief Parse an extern prototype expression.
  * @return
  * prototype
  *   ::= id '(' id* ')'
@@ -511,7 +511,7 @@ std::unique_ptr<PrototypeAST> Parser::ParseExternPrototype() {
 }
 
 /**
- * @brief
+ * @brief Parse the prototype expression.
  * @return
  * prototype
  *   ::= id '(' id* ')'
@@ -561,7 +561,7 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
 }
 
 /**
- * @brief
+ * @brief Parse the function definition expression.
  * @return
  * definition ::= 'function' prototype expression
  */
@@ -579,7 +579,7 @@ std::unique_ptr<FunctionAST> Parser::ParseDefinition() {
 }
 
 /**
- * @brief
+ * @brief Parse the top level expression.
  * @return
  * toplevelexpr ::= expression
  */
@@ -595,7 +595,7 @@ std::unique_ptr<FunctionAST> Parser::ParseTopLevelExpr() {
 }
 
 /**
- * @brief
+ * @brief Parse the extern expression;
  * @return
  * external ::= 'extern' prototype
  */
@@ -621,13 +621,13 @@ auto Parser::parse() -> TreeAST* {
         // ignore top-level semicolons.
         break;
       case tok_function:
-        ast->nodes.emplace_back(std::move(Parser::ParseDefinition()));
+        ast->nodes.emplace_back(Parser::ParseDefinition());
         break;
       case tok_extern:
-        ast->nodes.emplace_back(std::move(Parser::ParseExtern()));
+        ast->nodes.emplace_back(Parser::ParseExtern());
         break;
       default:
-        ast->nodes.emplace_back(std::move(Parser::ParseTopLevelExpr()));
+        ast->nodes.emplace_back(Parser::ParseTopLevelExpr());
         break;
     }
   }

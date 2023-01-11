@@ -17,9 +17,9 @@ SourceLocation Lexer::LexLoc;
 int Lexer::CurTok = tok_not_initialized;
 
 /**
- * @brief
- * @param Tok
- * @return
+ * @brief Get the Token name.
+ * @param Tok The token
+ * @return Token name
  *
  */
 auto Lexer::getTokName(int Tok) -> std::string {
@@ -59,9 +59,9 @@ auto Lexer::getTokName(int Tok) -> std::string {
 }
 
 /**
- * @brief
- * @param c
- * @return
+ * @brief Check if given character is a valid first identifier character.
+ * @param c A single character for checking the token
+ * @return true if the token is valid, otherwise, false.
  *
  */
 static auto is_identifier_first_char(char c) -> bool {
@@ -69,9 +69,9 @@ static auto is_identifier_first_char(char c) -> bool {
 }
 
 /**
- * @brief
- * @param c
- * @return
+ * @brief Check if the given character is a valid identifier char.
+ * @param c Given character from a token.
+ * @return true if the is a valid character, otherwise, false.
  *
  */
 static auto is_identifier_char(char c) -> bool {
@@ -79,8 +79,8 @@ static auto is_identifier_char(char c) -> bool {
 }
 
 /**
- * @brief
- * @return
+ * @brief advance the token from the buffer.
+ * @return Token in integer form.
  *
  */
 auto Lexer::advance() -> int {
@@ -96,7 +96,7 @@ auto Lexer::advance() -> int {
 }
 
 /**
- * @brief
+ * @brief Get the next token.
  * @return Return the next token from standard input.
  *
  */
@@ -186,7 +186,6 @@ auto Lexer::gettok() -> int {
 /**
  * @brief Provide a simple token buffer.
  * @return
-
  * CurTok is the current token the parser is looking at.
  * getNextToken reads another token from the lexer and updates
  * CurTok with its results.

@@ -106,9 +106,8 @@ class ASTToObjectVisitor : public Visitor {
 };
 
 /**
- * @brief
- * @param Name
- * @return
+ * @brief Put the function defined by the given name to result_func.
+ * @param Name Function name
  *
  * First, see if the function has already been added to the current
  * module. If not, check whether we can codegen the declaration from some
@@ -127,10 +126,10 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
 }
 
 /**
- * @brief
- * @param TheFunction
- * @param VarName
- * @return
+ * @brief Create the Entry Block Allocation.
+ * @param TheFunction The llvm function
+ * @param VarName The variable name
+ * @return An llvm allocation instance.
  *
  * CreateEntryBlockAlloca - Create an alloca instruction in the entry
  * block of the function.  This is used for mutable variables etc.
@@ -143,14 +142,17 @@ auto ASTToObjectVisitor::CreateEntryBlockAlloca(
     llvm::Type::getDoubleTy(*this->TheContext), nullptr, VarName);
 }
 
+/**
+ * @brief Set to nullptr result_val and result_func in order to avoid trash.
+ *
+ */
 auto ASTToObjectVisitor::clean() -> void {
   this->result_val = nullptr;
   this->result_func = nullptr;
 }
 
 /**
- * @brief
- * @return
+ * @brief Code generation for NumberExprAST.
  *
  */
 auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
@@ -159,7 +161,7 @@ auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
 }
 
 /**
- * @brief Stat a variable in the function.
+ * @brief Code generation for VariableExprAST.
  * @return The variable loaded into the llvm.
  *
  */
@@ -177,8 +179,7 @@ auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
 }
 
 /**
- * @brief
- * @return
+ * @brief Code generation for UnaryExprAST.
  *
  */
 auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
@@ -201,8 +202,7 @@ auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
 }
 
 /**
- * @brief
- * @return
+ * @brief Code generation for BinaryExprAST.
  *
  */
 auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
@@ -278,8 +278,7 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
 }
 
 /**
- * @brief Look up the name in the global module table.
- * @return
+ * @brief Code generation for CallExprAST.
  *
  */
 auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
@@ -310,7 +309,7 @@ auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
 }
 
 /**
- * @brief
+ * @brief Code generation for IfExprAST.
  */
 auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   expr->Cond.get()->accept(this);
@@ -384,6 +383,11 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   return;
 }
 
+/**
+ * @brief Code generation for ForExprAST.
+ *
+ * @param expr A `for` expression.
+ */
 auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   llvm::Function* TheFunction = this->Builder->GetInsertBlock()->getParent();
 
@@ -489,7 +493,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 }
 
 /**
- * @brief
+ * @brief Code generation for VarExprAST.
  * @return Return the body computation.
  *
  */
@@ -550,8 +554,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 }
 
 /**
- * @brief
- * @return
+ * @brief Code generation for PrototypeExprAST.
  *
  */
 auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
@@ -574,8 +577,7 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
 }
 
 /**
- * @brief
- * @return
+ * @brief Code generation for FunctionExprAST.
  *
  * Transfer ownership of the prototype to the FunctionProtos map, but
  * keep a reference to it for use below.
@@ -634,7 +636,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
 }
 
 /**
- * @brief Open a new module.
+ * @brief Initialize LLVM Module And PassManager.
  *
  */
 auto ASTToObjectVisitor::InitializeModuleAndPassManager() -> void {
@@ -647,7 +649,7 @@ auto ASTToObjectVisitor::InitializeModuleAndPassManager() -> void {
 }
 
 /**
- * @brief
+ * @brief The main loop that walks the AST.
  * top ::= definition | external | expression | ';'
  */
 auto ASTToObjectVisitor::MainLoop(TreeAST* ast) -> void {
@@ -685,8 +687,9 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
 }
 
 /**
- * @brief
+ * @brief Compile an AST to object file.
  *
+ * @param tree_ast The AST tree object.
  */
 auto compile(TreeAST* tree_ast) -> void {
   auto codegen = new ASTToObjectVisitor();
@@ -768,7 +771,7 @@ auto compile(TreeAST* tree_ast) -> void {
 }
 
 /**
- * @brief
+ * @brief Open the Arx shell.
  *
  */
 auto open_shell() -> void {

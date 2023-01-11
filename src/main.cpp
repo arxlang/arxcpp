@@ -22,7 +22,7 @@
 
 // #include "codegen/ast-to-llvm.h"
 #include "codegen/ast-to-object.h"
-#include "codegen/ast-to-output.h"
+#include "codegen/ast-to-stdout.h"
 
 #include "io.h"
 #include "parser.h"
@@ -34,32 +34,32 @@ extern std::string OUTPUT_FILE;
 extern bool INPUT_FROM_STDIN;
 
 /**
- * @brief
- * @param count
+ * @brief Open the Arx shell.
+ * @param count An internal value from CLI11.
  *
  */
-auto main_open_shell(int count) -> void {
+auto main_open_shell(__attribute__((unused)) int count) -> void {
   INPUT_FROM_STDIN = true;
   open_shell();
   exit(0);
 }
 
 /**
- * @brief
- * @param count
+ * @brief Show the Arx version number.
+ * @param count An internal value from CLI11.
  *
  */
-auto main_show_version(int count) {
+auto main_show_version(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
   show_version();
   exit(0);
 }
 
 /**
- * @brief
- *
+ * @brief Show the AST for the given source.
+ * @param count An internal value from CLI11.
  */
-auto main_show_ast(int count) -> void {
+auto main_show_ast(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
   TreeAST* ast = Parser::parse();
   print_ast(ast);
@@ -67,7 +67,7 @@ auto main_show_ast(int count) -> void {
 }
 
 /**
- * @brief
+ * @brief Compile the given source code.
  *
  */
 auto main_compile() -> void {
@@ -78,10 +78,10 @@ auto main_compile() -> void {
 }
 
 /**
- * @brief
- * @param argc
- * @param argv
- * @return
+ * @brief The main function.
+ * @param argc used by CLI11.
+ * @param argv used by CLI11.
+ * @return exit code.
  *
  */
 auto main(int argc, const char* argv[]) -> int {
