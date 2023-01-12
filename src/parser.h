@@ -84,10 +84,6 @@ class ExprAST {
  */
 class NumberExprAST : public ExprAST {
  public:
-  /**
-   *
-   * @return
-   */
   double Val;
 
   NumberExprAST(double Val) : Val(Val) {

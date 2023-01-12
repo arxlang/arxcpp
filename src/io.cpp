@@ -13,7 +13,7 @@ bool INPUT_FROM_STDIN = false;
 
 /**
  * @brief Get a char from the buffer of from the default input.
- * @return
+ * @return An integer represenation of a char from the buffer.
  *
  */
 auto get_char() -> int {

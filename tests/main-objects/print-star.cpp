@@ -5,7 +5,7 @@ double print_star(double);
 }
 
 extern "C" auto putchard(double X) -> double {
-  fputc((char) X, stderr);
+  fputc(static_cast<char>(X), stderr);
   return 0;
 }
 

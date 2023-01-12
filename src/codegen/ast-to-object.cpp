@@ -162,7 +162,6 @@ auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
 
 /**
  * @brief Code generation for VariableExprAST.
- * @return The variable loaded into the llvm.
  *
  */
 auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
@@ -494,7 +493,6 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 
 /**
  * @brief Code generation for VarExprAST.
- * @return Return the body computation.
  *
  */
 auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
@@ -673,7 +671,7 @@ auto ASTToObjectVisitor::MainLoop(TreeAST* ast) -> void {
  *
  */
 extern "C" DLLEXPORT auto putchard(double X) -> double {
-  fputc((char) X, stderr);
+  fputc(static_cast<char>(X), stderr);
   return 0;
 }
 

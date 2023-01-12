@@ -7,8 +7,6 @@
 #include "io.h"
 #include "lexer.h"
 
-std::stringstream buffer;
-
 SourceLocation Lexer::CurLoc;
 std::string Lexer::IdentifierStr =
   "<NOT DEFINED>";     // Filled in if tok_identifier
@@ -55,7 +53,7 @@ auto Lexer::getTokName(int Tok) -> std::string {
     case tok_const:
       return "const";
   }
-  return std::string(1, (char) Tok);
+  return std::string(1, static_cast<char>(Tok));
 }
 
 /**
@@ -105,14 +103,15 @@ auto Lexer::gettok() -> int {
 
   // Skip any whitespace.
   while (isspace(LastChar)) {
-    LastChar = (char) Lexer::advance();
+    LastChar = static_cast<char>(Lexer::advance());
   }
 
   Lexer::CurLoc = Lexer::LexLoc;
 
   if (is_identifier_first_char(LastChar)) {
-    Lexer::IdentifierStr = (char) LastChar;
-    while (is_identifier_char((LastChar = (char) Lexer::advance()))) {
+    Lexer::IdentifierStr = static_cast<char>(LastChar);
+    while (
+      is_identifier_char((LastChar = static_cast<char>(Lexer::advance())))) {
       Lexer::IdentifierStr += LastChar;
     }
 
@@ -153,8 +152,8 @@ auto Lexer::gettok() -> int {
   if (isdigit(LastChar) || LastChar == '.') {
     std::string NumStr;
     do {
-      NumStr += (char) LastChar;
-      LastChar = (char) Lexer::advance();
+      NumStr += static_cast<char>(LastChar);
+      LastChar = static_cast<char>(Lexer::advance());
     } while (isdigit(LastChar) || LastChar == '.');
 
     Lexer::NumVal = strtod(NumStr.c_str(), nullptr);
@@ -164,7 +163,7 @@ auto Lexer::gettok() -> int {
   // Comment until end of line.
   if (LastChar == '#') {
     do {
-      LastChar = advance();
+      LastChar = static_cast<char>(Lexer::advance());
     } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
     if (LastChar != EOF) {
@@ -179,7 +178,7 @@ auto Lexer::gettok() -> int {
 
   // Otherwise, just return the character as its ascii value.
   int ThisChar = LastChar;
-  LastChar = Lexer::advance();
+  LastChar = static_cast<char>(Lexer::advance());
   return ThisChar;
 }
 
