@@ -5,8 +5,7 @@
 
 namespace llvm {
   /**
-   * @brief
-   * "llvm/IR/Value.h"
+   * @brief "llvm/IR/Value.h"
    *
    */
   class Value;

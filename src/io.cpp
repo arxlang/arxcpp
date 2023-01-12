@@ -12,8 +12,8 @@ std::string OUTPUT_FILE{""};
 bool INPUT_FROM_STDIN = false;
 
 /**
- * @brief
- * @return
+ * @brief Get a char from the buffer of from the default input.
+ * @return An integer represenation of a char from the buffer.
  *
  */
 auto get_char() -> int {
@@ -24,7 +24,7 @@ auto get_char() -> int {
 }
 
 /**
- * @brief
+ * @brief Copy the file content to the buffer.
  *
  */
 auto file_to_buffer(std::string filename) -> void {
@@ -41,7 +41,7 @@ auto file_to_buffer(std::string filename) -> void {
 }
 
 /**
- * @brief
+ * @brief Copy the given string to the buffer.
  *
  */
 auto string_to_buffer(std::string value) -> void {
@@ -51,7 +51,7 @@ auto string_to_buffer(std::string value) -> void {
 }
 
 /**
- * @brief
+ * @brief Load the content file or the standard input to the buffer.
  *
  */
 auto load_input_to_buffer() -> void {

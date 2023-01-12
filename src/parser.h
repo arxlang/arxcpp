@@ -58,7 +58,7 @@ class ExprAST {
   SourceLocation Loc;
 
   /**
-   * @param Loc
+   * @param Loc The token location
    */
   ExprAST(SourceLocation Loc = Lexer::CurLoc) : Loc(Loc) {
     this->kind = ExprKind::GenericKind;
@@ -84,10 +84,6 @@ class ExprAST {
  */
 class NumberExprAST : public ExprAST {
  public:
-  /**
-   *
-   * @return
-   */
   double Val;
 
   NumberExprAST(double Val) : Val(Val) {
@@ -104,8 +100,8 @@ class VariableExprAST : public ExprAST {
   std::string Name;
 
   /**
-   * @param Loc
-   * @param Name
+   * @param Loc The token location
+   * @param Name The variable name
    */
   VariableExprAST(SourceLocation Loc, std::string Name)
       : ExprAST(Loc), Name(std::move(Name)) {
@@ -127,8 +123,8 @@ class UnaryExprAST : public ExprAST {
   std::unique_ptr<ExprAST> Operand;
 
   /**
-   * @param Opcode
-   * @param Operand
+   * @param Opcode The operator code
+   * @param Operand The operand expression
    */
   UnaryExprAST(char Opcode, std::unique_ptr<ExprAST> Operand)
       : Opcode(Opcode), Operand(std::move(Operand)) {
@@ -146,10 +142,10 @@ class BinaryExprAST : public ExprAST {
   std::unique_ptr<ExprAST> LHS, RHS;
 
   /**
-   * @param Loc
-   * @param Op
-   * @param LHS
-   * @param RHS
+   * @param Loc The token location
+   * @param Op The operator
+   * @param LHS The left hand side expression
+   * @param RHS The right hand side expression
    */
   BinaryExprAST(
     SourceLocation Loc,
@@ -171,9 +167,9 @@ class CallExprAST : public ExprAST {
   std::vector<std::unique_ptr<ExprAST>> Args;
 
   /**
-   * @param Loc
-   * @param Callee
-   * @param Args
+   * @param Loc The token location
+   * @param Callee The function name
+   * @param Args The function arguments
    */
   CallExprAST(
     SourceLocation Loc,
@@ -193,10 +189,10 @@ class IfExprAST : public ExprAST {
   std::unique_ptr<ExprAST> Cond, Then, Else;
 
   /**
-   * @param Loc
-   * @param Cond
-   * @param Then
-   * @param Else
+   * @param Loc The token location
+   * @param Cond The conditional expression
+   * @param Then The `then` branch expression
+   * @param Else The `else` branch expression
    */
   IfExprAST(
     SourceLocation Loc,
@@ -222,11 +218,11 @@ class ForExprAST : public ExprAST {
   std::unique_ptr<ExprAST> Start, End, Step, Body;
 
   /**
-   * @param VarName
-   * @param Start
-   * @param End
-   * @param Step
-   * @param Body
+   * @param VarName The variable name
+   * @param Start The `start` parameter for the loop
+   * @param End The `end` parameter for the loop
+   * @param Step The incremental value for the loop
+   * @param Body The body of the for the loop.
    */
   ForExprAST(
     std::string VarName,
@@ -254,8 +250,8 @@ class VarExprAST : public ExprAST {
   std::unique_ptr<ExprAST> Body;
 
   /**
-   * @param VarNames
-   * @param Body
+   * @param VarNames Variable names
+   * @param Body Body of the variables
    */
   VarExprAST(
     std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> VarNames,
@@ -278,9 +274,9 @@ class PrototypeAST : public ExprAST {
   int Line;
 
   /**
-   * @param Loc
-   * @param Name
-   * @param Args
+   * @param Loc The token location
+   * @param Name The prototype name
+   * @param Args The prototype arguments
    */
   PrototypeAST(
     SourceLocation Loc, std::string Name, std::vector<VariableExprAST*> Args)
@@ -308,8 +304,8 @@ class FunctionAST : public ExprAST {
   std::unique_ptr<ExprAST> Body;
 
   /**
-   * @param Proto
-   * @param Body
+   * @param Proto The function prototype
+   * @param Body The function body
    */
   FunctionAST(
     std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)

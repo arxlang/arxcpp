@@ -58,9 +58,9 @@ namespace llvm {
 
      public:
       /**
-       * @param ES
-       * @param JTMB
-       * @param DL
+       * @param ES ExecutionSession
+       * @param JTMB JITTargetMachineBuilder
+       * @param DL DataLayout
        */
       ArxJIT(
         std::unique_ptr<ExecutionSession> ES,

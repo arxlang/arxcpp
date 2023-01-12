@@ -8,10 +8,10 @@
 extern std::string ARX_VERSION;
 
 /**
- * @brief
- * @param O
- * @param size
- * @return
+ * @brief Ident the output.
+ * @param O Buffer used by the indentation.
+ * @param size Buffer size.
+ * @return a buffer with the indentation with given width.
  *
  */
 auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
@@ -19,7 +19,7 @@ auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
 }
 
 /**
- * @brief
+ * @brief Show the Arx version.
  *
  */
 auto show_version() -> void {
