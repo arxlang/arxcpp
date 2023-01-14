@@ -109,7 +109,7 @@ class ASTToLLVMIRVisitor : public Visitor {
   auto CreateEntryBlockAlloca(
     llvm::Function* TheFunction, llvm::StringRef VarName) -> llvm::AllocaInst*;
   auto MainLoop(TreeAST* ast) -> void;
-  auto InitializeModuleAndPassManager() -> void;
+  auto Initialize() -> void;
 
   auto CreateFunctionType(unsigned NumArgs) -> llvm::DISubroutineType* {
     llvm::SmallVector<llvm::Metadata*, 8> EltTys;
@@ -759,14 +759,17 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
  * @brief Initialize LLVM Module And PassManager.
  *
  */
-auto ASTToLLVMIRVisitor::InitializeModuleAndPassManager() -> void {
+auto ASTToLLVMIRVisitor::Initialize() -> void {
   this->TheContext = std::make_unique<llvm::LLVMContext>();
   this->TheModule =
     std::make_unique<llvm::Module>("arx jit", *this->TheContext);
-  this->TheModule->setDataLayout(TheJIT->getDataLayout());
+
+  this->TheJIT = this->ExitOnErr(llvm::orc::ArxJIT::Create());
+  this->TheModule->setDataLayout(this->TheJIT->getDataLayout());
 
   /** Create a new builder for the module. */
   this->Builder = std::make_unique<llvm::IRBuilder<>>(*this->TheContext);
+  this->DBuilder = std::make_unique<llvm::DIBuilder>(*this->TheModule);
 }
 
 /**
@@ -789,13 +792,15 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
 
   Lexer::getNextToken();
 
-  codegen->InitializeModuleAndPassManager();
+  // Initialize the target registry etc.
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetAsmParser();
+
+  codegen->Initialize();
 
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
-
-  // Construct the DIBuilder, we do this here because we need the module.
-  codegen->DBuilder = std::make_unique<llvm::DIBuilder>(*codegen->TheModule);
 
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
@@ -803,30 +808,12 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
   codegen->TheCU = codegen->DBuilder->createCompileUnit(
     llvm::dwarf::DW_LANG_C,
     codegen->DBuilder->createFile("fib.ks", "."),
-    "Kaleidoscope Compiler",
+    "Arx Compiler",
     false,
     "",
     0);
 
-  codegen->MainLoop(ast);
-
   LOG(INFO) << "Initialize Target";
-
-  // Initialize the target registry etc.
-  /*
-  llvm::InitializeAllTargetInfos();
-  llvm::InitializeAllTargets();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmParsers();
-  llvm::InitializeAllAsmPrinters();
-  */
-  llvm::InitializeNativeTarget();
-  llvm::InitializeNativeTargetAsmPrinter();
-  llvm::InitializeNativeTargetAsmParser();
-
-  codegen->TheJIT = codegen->ExitOnErr(llvm::orc::ArxJIT::Create());
-
-  codegen->InitializeModuleAndPassManager();
 
   // Add the current debug info version into the module.
   codegen->TheModule->addModuleFlag(

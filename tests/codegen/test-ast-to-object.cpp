@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-// #include "../src/codegen/ast-to-llvm.h"
 #include "../src/codegen/ast-to-object.h"
 #include "../src/io.h"
 
@@ -15,5 +14,5 @@ TEST(CodeGenTest, ObjectGeneration) {
 
   auto ast = new TreeAST();
 
-  compile(ast);
+  compile_object(ast);
 }
