@@ -20,7 +20,7 @@
 
 #include <glog/logging.h>
 
-// #include "codegen/ast-to-llvm.h"
+#include "codegen/ast-to-llvm-ir.h"
 #include "codegen/ast-to-object.h"
 #include "codegen/ast-to-stdout.h"
 
@@ -40,7 +40,7 @@ extern bool INPUT_FROM_STDIN;
  */
 auto main_open_shell(__attribute__((unused)) int count) -> void {
   INPUT_FROM_STDIN = true;
-  open_shell();
+  open_shell_object();
   exit(0);
 }
 
@@ -73,7 +73,7 @@ auto main_show_ast(__attribute__((unused)) int count) -> void {
 auto main_compile() -> void {
   load_input_to_buffer();
   TreeAST* ast = Parser::parse();
-  compile(ast);
+  compile_object(ast);
   exit(0);
 }
 

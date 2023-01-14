@@ -66,7 +66,7 @@ extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern std::string ARX_VERSION;
 
-class ASTToObjectVisitor : public Visitor {
+class ASTToLLVMIRVisitor : public Visitor {
  public:
   llvm::Value* result_val;
   llvm::Function* result_func;
@@ -76,12 +76,19 @@ class ASTToObjectVisitor : public Visitor {
   std::unique_ptr<llvm::LLVMContext> TheContext;
   std::unique_ptr<llvm::Module> TheModule;
   std::unique_ptr<llvm::IRBuilder<>> Builder;
-  // llvm::ExitOnError ExitOnErr;
+  std::unique_ptr<llvm::DIBuilder> DBuilder;
+
+  llvm::ExitOnError ExitOnErr;
 
   std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
   std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
 
-  ~ASTToObjectVisitor() {
+  // DebugInfo
+  llvm::DICompileUnit* TheCU;
+  llvm::DIType* DblTy;
+  std::vector<llvm::DIScope*> LexicalBlocks;
+
+  ~ASTToLLVMIRVisitor() {
     this->result_val = nullptr;
     this->result_func = nullptr;
   }
@@ -103,6 +110,25 @@ class ASTToObjectVisitor : public Visitor {
     llvm::Function* TheFunction, llvm::StringRef VarName) -> llvm::AllocaInst*;
   auto MainLoop(TreeAST* ast) -> void;
   auto InitializeModuleAndPassManager() -> void;
+
+  auto CreateFunctionType(unsigned NumArgs) -> llvm::DISubroutineType* {
+    llvm::SmallVector<llvm::Metadata*, 8> EltTys;
+    llvm::DIType* DblTy = this->getDoubleTy();
+
+    // Add the result type.
+    EltTys.push_back(DblTy);
+
+    for (unsigned i = 0, e = NumArgs; i != e; ++i) {
+      EltTys.push_back(DblTy);
+    }
+
+    return this->DBuilder->createSubroutineType(
+      this->DBuilder->getOrCreateTypeArray(EltTys));
+  }
+
+  // DebugInfo
+  void emitLocation(ExprAST* AST);
+  llvm::DIType* getDoubleTy();
 };
 
 /**
@@ -113,7 +139,7 @@ class ASTToObjectVisitor : public Visitor {
  * module. If not, check whether we can codegen the declaration from some
  * existing prototype. If no existing prototype exists, return null.
  */
-auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
+auto ASTToLLVMIRVisitor::getFunction(std::string Name) -> void {
   if (auto* F = this->TheModule->getFunction(Name)) {
     this->result_func = F;
     return;
@@ -134,7 +160,7 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
  * CreateEntryBlockAlloca - Create an alloca instruction in the entry
  * block of the function.  This is used for mutable variables etc.
  */
-auto ASTToObjectVisitor::CreateEntryBlockAlloca(
+auto ASTToLLVMIRVisitor::CreateEntryBlockAlloca(
   llvm::Function* TheFunction, llvm::StringRef VarName) -> llvm::AllocaInst* {
   llvm::IRBuilder<> TmpB(
     &TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
@@ -146,16 +172,46 @@ auto ASTToObjectVisitor::CreateEntryBlockAlloca(
  * @brief Set to nullptr result_val and result_func in order to avoid trash.
  *
  */
-auto ASTToObjectVisitor::clean() -> void {
+auto ASTToLLVMIRVisitor::clean() -> void {
   this->result_val = nullptr;
   this->result_func = nullptr;
+}
+
+// DebugInfo
+
+auto ASTToLLVMIRVisitor::getDoubleTy() -> llvm::DIType* {
+  if (this->DblTy) {
+    return this->DblTy;
+  }
+
+  DblTy =
+    this->DBuilder->createBasicType("double", 64, llvm::dwarf::DW_ATE_float);
+  return DblTy;
+}
+
+auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
+  if (!AST) {
+    return this->Builder->SetCurrentDebugLocation(llvm::DebugLoc());
+  }
+
+  llvm::DIScope* Scope;
+  if (this->LexicalBlocks.empty()) {
+    Scope = TheCU;
+  } else {
+    Scope = this->LexicalBlocks.back();
+  }
+
+  this->Builder->SetCurrentDebugLocation(llvm::DILocation::get(
+    Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
 }
 
 /**
  * @brief Code generation for NumberExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(NumberExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   this->result_val =
     llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(expr->Val));
 }
@@ -164,7 +220,9 @@ auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
  * @brief Code generation for VariableExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(VariableExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   llvm::Value* V = this->NamedValues[expr->Name];
 
   if (!V) {
@@ -181,7 +239,9 @@ auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
  * @brief Code generation for UnaryExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(UnaryExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   expr->Operand.get()->accept(this);
   llvm::Value* OperandV = this->result_val;
 
@@ -204,7 +264,9 @@ auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
  * @brief Code generation for BinaryExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(BinaryExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   //  Special case '=' because we don't want to emit the LHS as an
   // expression.*/
   if (expr->Op == '=') {
@@ -280,7 +342,9 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
  * @brief Code generation for CallExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(CallExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   this->getFunction(expr->Callee);
   llvm::Function* CalleeF = this->result_func;
   if (!CalleeF) {
@@ -310,7 +374,9 @@ auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
 /**
  * @brief Code generation for IfExprAST.
  */
-auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(IfExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   expr->Cond.get()->accept(this);
   llvm::Value* CondV = this->result_val;
 
@@ -387,7 +453,9 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
  *
  * @param expr A `for` expression.
  */
-auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(ForExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   llvm::Function* TheFunction = this->Builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
@@ -495,7 +563,9 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
  * @brief Code generation for VarExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(VarExprAST* expr) -> void {
+  this->emitLocation(expr);
+
   std::vector<llvm::AllocaInst*> OldBindings;
 
   llvm::Function* TheFunction = this->Builder->GetInsertBlock()->getParent();
@@ -555,7 +625,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
  * @brief Code generation for PrototypeExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(PrototypeAST* expr) -> void {
   // Make the function type:  double(double,double) etc.
   std::vector<llvm::Type*> Doubles(
     expr->Args.size(), llvm::Type::getDoubleTy(*this->TheContext));
@@ -580,7 +650,7 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
  * Transfer ownership of the prototype to the FunctionProtos map, but
  * keep a reference to it for use below.
  */
-auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   auto& P = *(expr->Proto);
   FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
   this->getFunction(P.getName());
@@ -597,14 +667,57 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     llvm::BasicBlock::Create(*this->TheContext, "entry", TheFunction);
   this->Builder->SetInsertPoint(BB);
 
+  /* debugging-code:start*/
+  // Create a subprogram DIE for this function.
+  llvm::DIFile* Unit = this->DBuilder->createFile(
+    this->TheCU->getFilename(), this->TheCU->getDirectory());
+  llvm::DIScope* FContext = Unit;
+  unsigned LineNo = P.getLine();
+  unsigned ScopeLine = LineNo;
+  llvm::DISubprogram* SP = this->DBuilder->createFunction(
+    FContext,
+    P.getName(),
+    llvm::StringRef(),
+    Unit,
+    LineNo,
+    CreateFunctionType(TheFunction->arg_size()),
+    ScopeLine,
+    llvm::DINode::FlagPrototyped,
+    llvm::DISubprogram::SPFlagDefinition);
+  TheFunction->setSubprogram(SP);
+
+  // Push the current scope.
+  this->LexicalBlocks.push_back(SP);
+
+  // Unset the location for the prologue emission (leading instructions with no
+  // location in a function are considered part of the prologue and the
+  // debugger will run past them when breaking on a function)
+  this->emitLocation(nullptr);
+  /* debugging-code:end*/
+
   // Record the function arguments in the NamedValues map.
   // std::cout << "Record the function arguments in the NamedValues map.";
   this->NamedValues.clear();
 
+  unsigned ArgIdx = 0;
   for (auto& Arg : TheFunction->args()) {
     // Create an alloca for this variable.
     llvm::AllocaInst* Alloca =
       CreateEntryBlockAlloca(TheFunction, Arg.getName());
+
+    /* debugging-code: start */
+    // Create a debug descriptor for the variable.
+    llvm::DILocalVariable* D = this->DBuilder->createParameterVariable(
+      SP, Arg.getName(), ++ArgIdx, Unit, LineNo, this->getDoubleTy(), true);
+
+    this->DBuilder->insertDeclare(
+      Alloca,
+      D,
+      this->DBuilder->createExpression(),
+      llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
+      this->Builder->GetInsertBlock());
+
+    /* debugging-code-end */
 
     // Store the initial value into the alloca.
     this->Builder->CreateStore(&Arg, Alloca);
@@ -613,12 +726,17 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     this->NamedValues[std::string(Arg.getName())] = Alloca;
   }
 
+  this->emitLocation(expr->Body.get());
+
   expr->Body->accept(this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
     // Finish off the function.
     this->Builder->CreateRet(RetVal);
+
+    // Pop off the lexical block for the function.
+    this->LexicalBlocks.pop_back();
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
@@ -631,16 +749,21 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   TheFunction->eraseFromParent();
 
   this->result_func = nullptr;
+
+  // Pop off the lexical block for the function since we added it
+  // unconditionally.
+  this->LexicalBlocks.pop_back();
 }
 
 /**
  * @brief Initialize LLVM Module And PassManager.
  *
  */
-auto ASTToObjectVisitor::InitializeModuleAndPassManager() -> void {
+auto ASTToLLVMIRVisitor::InitializeModuleAndPassManager() -> void {
   this->TheContext = std::make_unique<llvm::LLVMContext>();
   this->TheModule =
     std::make_unique<llvm::Module>("arx jit", *this->TheContext);
+  this->TheModule->setDataLayout(TheJIT->getDataLayout());
 
   /** Create a new builder for the module. */
   this->Builder = std::make_unique<llvm::IRBuilder<>>(*this->TheContext);
@@ -650,47 +773,19 @@ auto ASTToObjectVisitor::InitializeModuleAndPassManager() -> void {
  * @brief The main loop that walks the AST.
  * top ::= definition | external | expression | ';'
  */
-auto ASTToObjectVisitor::MainLoop(TreeAST* ast) -> void {
+auto ASTToLLVMIRVisitor::MainLoop(TreeAST* ast) -> void {
   for (auto node = ast->nodes.begin(); node != ast->nodes.end(); ++node) {
     node->get()->accept(this);
   }
 }
 
-//===----------------------------------------------------------------------===
-// "Library" functions that can be "extern'd" from user code.
-//===----------------------------------------------------------------------===
-
-#ifdef _WIN32
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define DLLEXPORT
-#endif
-
-/**
- * @brief putchar that takes a double and returns 0.
- *
- */
-extern "C" DLLEXPORT auto putchard(double X) -> double {
-  fputc(static_cast<char>(X), stderr);
-  return 0;
-}
-
-/**
- * @brief printf that takes a double prints it as "%f\n", returning 0.
- *
- */
-extern "C" DLLEXPORT auto printd(double X) -> double {
-  fprintf(stderr, "%f\n", X);
-  return 0;
-}
-
 /**
  * @brief Compile an AST to object file.
  *
- * @param tree_ast The AST tree object.
+ * @param ast The AST tree object.
  */
-auto compile_object(TreeAST* tree_ast) -> void {
-  auto codegen = new ASTToObjectVisitor();
+auto compile_llvm_ir(TreeAST* ast) -> void {
+  auto codegen = new ASTToLLVMIRVisitor();
 
   Lexer::getNextToken();
 
@@ -699,85 +794,84 @@ auto compile_object(TreeAST* tree_ast) -> void {
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
 
-  codegen->MainLoop(tree_ast);
+  // Construct the DIBuilder, we do this here because we need the module.
+  codegen->DBuilder = std::make_unique<llvm::DIBuilder>(*codegen->TheModule);
+
+  // Create the compile unit for the module.
+  // Currently down as "fib.ks" as a filename since we're redirecting stdin
+  // but we'd like actual source locations.
+  codegen->TheCU = codegen->DBuilder->createCompileUnit(
+    llvm::dwarf::DW_LANG_C,
+    codegen->DBuilder->createFile("fib.ks", "."),
+    "Kaleidoscope Compiler",
+    false,
+    "",
+    0);
+
+  codegen->MainLoop(ast);
 
   LOG(INFO) << "Initialize Target";
 
   // Initialize the target registry etc.
+  /*
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
+  */
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetAsmParser();
 
-  LOG(INFO) << "TargetTriple";
+  codegen->TheJIT = codegen->ExitOnErr(llvm::orc::ArxJIT::Create());
 
-  auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-  codegen->TheModule->setTargetTriple(TargetTriple);
+  codegen->InitializeModuleAndPassManager();
 
-  std::string Error;
-  auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+  // Add the current debug info version into the module.
+  codegen->TheModule->addModuleFlag(
+    llvm::Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
 
-  // Print an error and exit if we couldn't find the requested target.
-  // This generally occurs if we've forgotten to initialise the
-  // TargetRegistry or we have a bogus target triple.
-  if (!Target) {
-    llvm::errs() << Error;
-    exit(1);
+  // Darwin only supports dwarf2.
+  if (llvm::Triple(llvm::sys::getProcessTriple()).isOSDarwin()) {
+    codegen->TheModule->addModuleFlag(
+      llvm::Module::Warning, "Dwarf Version", 2);
   }
 
-  auto CPU = "generic";
-  auto Features = "";
+  // Construct the DIBuilder, we do this here because we need the module.
+  codegen->DBuilder = std::make_unique<llvm::DIBuilder>(*codegen->TheModule);
 
-  LOG(INFO) << "Target Options";
+  // Create the compile unit for the module.
+  // Currently down as "fib.ks" as a filename since we're redirecting stdin
+  // but we'd like actual source locations.
+  codegen->TheCU = codegen->DBuilder->createCompileUnit(
+    llvm::dwarf::DW_LANG_C,
+    codegen->DBuilder->createFile("fib.arxks", "."),
+    "Arx Compiler",
+    false,
+    "",
+    0);
 
-  llvm::TargetOptions opt;
-  auto RM = llvm::Optional<llvm::Reloc::Model>();
+  // Run the main "interpreter loop" now.
+  codegen->MainLoop(ast);
 
-  LOG(INFO) << "Target Matchine";
-  auto TheTargetMachine =
-    Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+  // Finalize the debug info.
+  codegen->DBuilder->finalize();
 
-  LOG(INFO) << "Set Data Layout";
-
-  codegen->TheModule->setDataLayout(TheTargetMachine->createDataLayout());
-
-  LOG(INFO) << "dest output";
-  std::error_code EC;
-
-  if (OUTPUT_FILE == "") {
-    OUTPUT_FILE = "./output.o";
-  }
-
-  llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
-
-  if (EC) {
-    llvm::errs() << "Could not open file: " << EC.message();
-    exit(1);
-  }
-
-  llvm::legacy::PassManager pass;
-  auto FileType = llvm::CGFT_ObjectFile;
-
-  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
-    llvm::errs() << "TheTargetMachine can't emit a file of this type";
-    exit(1);
-  }
-
-  pass.run(*codegen->TheModule);
-  dest.flush();
+  // Print out all of the generated code.
+  codegen->TheModule->print(llvm::errs(), nullptr);
 }
 
 /**
  * @brief Open the Arx shell.
  *
  */
-auto open_shell_object() -> void {
+auto open_shell_llvm_ir() -> void {
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile_object(new TreeAST());
+  compile_llvm_ir(new TreeAST());
 
   exit(0);
 }
