@@ -132,8 +132,8 @@ docs-build: docs-clean docs-api
 	echo "arxlang.org" > ./build/CNAME
 
 
-.PHONY: docs-watch
-docs-watch: docs-clean docs-api
+.PHONY: docs-preview
+docs-preview: docs-clean docs-api
 	mkdocs serve --watch docs
 
 
