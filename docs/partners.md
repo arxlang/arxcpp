@@ -5,7 +5,7 @@
     <div class="card cols-3">
       <div class="card-title px-3 pt-3">
         <a href="https://opensciencelabs.org/">
-          <img src="https://opensciencelabs.org/images/logo.png"
+          <img src="https://opensciencelabs.org/icons/logo-osl.svg"
             class="card-img-top"
             style="width:150px"
             alt="Open Science Labs" />

@@ -172,8 +172,8 @@
 				var sh, wh, st;
 
 				// Reset scroll position to 0 if it's 1.
-					if ($window.scrollTop() == 1)
-						$window.scrollTop(0);
+				if ($window.scrollTop() == 1)
+					$window.scrollTop(0);
 
 				$window
 					.on('scroll.sidebar-lock', function() {
