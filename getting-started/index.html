@@ -10,15 +10,14 @@
 	<link rel="stylesheet" href="/assets/css/main.css" />
 	<link rel="stylesheet" href="/assets/css/custom.css" />
 	<link
-		href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+		href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
 		rel="stylesheet"
-		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
 		crossorigin="anonymous">
 	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-		crossorigin="anonymous">
-		</script>
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+		crossorigin="anonymous"></script>
 </head>
 
 <body class="is-preload">
@@ -28,6 +27,101 @@
 
 		<!-- Main -->
 		<div id="main">
+			<nav class="navbar navbar-expand-lg bg-light">
+				<div class="container-fluid">
+					<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+						data-bs-target="#navbarSupportedContent"
+						aria-controls="navbarSupportedContent" aria-expanded="false"
+						aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						
+						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+							
+
+							
+
+							<li class="nav-item">
+								<a href=".." class="nav-link">Home</a>
+							</li>
+							
+							
+
+							
+							<li class="nav-item">
+								
+								
+								<a href="../tutorials/" class="nav-link">Tutorials</a>
+								
+								
+								
+								
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="./" class="nav-link">Getting Started</a>
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="/api/" class="nav-link">API Doc</a>
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="../sponsor/" class="nav-link">Sponsor</a>
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="../roadmap/" class="nav-link">Roadmap</a>
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="../governance/" class="nav-link">Governance</a>
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="../partners/" class="nav-link">Partners</a>
+							</li>
+							
+							
+
+							
+
+							<li class="nav-item">
+								<a href="../coc/" class="nav-link">Code of Conduct</a>
+							</li>
+							
+							
+						</ul>
+						
+					</div>
+				</div>
+			</nav>
+
 			<div class="inner">
 
 				<!-- Header -->
@@ -64,6 +158,7 @@
 
 				<!-- Section -->
 				<section>
+					
 					<h1 id="getting-started">Getting Started</h1>
 <p>Contributions are welcome, and they are greatly appreciated! Every
 little bit helps, and credit will always be given.</p>
@@ -128,7 +223,7 @@ $ pre-commit install
 <ol>
 <li>When you’re done making changes, check the compilation and the tests:</li>
 </ol>
-<pre><code class="language-bash">$ make build-with-tests
+<pre><code class="language-bash">$ make build-dev
 $ make run-tests
 $ pre-commit run --all-files
 </code></pre>
@@ -202,6 +297,7 @@ when <code>semantic-release</code> runs (using the default configuration):</p>
 <a href="https://github.com/semantic-release/semantic-release/blob/master/README.md#commit-message-format">https://github.com/semantic-release/semantic-release/blob/master/README.md#commit-message-format</a></p>
 <p>As this project uses the <code>squash and merge</code> strategy, ensure to apply
 the commit message format to the PR's title.</p>
+					
 				</section>
 
 			</div>
@@ -222,8 +318,8 @@ the commit message format to the PR's title.</p>
 				-->
 
 				<!-- Menu -->
-				<nav id="menu">
-					<header class="major">
+				<section>
+					<header>
 						<h2>
 							<a href="index.html" class="logo" style="vertical-align:middle">
 								<img src="/images/arx.png" width="40px" />
@@ -231,90 +327,7 @@ the commit message format to the PR's title.</p>
 							</a>
 						</h2>
 					</header>
-
-					
-					<ul>
-						
-
-						
-
-						<li>
-							<a href="..">Home</a>
-						</li>
-						
-						
-
-						
-						<li>
-							
-							
-								<a href="../tutorials/">Tutorials</a>
-							
-							
-							
-							
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="./">Getting Started</a>
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="/api/">API Doc</a>
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="../sponsor/">Sponsor</a>
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="../roadmap/">Roadmap</a>
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="../governance/">Governance</a>
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="../partners/">Partners</a>
-						</li>
-						
-						
-
-						
-
-						<li>
-							<a href="../coc/">Code of Conduct</a>
-						</li>
-						
-						
-					</ul>
-					
-				</nav>
+				</section>
 
 				<section>
 					<header class="major">
@@ -322,7 +335,7 @@ the commit message format to the PR's title.</p>
 					</header>
 
 					<p>
-						Be our first sponsor!
+						Support ArxLang Project via GitHub Sponsor!
 					</p>
 
 					<iframe src="https://github.com/sponsors/arxlang/button"
@@ -336,18 +349,42 @@ the commit message format to the PR's title.</p>
 					</header>
 					<ul class="contact">
 						<li class="icon solid fa-envelope">
-							<a href="mailto:arxcompiler@gmail.com">arxcompiler@gmail.com</a>
+							<a href="mailto:arxcompiler@gmail.com"
+								target="_blank">arxcompiler@gmail.com</a>
 						</li>
 						<li class="icon solid brands fa-twitter">
-							<a href="https://twitter.com/arx_lang">Twitter</a>
+							<a href="https://twitter.com/arx_lang"
+								target="_blank">@arx_lang</a>
 						</li>
 						<li class="icon solid brands fa-github">
-							<a href="https://twitter.com/arx_lang">GitHub</a>
+							<a href="https://github.com/arxlang/arx"
+								target="_blank">arxlang/arx</a>
 						</li>
 						<li class="icon solid brands fa-discord">
-							<a href="/discord">Discord</a>
+							<a href="https://arxlang.org/discord"
+								target="_blank">arxlang.org/discord</a>
+						</li>
+						<li class="icon solid brands fa-youtube">
+							<a href="https://youtube.com/@arxlang"
+								target="_blank">@arxlang</a>
+						</li>
+						<li class="icon solid brands fa-twitch">
+							<a href="https://twitch.tv/arxlang"
+							target="_blank">arxlang</a>
 						</li>
 					</ul>
+				</section>
+
+				<section>
+					<div style="height:500px">
+						<a class="twitter-timeline"
+							href="https://twitter.com/arx_lang?ref_src=twsrc%5Etfw"
+							data-height="500px">
+							Tweets by arx_lang
+						</a>
+						<script async src="https://platform.twitter.com/widgets.js"
+							charset="utf-8"></script>
+						<div>
 				</section>
 
 				<!-- Footer -->

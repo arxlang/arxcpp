@@ -26,51 +26,34 @@ var NAVTREE =
 [
   [ "ArxLang", "index.html", [
     [ "Release Notes", "md_CHANGELOG.html", [
-      [ "<a href=\"https://github.com/arxlang/arx/compare/1.4.1...1.4.2\" >1.4.2</a> (2022-10-15)", "md_CHANGELOG.html#autotoc_md0", [
-        [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md1", null ]
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.5.0...1.6.0\" >1.6.0</a> (2023-01-17)", "md_CHANGELOG.html#autotoc_md0", [
+        [ "Features", "md_CHANGELOG.html#autotoc_md1", null ]
       ] ],
-      [ "<a href=\"https://github.com/arxlang/arx/compare/1.4.0...1.4.1\" >1.4.1</a> (2022-09-15)", "md_CHANGELOG.html#autotoc_md2", [
-        [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md3", null ]
-      ] ],
-      [ "<a href=\"https://github.com/arxlang/arx/compare/1.3.0...1.4.0\" >1.4.0</a> (2022-06-17)", "md_CHANGELOG.html#autotoc_md4", null ],
-      [ "<a href=\"https://github.com/arxlang/arx/compare/1.2.0...1.3.0\" >1.3.0</a> (2022-04-25)", "md_CHANGELOG.html#autotoc_md6", null ],
-      [ "<a href=\"https://github.com/arxlang/arx/compare/1.1.1...1.2.0\" >1.2.0</a> (2022-03-27)", "md_CHANGELOG.html#autotoc_md8", [
-        [ "<a href=\"https://github.com/arx-org/arx/compare/1.1.0...1.1.1\" >1.1.1</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md10", [
-          [ "Features", "md_CHANGELOG.html#autotoc_md9", null ],
-          [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md11", null ]
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.4.2...1.5.0\" >1.5.0</a> (2022-12-17)", "md_CHANGELOG.html#autotoc_md2", [
+        [ "<a href=\"https://github.com/arxlang/arx/compare/1.4.1...1.4.2\" >1.4.2</a> (2022-10-15)", "md_CHANGELOG.html#autotoc_md4", [
+          [ "Features", "md_CHANGELOG.html#autotoc_md3", null ],
+          [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md5", null ]
+        ] ],
+        [ "<a href=\"https://github.com/arxlang/arx/compare/1.4.0...1.4.1\" >1.4.1</a> (2022-09-15)", "md_CHANGELOG.html#autotoc_md6", [
+          [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md7", null ]
         ] ]
       ] ],
-      [ "<a href=\"https://github.com/arx-org/arx/compare/1.0.0...1.1.0\" >1.1.0</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md12", null ]
-    ] ],
-    [ "Namespaces", "namespaces.html", null ],
-    [ "Classes", "annotated.html", [
-      [ "Class List", "annotated.html", "annotated_dup" ],
-      [ "Class Index", "classes.html", null ],
-      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
-      [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Functions", "functions_func.html", null ],
-        [ "Variables", "functions_vars.html", null ]
-      ] ]
-    ] ],
-    [ "Files", "files.html", [
-      [ "File List", "files.html", "files_dup" ],
-      [ "File Members", "globals.html", [
-        [ "All", "globals.html", null ],
-        [ "Functions", "globals_func.html", null ],
-        [ "Variables", "globals_vars.html", null ],
-        [ "Enumerations", "globals_enum.html", null ],
-        [ "Enumerator", "globals_eval.html", null ],
-        [ "Macros", "globals_defs.html", null ]
-      ] ]
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.3.0...1.4.0\" >1.4.0</a> (2022-06-17)", "md_CHANGELOG.html#autotoc_md8", null ],
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.2.0...1.3.0\" >1.3.0</a> (2022-04-25)", "md_CHANGELOG.html#autotoc_md10", null ],
+      [ "<a href=\"https://github.com/arxlang/arx/compare/1.1.1...1.2.0\" >1.2.0</a> (2022-03-27)", "md_CHANGELOG.html#autotoc_md12", [
+        [ "<a href=\"https://github.com/arx-org/arx/compare/1.1.0...1.1.1\" >1.1.1</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md14", [
+          [ "Features", "md_CHANGELOG.html#autotoc_md13", null ],
+          [ "Bug Fixes", "md_CHANGELOG.html#autotoc_md15", null ]
+        ] ]
+      ] ],
+      [ "<a href=\"https://github.com/arx-org/arx/compare/1.0.0...1.1.0\" >1.1.0</a> (2022-02-23)", "md_CHANGELOG.html#autotoc_md16", null ]
     ] ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"annotated.html",
-"parser_8h_source.html"
+"index.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
