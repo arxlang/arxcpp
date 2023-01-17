@@ -28,7 +28,7 @@
 #include "parser.h"
 #include "utils.h"
 
-std::string ARX_VERSION = "1.5.0";  // semantic-release
+std::string ARX_VERSION = "1.6.0";  // semantic-release
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern bool INPUT_FROM_STDIN;

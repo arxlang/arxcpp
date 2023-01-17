@@ -1,6 +1,13 @@
 Release Notes
 ---
 
+## [1.6.0](https://github.com/arxlang/arx/compare/1.5.0...1.6.0) (2023-01-17)
+
+
+### Features
+
+* Add llvm IR output ([#79](https://github.com/arxlang/arx/issues/79)) ([288a3ed](https://github.com/arxlang/arx/commit/288a3ed4f6bf97d9d957e42c4d62d021cc1bc408))
+
 # [1.5.0](https://github.com/arxlang/arx/compare/1.4.2...1.5.0) (2022-12-17)
 
 

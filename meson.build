@@ -1,6 +1,6 @@
 project('arx', 'cpp', 'c',
   license : 'Apache-2.0',
-  version : '1.5.0',  # semantic-release
+  version : '1.6.0',  # semantic-release
   default_options : [
     'warning_level=everything',
     'cpp_std=c++20',
