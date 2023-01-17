@@ -2,5 +2,5 @@
 
 #include "parser.h"
 
-auto compile(TreeAST*) -> void;
-auto open_shell() -> void;
+auto compile_object(TreeAST*) -> void;
+auto open_shell_object() -> void;

@@ -5,13 +5,17 @@ arx_build_lib = static_library(
   install : false,
   dependencies : deps)
 
+TESTS_PATH = PROJECT_PATH + '/tests'
+
 test_suite = [
-  ['codegen', files(PROJECT_PATH + '/tests/test_codegen.cpp')],
-  ['error', files(PROJECT_PATH + '/tests/test_error.cpp')],
-  ['lexer', files(PROJECT_PATH + '/tests/test_lexer.cpp')],
-  ['parser', files(PROJECT_PATH + '/tests/test_parser.cpp')],
-  ['utils', files(PROJECT_PATH + '/tests/test_utils.cpp')],
-  ['input', files(PROJECT_PATH + '/tests/test_io.cpp')],
+  ['error', files(TESTS_PATH + '/test-error.cpp')],
+  ['lexer', files(TESTS_PATH + '/test-lexer.cpp')],
+  ['parser',files(TESTS_PATH + '/test-parser.cpp')],
+  ['utils', files(TESTS_PATH + '/test-utils.cpp')],
+  ['input', files(TESTS_PATH + '/test-io.cpp')],
+  ['ast-to-object', files(TESTS_PATH + '/codegen/test-ast-to-object.cpp')],
+  ['ast-to-stdout', files(TESTS_PATH + '/codegen/test-ast-to-stdout.cpp')],
+  ['ast-to-llvm-ir', files(TESTS_PATH + '/codegen/test-ast-to-llvm-ir.cpp')],
 ]
 
 foreach test_item : test_suite

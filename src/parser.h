@@ -75,6 +75,10 @@ class ExprAST {
   }
 
   void accept(Visitor* visitor);
+
+  virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
+    return out << ':' << this->getLine() << ':' << this->getCol() << "\n";
+  }
 };
 
 /**
@@ -88,6 +92,10 @@ class NumberExprAST : public ExprAST {
 
   NumberExprAST(double Val) : Val(Val) {
     this->kind = ExprKind::NumberKind;
+  }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    return ExprAST::dump(out << this->Val, ind);
   }
 };
 
@@ -111,6 +119,10 @@ class VariableExprAST : public ExprAST {
   const std::string& getName() const {
     return Name;
   }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    return ExprAST::dump(out << Name, ind);
+  }
 };
 
 /**
@@ -129,6 +141,12 @@ class UnaryExprAST : public ExprAST {
   UnaryExprAST(char Opcode, std::unique_ptr<ExprAST> Operand)
       : Opcode(Opcode), Operand(std::move(Operand)) {
     this->kind = ExprKind::UnaryKind;
+  }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    ExprAST::dump(out << "unary" << Opcode, ind);
+    this->Operand->dump(out, ind + 1);
+    return out;
   }
 };
 
@@ -155,6 +173,13 @@ class BinaryExprAST : public ExprAST {
       : ExprAST(Loc), Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {
     this->kind = ExprKind::BinaryKind;
   }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    ExprAST::dump(out << "binary" << Op, ind);
+    this->LHS->dump(indent(out, ind) << "LHS:", ind + 1);
+    this->RHS->dump(indent(out, ind) << "RHS:", ind + 1);
+    return out;
+  }
 };
 
 /**
@@ -177,6 +202,14 @@ class CallExprAST : public ExprAST {
     std::vector<std::unique_ptr<ExprAST>> Args)
       : ExprAST(Loc), Callee(std::move(Callee)), Args(std::move(Args)) {
     this->kind = ExprKind::CallKind;
+  }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    ExprAST::dump(out << "call " << Callee, ind);
+    for (auto node = this->Args.begin(); node != this->Args.end(); ++node) {
+      node->get()->dump(indent(out, ind + 1), ind + 1);
+    }
+    return out;
   }
 };
 
@@ -204,6 +237,14 @@ class IfExprAST : public ExprAST {
         Then(std::move(Then)),
         Else(std::move(Else)) {
     this->kind = ExprKind::IfKind;
+  }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    ExprAST::dump(out << "if", ind);
+    this->Cond->dump(indent(out, ind) << "Cond:", ind + 1);
+    this->Then->dump(indent(out, ind) << "Then:", ind + 1);
+    this->Else->dump(indent(out, ind) << "Else:", ind + 1);
+    return out;
   }
 };
 
@@ -237,6 +278,15 @@ class ForExprAST : public ExprAST {
         Body(std::move(Body)) {
     this->kind = ExprKind::ForKind;
   }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    ExprAST::dump(out << "for", ind);
+    this->Start->dump(indent(out, ind) << "Cond:", ind + 1);
+    this->End->dump(indent(out, ind) << "End:", ind + 1);
+    this->Step->dump(indent(out, ind) << "Step:", ind + 1);
+    this->Body->dump(indent(out, ind) << "Body:", ind + 1);
+    return out;
+  }
 };
 
 /**
@@ -259,13 +309,23 @@ class VarExprAST : public ExprAST {
       : VarNames(std::move(VarNames)), Body(std::move(Body)) {
     this->kind = ExprKind::VarKind;
   }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
+    ExprAST::dump(out << "var", ind);
+    for (auto node = this->VarNames.begin(); node != this->VarNames.end();
+         ++node) {
+      node->second->dump(indent(out, ind) << node->first << ':', ind + 1);
+      this->Body->dump(indent(out, ind) << "Body:", ind + 1);
+      return out;
+    }
+  }
 };
 
 /**
  @brief This class represents the "prototype" for a function.
 
- Captures a function's name, and its argument names (thus implicitly the number
- of arguments the function takes), as well as if it is an operator.
+ Captures a function's name, and its argument names (thus implicitly the
+ number of arguments the function takes), as well as if it is an operator.
  */
 class PrototypeAST : public ExprAST {
  public:
@@ -311,6 +371,13 @@ class FunctionAST : public ExprAST {
     std::unique_ptr<PrototypeAST> Proto, std::unique_ptr<ExprAST> Body)
       : Proto(std::move(Proto)), Body(std::move(Body)) {
     this->kind = ExprKind::FunctionKind;
+  }
+
+  llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
+    indent(out, ind) << "FunctionAST\n";
+    ++ind;
+    indent(out, ind) << "Body:";
+    return this->Body ? this->Body->dump(out, ind) : out << "null\n";
   }
 };
 

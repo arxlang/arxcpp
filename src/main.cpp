@@ -20,7 +20,7 @@
 
 #include <glog/logging.h>
 
-// #include "codegen/ast-to-llvm.h"
+#include "codegen/ast-to-llvm-ir.h"
 #include "codegen/ast-to-object.h"
 #include "codegen/ast-to-stdout.h"
 
@@ -40,7 +40,7 @@ extern bool INPUT_FROM_STDIN;
  */
 auto main_open_shell(__attribute__((unused)) int count) -> void {
   INPUT_FROM_STDIN = true;
-  open_shell();
+  open_shell_object();
   exit(0);
 }
 
@@ -67,13 +67,24 @@ auto main_show_ast(__attribute__((unused)) int count) -> void {
 }
 
 /**
+ * @brief Show the LLVM IR for the given source.
+ * @param count An internal value from CLI11.
+ */
+auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
+  load_input_to_buffer();
+  TreeAST* ast = Parser::parse();
+  compile_llvm_ir(ast);
+  exit(0);
+}
+
+/**
  * @brief Compile the given source code.
  *
  */
 auto main_compile() -> void {
   load_input_to_buffer();
   TreeAST* ast = Parser::parse();
-  compile(ast);
+  compile_object(ast);
   exit(0);
 }
 
@@ -95,6 +106,8 @@ auto main(int argc, const char* argv[]) -> int {
   app.add_option("--output", OUTPUT_FILE, "Output file.");
   app.add_flag("--shell", main_open_shell, "Open Arx Shell.");
   app.add_flag("--show-ast", main_show_ast, "Show AST from source.");
+  app.add_flag(
+    "--show-llvm-ir", main_show_llvm_ir, "Show LLVM IR from source.");
   app.add_flag("--version", main_show_version, "Show ArxLang version.");
 
   CLI11_PARSE(app, argc, argv);

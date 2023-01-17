@@ -44,8 +44,7 @@ deps = [
 inc = include_directories('./src')
 
 project_src_files = files(
-  # note: note working yet
-  # PROJECT_PATH + '/src/codegen/ast-to-llvm.cpp',
+  PROJECT_PATH + '/src/codegen/ast-to-llvm-ir.cpp',
   PROJECT_PATH + '/src/codegen/ast-to-object.cpp',
   PROJECT_PATH + '/src/codegen/ast-to-stdout.cpp',
   PROJECT_PATH + '/src/error.cpp',

@@ -91,9 +91,12 @@ test-gen-object:
 test-gen-ast:
 	./tests/scripts/test-gen-ast.sh ${ARGS}
 
+.PHONY: test-gen-llvm-ir
+test-gen-llvm-ir:
+	./tests/scripts/test-gen-llvm-ir.sh ${ARGS}
 
 .PHONY: test-examples
-test-examples: test-gen-object test-gen-ast
+test-examples: test-gen-object test-gen-ast test-gen-llvm-ir
 
 .ONESHELL:
 .PHONY: run-tests
@@ -110,7 +113,7 @@ run-debug:
 	LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
 		--args build/arx \
 		--input `pwd`/examples/fibonacci.arx \
-		--output "/tmp/fibonacci"
+		--output "/tmp/fibonacci" ${ARGS}
 
 
 # DOCS
