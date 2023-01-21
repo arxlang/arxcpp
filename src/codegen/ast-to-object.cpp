@@ -66,45 +66,6 @@ extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern std::string ARX_VERSION;
 
-class ASTToObjectVisitor : public Visitor {
- public:
-  llvm::Value* result_val;
-  llvm::Function* result_func;
-
-  std::map<std::string, llvm::AllocaInst*> NamedValues;
-
-  std::unique_ptr<llvm::LLVMContext> TheContext;
-  std::unique_ptr<llvm::Module> TheModule;
-  std::unique_ptr<llvm::IRBuilder<>> Builder;
-  // llvm::ExitOnError ExitOnErr;
-
-  std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
-  std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
-
-  ~ASTToObjectVisitor() {
-    this->result_val = nullptr;
-    this->result_func = nullptr;
-  }
-
-  virtual void visit(NumberExprAST*) override;
-  virtual void visit(VariableExprAST*) override;
-  virtual void visit(UnaryExprAST*) override;
-  virtual void visit(BinaryExprAST*) override;
-  virtual void visit(CallExprAST*) override;
-  virtual void visit(IfExprAST*) override;
-  virtual void visit(ForExprAST*) override;
-  virtual void visit(VarExprAST*) override;
-  virtual void visit(PrototypeAST*) override;
-  virtual void visit(FunctionAST*) override;
-  virtual void clean() override;
-
-  auto getFunction(std::string Name) -> void;
-  auto CreateEntryBlockAlloca(
-    llvm::Function* TheFunction, llvm::StringRef VarName) -> llvm::AllocaInst*;
-  auto MainLoop(TreeAST* ast) -> void;
-  auto InitializeModuleAndPassManager() -> void;
-};
-
 /**
  * @brief Put the function defined by the given name to result_func.
  * @param Name Function name
@@ -637,7 +598,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
  * @brief Initialize LLVM Module And PassManager.
  *
  */
-auto ASTToObjectVisitor::InitializeModuleAndPassManager() -> void {
+auto ASTToObjectVisitor::Initialize() -> void {
   this->TheContext = std::make_unique<llvm::LLVMContext>();
   this->TheModule =
     std::make_unique<llvm::Module>("arx jit", *this->TheContext);
@@ -694,7 +655,7 @@ auto compile_object(TreeAST* tree_ast) -> void {
 
   Lexer::getNextToken();
 
-  codegen->InitializeModuleAndPassManager();
+  codegen->Initialize();
 
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
