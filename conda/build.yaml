@@ -11,4 +11,4 @@ dependencies:
   - shyaml
   - pip
   - pip:
-    makim >= 1.2.0
+    - makim >= 1.2.0
