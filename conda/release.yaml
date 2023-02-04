@@ -19,3 +19,7 @@ dependencies:
 - glog
 - doxygen
 - nodejs
+- pip
+- pip:
+  - containers-sugar >=1.1.0
+  - makim >=1.1.1

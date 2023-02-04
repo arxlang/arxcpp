@@ -1,0 +1,180 @@
+version: 1.0.0
+shell: bash
+groups:
+  - name: default
+    targets:
+      lint:
+        help: Run linter tools
+        run: pre-commit run --all-files --verbose
+
+  - name: build
+    targets:
+      clean-gcda:
+        help: Remove temporary gcda files
+        run: |
+          touch tmp.gcda
+          find . -name "*.gcda" -print0 | xargs -0 rm
+
+      clean:
+        help: Remove all unnecessary temporary files
+        dependencies:
+          - target: build.clean-gcda
+        run: |
+          rm -rf build/*
+          rm -f bin/*
+          mkdir -p build
+
+      clean-optional:
+        help: Clean temporary files if clean flag is given
+        args:
+          clean:
+            type: bool
+            action: store-true
+            help: If it is given, target `build.clean` will be called.
+        run: |
+          if {{ args.clean }} == True:
+            makim build.clean
+
+      install:
+        help: Install Arx locally
+        run: meson install -C build
+
+      build:
+        help: Build Arx for release
+        args:
+          build_type:
+            help: |
+              Define the build type, options are:
+              plain, debug, debugoptimized, release, minsize, and custom
+            type: string
+            default: release
+          extras:
+            help: Extra arguments for the build step
+            type: string
+            default: ''
+        dependencies:
+          - target: clean-optional
+        run: |
+          set -ex
+          meson setup \
+            --prefix ${CONDA_PREFIX} \
+            --libdir ${CONDA_PREFIX}/lib \
+            --includedir ${CONDA_PREFIX}/include \
+            --buildtype={{ args.build_type }} \
+            --native-file meson.native {{ args.extra }} \
+            build .
+          meson compile -C build
+
+      build-dev:
+        help: Build for development (+tests +debug)
+        env:
+          ASAN_OPTIONS: "fast_unwind_on_malloc=0"
+        run: |
+          makim build.build \
+            --build_type="debug" \
+            --extra "-Ddev=enabled -Db_coverage=true -Doptimization=0"
+
+  - name: env
+    targets:
+      create-file:
+        help: Create a dont env file
+        run: |
+          touch .env
+          echo "HOST_UID=`id -u`\nHOST_GID=`id -g`" > .env
+
+  - name: conda
+    targets:
+      build:
+        help: Create the conda package for arx
+        run: |
+          cd conda/recipe
+          export CURRENT_ENV=${CONDA_DEFAULT_ENV}
+          conda activate arx-build
+          mamba update -y conda conda-build
+          conda build purge
+          conda mambabuild .
+          conda activate ${CURRENT_ENV}
+
+  - name: release
+    targets:
+      ci:
+        help: Run semantic-release on CI
+        run: {{ app }} --ci
+
+      dry:
+        help: Run semantic-release on CI for tests in dry-run mode.
+        run: {{ app }} --dry-run
+
+  - name: docs
+    targets:
+      api:
+        help: Build API docs
+        run: |
+          mkdir -p build
+          doxygen Doxyfile
+          ./scripts/format_releases.sh
+
+      build:
+        help: Build the general docs pages
+        dependencies:
+          - target: clean
+          - target: api
+        run: |
+          mkdocs build --config-file docs/mkdocs.yaml --dirty --site-dir build
+          echo "arxlang.org" > ./build/CNAME
+
+      clean:
+        help: Run semantic-release on CI
+        run: rm -rf ./build
+
+      preview:
+        help: Run semantic-release on CI
+        dependencies:
+          - target: clean
+          - target: api
+        run: mkdocs serve --config-file docs/mkdocs.yaml --watch docs
+
+  - name: tests
+    targets:
+      sanitizer:
+        help: Run sanitizer tests
+        run: meson test -C build -v
+
+      code-coverage:
+        help: Run test code coverage
+        run: ninja coverage -C build
+
+      gen-object:
+        help: Run test for object generation
+        run: ./tests/scripts/test-gen-objects.sh ${ARGS}
+
+      gen-ast:
+        help: Run test for AST generation
+        run: ./tests/scripts/test-gen-ast.sh ${ARGS}
+
+      gen-llvm-ir:
+        help: Run test for LLVM IR
+        run: ./tests/scripts/test-gen-ast.sh ${ARGS}
+
+      examples:
+        help: Test all code generation for the example arx files
+        dependencies:
+          - target: gen-object
+          - target: gen-ast
+          - target: gen-llvm-ir
+
+      all:
+        help: Run sanitizer tests and code generation for examples
+        dependencies:
+          - target: sanitizer
+          - target: examples
+
+  - name: debug
+    targets:
+      fibonacci:
+        help: Debug arx via an example file (fibonacci)
+        run: |
+          LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
+            --args build/arx \
+            --input `pwd`/examples/fibonacci.arx \
+            --output "/tmp/fibonacci" ${ARGS}
