@@ -39,7 +39,7 @@ groups:
         help: Install Arx locally
         run: meson install -C build
 
-      build:
+      release:
         help: Build Arx for release
         args:
           build_type:
@@ -65,12 +65,12 @@ groups:
             build .
           meson compile -C build
 
-      build-dev:
+      dev:
         help: Build for development (+tests +debug)
         env:
           ASAN_OPTIONS: "fast_unwind_on_malloc=0"
         run: |
-          makim build.build \
+          makim build.release \
             --build_type="debug" \
             --extra "-Ddev=enabled -Db_coverage=true -Doptimization=0"
 

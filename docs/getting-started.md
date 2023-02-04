@@ -75,8 +75,8 @@ Now you can make your changes locally.
 5.  When you’re done making changes, check the compilation and the tests:
 
 ```bash
-$ make build-dev
-$ make run-tests
+$ makim build.dev
+$ makim tests.all
 $ pre-commit run --all-files
 ```
 

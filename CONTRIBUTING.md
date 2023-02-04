@@ -75,13 +75,13 @@ Now you can make your changes locally.
 5.  When you’re done making changes, check the compilation and the tests:
 
 ```bash
-$ make build-dev
-$ make run-tests
+$ makim build.dev
+$ makim tests.all
 $ pre-commit run --all-files
 ```
 
 Note: if you want to remove all the build folder before starting to build
-you can run `make build-dev CLEAN=1`.
+you can run `makim build.dev --clean`.
 
 6.  Commit your changes and push your branch to GitHub:
 ```bash
@@ -108,14 +108,14 @@ If you want to build and run inside a container, you can run the following
 commands:
 
 ```bash
-make container-build
-make container-run
+containers-sugarbuild
+containers-sugarrun
 ```
 
-Inside the container you can run the same make targets, for example:
+Inside the container you can run the same makim targets, for example:
 
 ```bash
-make build-dev CLEAN=1
+makim build.dev --clean
 ```
 
 ## Release

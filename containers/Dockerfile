@@ -26,7 +26,6 @@ ARG GID=1000
 RUN apt-get update -y \
   && apt-get install -y \
     build-essential \
-    make \
     sudo \
     tini \
     vim \
