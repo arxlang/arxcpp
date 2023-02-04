@@ -9,3 +9,6 @@ dependencies:
   - conda-verify
   - mamba
   - shyaml
+  - pip
+  - pip:
+    makim >= 1.2.0
