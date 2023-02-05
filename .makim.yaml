@@ -24,60 +24,67 @@ groups:
           rm -f bin/*
           mkdir -p build
 
-      clean-optional:
-        help: Clean temporary files if clean flag is given
-        args:
-          clean:
-            type: bool
-            action: store-true
-            help: If it is given, target `build.clean` will be called.
-        run: |
-          if {{ args.clean }} == True:
-            makim build.clean
-
       install:
         help: Install Arx locally
         run: meson install -C build
 
       release:
         help: Build Arx for release
+        env:
+          ASAN_OPTIONS: '{{ args.asan_options }}'
         args:
-          build_type:
+          asan-options:
+            help: |
+              Define a custom value for the environment variable
+              `ASAN_OPTIONS`
+            type: string
+            default: ''
+          build-type:
             help: |
               Define the build type, options are:
               plain, debug, debugoptimized, release, minsize, and custom
             type: string
             default: release
+          clean:
+            help: Clean temporary files before the building step
+            type: bool
+            action: store_true
           extras:
             help: Extra arguments for the build step
             type: string
             default: ''
         dependencies:
-          - target: clean-optional
+          - target: build.clean
+            if: {{ args.clean }}
         run: |
-          set -ex
           meson setup \
-            --prefix ${CONDA_PREFIX} \
-            --libdir ${CONDA_PREFIX}/lib \
-            --includedir ${CONDA_PREFIX}/include \
+            --prefix $CONDA_PREFIX \
+            --libdir $CONDA_PREFIX/lib \
+            --includedir $CONDA_PREFIX/include \
             --buildtype={{ args.build_type }} \
-            --native-file meson.native {{ args.extra }} \
+            --native-file meson.native {{ args.extras }} \
             build .
           meson compile -C build
 
       dev:
         help: Build for development (+tests +debug)
-        env:
-          ASAN_OPTIONS: "fast_unwind_on_malloc=0"
-        run: |
-          makim build.release \
-            --build_type="debug" \
-            --extra "-Ddev=enabled -Db_coverage=true -Doptimization=0"
+        args:
+          clean:
+            help: Clean temporary files before the building step
+            type: bool
+            action: store_true
+        dependencies:
+          - target: build.release
+            args:
+              build-type: "debug"
+              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"
+              clean: {{ args.clean }}
+              asan-options: "fast_unwind_on_malloc=0"
 
   - name: env
     targets:
       create-file:
-        help: Create a dont env file
+        help: Create a .env file
         run: |
           touch .env
           echo "HOST_UID=`id -u`\nHOST_GID=`id -g`" > .env
@@ -88,14 +95,27 @@ groups:
         help: Create the conda package for arx
         run: |
           cd conda/recipe
-          export CURRENT_ENV=${CONDA_DEFAULT_ENV}
+          export CURRENT_ENV=$CONDA_DEFAULT_ENV
           conda activate arx-build
           mamba update -y conda conda-build
           conda build purge
           conda mambabuild .
-          conda activate ${CURRENT_ENV}
+          conda activate $CURRENT_ENV
 
   - name: release
+    vars:
+      app: |
+        npx --yes \
+        -p semantic-release \
+        -p "@semantic-release/commit-analyzer" \
+        -p "@semantic-release/release-notes-generator" \
+        -p "@semantic-release/changelog" \
+        -p "@semantic-release/exec" \
+        -p "@semantic-release/github" \
+        -p "@semantic-release/git" \
+        -p "@google/semantic-release-replace-plugin" \
+        semantic-release
+
     targets:
       ci:
         help: Run semantic-release on CI
@@ -124,11 +144,11 @@ groups:
           echo "arxlang.org" > ./build/CNAME
 
       clean:
-        help: Run semantic-release on CI
+        help: Clean temporary documentation files
         run: rm -rf ./build
 
       preview:
-        help: Run semantic-release on CI
+        help: Preview documentation result locally
         dependencies:
           - target: clean
           - target: api
@@ -141,20 +161,32 @@ groups:
         run: meson test -C build -v
 
       code-coverage:
-        help: Run test code coverage
+        help: Check code coverage by tests
         run: ninja coverage -C build
 
       gen-object:
         help: Run test for object generation
-        run: ./tests/scripts/test-gen-objects.sh ${ARGS}
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
+        run: ./tests/scripts/test-gen-objects.sh {{ args.extras }}
 
       gen-ast:
         help: Run test for AST generation
-        run: ./tests/scripts/test-gen-ast.sh ${ARGS}
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
+        run: ./tests/scripts/test-gen-ast.sh {{ args.extras }}
 
       gen-llvm-ir:
         help: Run test for LLVM IR
-        run: ./tests/scripts/test-gen-ast.sh ${ARGS}
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
+        run: ./tests/scripts/test-gen-ast.sh {{ args.extras }}
 
       examples:
         help: Test all code generation for the example arx files
@@ -173,8 +205,12 @@ groups:
     targets:
       fibonacci:
         help: Debug arx via an example file (fibonacci)
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
         run: |
           LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
             --args build/arx \
             --input `pwd`/examples/fibonacci.arx \
-            --output "/tmp/fibonacci" ${ARGS}
+            --output "/tmp/fibonacci" {{ args.extras }}

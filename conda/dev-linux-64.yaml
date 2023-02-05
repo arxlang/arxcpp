@@ -45,4 +45,4 @@ dependencies:
 - pip
 - pip:
   - containers-sugar >=1.1.0
-  - makim >=1.2.0
+  - makim >=1.3.0
