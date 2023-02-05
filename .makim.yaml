@@ -137,8 +137,8 @@ groups:
       build:
         help: Build the general docs pages
         dependencies:
-          - target: clean
-          - target: api
+          - target: docs.clean
+          - target: docs.api
         run: |
           mkdocs build --config-file docs/mkdocs.yaml --dirty --site-dir build
           echo "arxlang.org" > ./build/CNAME
@@ -150,8 +150,8 @@ groups:
       preview:
         help: Preview documentation result locally
         dependencies:
-          - target: clean
-          - target: api
+          - target: docs.clean
+          - target: docs.api
         run: mkdocs serve --config-file docs/mkdocs.yaml --watch docs
 
   - name: tests
@@ -191,15 +191,15 @@ groups:
       examples:
         help: Test all code generation for the example arx files
         dependencies:
-          - target: gen-object
-          - target: gen-ast
-          - target: gen-llvm-ir
+          - target: tests.gen-object
+          - target: tests.gen-ast
+          - target: tests.gen-llvm-ir
 
       all:
         help: Run sanitizer tests and code generation for examples
         dependencies:
-          - target: sanitizer
-          - target: examples
+          - target: tests.sanitizer
+          - target: tests.examples
 
   - name: debug
     targets:
