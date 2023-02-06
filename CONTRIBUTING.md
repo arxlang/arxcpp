@@ -104,18 +104,39 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Containers
 
-If you want to build and run inside a container, you can run the following
+If you want to play with Arx inside a container, there is
+`docker-compose` file and a `Dockerfile` prepared for that.
+
+First, create the conda environment using the following command:
+
+```bash
+$ mamba env create --file conda/containers.yaml
+```
+
+And activate the new environment:
+
+```bash
+$ conda activate arx-containers
+```
+
+Now, you can build and run the new container for playing with arx:
 commands:
 
 ```bash
-containers-sugarbuild
-containers-sugarrun
+containers-sugar build
+containers-sugar run
 ```
 
 Inside the container you can run the same makim targets, for example:
 
 ```bash
 makim build.dev --clean
+```
+
+**Note:** For development, remember to install pre-commit hooks:
+
+```bash
+$ pre-commit install
 ```
 
 ## Release

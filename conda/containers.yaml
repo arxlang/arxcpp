@@ -1,0 +1,11 @@
+name: arx-containers
+channels:
+- nodefaults
+- conda-forge
+dependencies:
+- docker-compose
+- pip
+- pre-commit
+- pip:
+  - containers-sugar >=1.1.0
+  - makim >=1.3.0

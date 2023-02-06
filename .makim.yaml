@@ -1,12 +1,6 @@
 version: 1.0.0
 shell: bash
 groups:
-  - name: default
-    targets:
-      lint:
-        help: Run linter tools
-        run: pre-commit run --all-files --verbose
-
   - name: build
     targets:
       clean-gcda:
@@ -200,6 +194,10 @@ groups:
         dependencies:
           - target: tests.sanitizer
           - target: tests.examples
+
+      lint:
+        help: Run linter tools
+        run: pre-commit run --all-files --verbose
 
   - name: debug
     targets:
