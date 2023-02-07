@@ -40,7 +40,9 @@ jobs:
         environment-file: conda/containers.yaml
 
     - name: create a dot env file
-      run: makim env.create-file
+      run: |
+        makim env.create-file
+        cat .env
 
     - name: build container
       run: containers-sugar build
