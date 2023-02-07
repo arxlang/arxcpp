@@ -39,6 +39,9 @@ jobs:
         activate-environment: arx-containers
         environment-file: conda/containers.yaml
 
+    - name: create a dot env file
+      run: makim env.create-file
+
     - name: build container
       run: containers-sugar build
 
