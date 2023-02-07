@@ -81,7 +81,8 @@ groups:
         help: Create a .env file
         run: |
           touch .env
-          echo "HOST_UID=`id -u`\nHOST_GID=`id -g`" > .env
+          echo -n @("HOST_UID=" + $(id -u) + "HOST_GID=" + $(id -g)) > .env
+
 
   - name: conda
     targets:
