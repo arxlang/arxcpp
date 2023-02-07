@@ -45,4 +45,4 @@ jobs:
     - name: run container
       run: |
         # TODO: build arx using containers-sugar
-        containers-sugar run
+        containers-sugar run --services arx --extras='--rm' --cmd "makim build.release"
