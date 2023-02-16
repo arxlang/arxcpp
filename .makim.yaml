@@ -90,12 +90,9 @@ groups:
         help: Create the conda package for arx
         run: |
           cd conda/recipe
-          export CURRENT_ENV=$CONDA_DEFAULT_ENV
-          conda activate arx-build
-          mamba update -y conda conda-build
           conda build purge
           conda mambabuild .
-          conda activate $CURRENT_ENV
+
 
   - name: release
     vars:
