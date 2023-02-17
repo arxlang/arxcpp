@@ -1,5 +1,4 @@
 version: 1.0.0
-shell: bash
 groups:
   - name: build
     targets:
@@ -201,10 +200,11 @@ groups:
     targets:
       fibonacci:
         help: Debug arx via an example file (fibonacci)
-        extras:
-          help: Extra arguments for the build step
-          type: string
-          default: ''
+        args:
+          extras:
+            help: Extra arguments for the build step
+            type: string
+            default: ''
         run: |
           LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
             --args build/arx \
