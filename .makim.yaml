@@ -1,0 +1,212 @@
+version: 1.0.0
+groups:
+  - name: build
+    targets:
+      clean-gcda:
+        help: Remove temporary gcda files
+        run: |
+          touch tmp.gcda
+          find . -name "*.gcda" -print0 | xargs -0 rm
+
+      clean:
+        help: Remove all unnecessary temporary files
+        dependencies:
+          - target: build.clean-gcda
+        run: |
+          rm -rf build/*
+          rm -f bin/*
+          mkdir -p build
+
+      install:
+        help: Install Arx locally
+        run: meson install -C build
+
+      release:
+        help: Build Arx for release
+        env:
+          ASAN_OPTIONS: '{{ args.asan_options }}'
+        args:
+          asan-options:
+            help: |
+              Define a custom value for the environment variable
+              `ASAN_OPTIONS`
+            type: string
+            default: ''
+          build-type:
+            help: |
+              Define the build type, options are:
+              plain, debug, debugoptimized, release, minsize, and custom
+            type: string
+            default: release
+          clean:
+            help: Clean temporary files before the building step
+            type: bool
+            action: store_true
+          extras:
+            help: Extra arguments for the build step
+            type: string
+            default: ''
+        dependencies:
+          - target: build.clean
+            if: {{ args.clean }}
+        run: |
+          meson setup \
+            --prefix $CONDA_PREFIX \
+            --libdir $CONDA_PREFIX/lib \
+            --includedir $CONDA_PREFIX/include \
+            --buildtype={{ args.build_type }} \
+            --native-file meson.native {{ args.extras }} \
+            build .
+          meson compile -C build
+
+      dev:
+        help: Build for development (+tests +debug)
+        args:
+          clean:
+            help: Clean temporary files before the building step
+            type: bool
+            action: store_true
+        dependencies:
+          - target: build.release
+            args:
+              build-type: "debug"
+              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"
+              clean: {{ args.clean }}
+              asan-options: "fast_unwind_on_malloc=0"
+
+  - name: env
+    targets:
+      create-file:
+        help: Create a .env file
+        run: |
+          touch .env
+          echo -n @("HOST_UID=" + $(id -u) + "HOST_GID=" + $(id -g)) > .env
+
+
+  - name: conda
+    targets:
+      build:
+        help: Create the conda package for arx
+        run: |
+          cd conda/recipe
+          conda build purge
+          conda mambabuild .
+
+
+  - name: release
+    vars:
+      app: |
+        npx --yes \
+        -p semantic-release \
+        -p "@semantic-release/commit-analyzer" \
+        -p "@semantic-release/release-notes-generator" \
+        -p "@semantic-release/changelog" \
+        -p "@semantic-release/exec" \
+        -p "@semantic-release/github" \
+        -p "@semantic-release/git" \
+        -p "@google/semantic-release-replace-plugin" \
+        semantic-release
+
+    targets:
+      ci:
+        help: Run semantic-release on CI
+        run: {{ app }} --ci
+
+      dry:
+        help: Run semantic-release on CI for tests in dry-run mode.
+        run: {{ app }} --dry-run
+
+  - name: docs
+    targets:
+      api:
+        help: Build API docs
+        run: |
+          mkdir -p build
+          doxygen Doxyfile
+          ./scripts/format_releases.sh
+
+      build:
+        help: Build the general docs pages
+        dependencies:
+          - target: docs.clean
+          - target: docs.api
+        run: |
+          mkdocs build --config-file docs/mkdocs.yaml --dirty --site-dir build
+          echo "arxlang.org" > ./build/CNAME
+
+      clean:
+        help: Clean temporary documentation files
+        run: rm -rf ./build
+
+      preview:
+        help: Preview documentation result locally
+        dependencies:
+          - target: docs.clean
+          - target: docs.api
+        run: mkdocs serve --config-file docs/mkdocs.yaml --watch docs
+
+  - name: tests
+    targets:
+      sanitizer:
+        help: Run sanitizer tests
+        run: meson test -C build -v
+
+      code-coverage:
+        help: Check code coverage by tests
+        run: ninja coverage -C build
+
+      gen-object:
+        help: Run test for object generation
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
+        run: ./tests/scripts/test-gen-objects.sh {{ args.extras }}
+
+      gen-ast:
+        help: Run test for AST generation
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
+        run: ./tests/scripts/test-gen-ast.sh {{ args.extras }}
+
+      gen-llvm-ir:
+        help: Run test for LLVM IR
+        extras:
+          help: Extra arguments for the build step
+          type: string
+          default: ''
+        run: ./tests/scripts/test-gen-ast.sh {{ args.extras }}
+
+      examples:
+        help: Test all code generation for the example arx files
+        dependencies:
+          - target: tests.gen-object
+          - target: tests.gen-ast
+          - target: tests.gen-llvm-ir
+
+      all:
+        help: Run sanitizer tests and code generation for examples
+        dependencies:
+          - target: tests.sanitizer
+          - target: tests.examples
+
+      lint:
+        help: Run linter tools
+        run: pre-commit run --all-files --verbose
+
+  - name: debug
+    targets:
+      fibonacci:
+        help: Debug arx via an example file (fibonacci)
+        args:
+          extras:
+            help: Extra arguments for the build step
+            type: string
+            default: ''
+        run: |
+          LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
+            --args build/arx \
+            --input `pwd`/examples/fibonacci.arx \
+            --output "/tmp/fibonacci" {{ args.extras }}

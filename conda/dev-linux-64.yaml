@@ -42,3 +42,6 @@ dependencies:
 - mkdocs-jupyter
 - nodejs
 - pre-commit
+- pip
+- pip:
+  - -r pip.txt

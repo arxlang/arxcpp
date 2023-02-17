@@ -9,3 +9,6 @@ dependencies:
   - conda-verify
   - mamba
   - shyaml
+  - pip
+  - pip:
+    - -r pip.txt

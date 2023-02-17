@@ -40,27 +40,27 @@ jobs:
         environment-file: conda/dev-linux-64.yaml
 
     - name: build
-      run: make build-dev CLEAN=1
+      run: makim build.dev --clean
 
     - name: test flags
-      run: |
-        build/arx --version
+      run: build/arx --version
 
     - name: run sanity tests
-      run: make test-sanitizer
+      run: makim tests.sanitizer
 
     - name: run example tests
-      run: make test-examples
+      run: makim tests.examples
 
     - name: lint
+      if: success() || failure()
       run: |
         pre-commit install
-        pre-commit run --all-files
+        makim tests.lint
 
     - name: llvm-cov generation
       if: ${{ github.event_name == 'pull_request' }}
       id: llvm-cov-report
-      run: make code-coverage
+      run: makim tests.code-coverage
 
     - name: Check if PR title is a correct semantic-release prefix
       if: ${{ github.event_name == 'pull_request' && always() }}

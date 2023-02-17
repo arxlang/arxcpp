@@ -19,3 +19,6 @@ dependencies:
 - glog
 - doxygen
 - nodejs
+- pip
+- pip:
+  - -r pip.txt

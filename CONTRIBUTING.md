@@ -75,13 +75,13 @@ Now you can make your changes locally.
 5.  When you’re done making changes, check the compilation and the tests:
 
 ```bash
-$ make build-dev
-$ make run-tests
+$ makim build.dev
+$ makim tests.all
 $ pre-commit run --all-files
 ```
 
 Note: if you want to remove all the build folder before starting to build
-you can run `make build-dev CLEAN=1`.
+you can run `makim build.dev --clean`.
 
 6.  Commit your changes and push your branch to GitHub:
 ```bash
@@ -104,18 +104,39 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Containers
 
-If you want to build and run inside a container, you can run the following
+If you want to play with Arx inside a container, there is
+`docker-compose` file and a `Dockerfile` prepared for that.
+
+First, create the conda environment using the following command:
+
+```bash
+$ mamba env create --file conda/containers.yaml
+```
+
+And activate the new environment:
+
+```bash
+$ conda activate arx-containers
+```
+
+Now, you can build and run the new container for playing with arx:
 commands:
 
 ```bash
-make container-build
-make container-run
+containers-sugar build
+containers-sugar run
 ```
 
-Inside the container you can run the same make targets, for example:
+Inside the container you can run the same makim targets, for example:
 
 ```bash
-make build-dev CLEAN=1
+makim build.dev --clean
+```
+
+**Note:** For development, remember to install pre-commit hooks:
+
+```bash
+$ pre-commit install
 ```
 
 ## Release

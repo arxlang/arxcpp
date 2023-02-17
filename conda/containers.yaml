@@ -1,0 +1,10 @@
+name: arx-containers
+channels:
+- nodefaults
+- conda-forge
+dependencies:
+- docker-compose
+- pip
+- pre-commit
+- pip:
+  - -r pip.txt

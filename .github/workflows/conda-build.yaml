@@ -35,4 +35,4 @@ jobs:
         environment-file: conda/build.yaml
 
     - name: build using conda
-      run: make conda-build
+      run: makim conda.build

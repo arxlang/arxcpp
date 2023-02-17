@@ -40,16 +40,16 @@ jobs:
       run: mamba env update -n arx --file conda/release.yaml
 
     - name: build code
-      run: make build
+      run: makim build.release
 
     - name: Test documentation generation
-      run: make docs-build
+      run: makim docs.build
 
     - name: Test release
       if: ${{ github.event_name != 'workflow_dispatch' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: make release-dry
+      run: makim release.dry
 
     # note: semantic-release should be executed before the documentation
     #       publishing because semantic-release will update changelog and
@@ -58,11 +58,11 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: make release
+      run: makim release.ci
 
     - name: Generate documentation with changes from semantic-release
       if: ${{ github.event_name == 'workflow_dispatch' }}
-      run: make docs-build
+      run: makim docs.build
 
     - name: GitHub Pages action
       if: ${{ github.event_name == 'workflow_dispatch' }}
