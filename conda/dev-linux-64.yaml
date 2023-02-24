@@ -20,7 +20,7 @@ dependencies:
 - lld 15.*
 - llvmdev 15.*
 - make
-- meson
+- meson >=1.0.1
 - ninja
 - pkg-config
 - sysroot_linux-64  # [linux-64]
