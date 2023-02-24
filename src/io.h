@@ -1,8 +1,5 @@
-#include <fstream>   // IWYU pragma: keep
-#include <iostream>  // IWYU pragma: keep
-#include <sstream>   // IWYU pragma: keep
-#include <string>
-#include "iosfwd"  // for stringstream
+#include <iosfwd>  // for basic_stringstream, stringstream
+#include <string>  // for string
 
 extern std::stringstream input_buffer;
 extern std::string OUTPUT_FILE;

@@ -1,66 +1,48 @@
+#include "codegen/ast-to-object.h"      // for ASTToObjectVisitor, compile_o...
+#include <glog/logging.h>               // for COMPACT_GOOGLE_LOG_INFO, LOG
+#include <llvm/ADT/APFloat.h>           // for APFloat
+#include <llvm/ADT/iterator_range.h>    // for iterator_range
+#include <llvm/ADT/Optional.h>          // for Optional
+#include <llvm/ADT/StringRef.h>         // for StringRef
+#include <llvm/ADT/Twine.h>             // for Twine
+#include <llvm/IR/Argument.h>           // for Argument
+#include <llvm/IR/BasicBlock.h>         // for BasicBlock
+#include <llvm/IR/Constant.h>           // for Constant
+#include <llvm/IR/Constants.h>          // for ConstantFP
+#include <llvm/IR/DerivedTypes.h>       // for FunctionType
+#include <llvm/IR/Function.h>           // for Function
+#include <llvm/IR/Instructions.h>       // for AllocaInst, CallInst, PHINode
+#include <llvm/IR/IRBuilder.h>          // for IRBuilder
+#include <llvm/IR/LegacyPassManager.h>  // for PassManager
+#include <llvm/IR/LLVMContext.h>        // for LLVMContext
+#include <llvm/IR/Module.h>             // for Module
+#include <llvm/IR/Type.h>               // for Type
+#include <llvm/IR/Verifier.h>           // for verifyFunction
+#include <llvm/MC/TargetRegistry.h>     // for Target, TargetRegistry
+#include <llvm/Support/CodeGen.h>       // for CodeGenFileType, Model
+#include <llvm/Support/FileSystem.h>    // for OpenFlags
+#include <llvm/Support/Host.h>          // for getDefaultTargetTriple
+#include <llvm/Support/raw_ostream.h>   // for errs, raw_fd_ostream, raw_ost...
+#include <llvm/Support/TargetSelect.h>  // for InitializeAllAsmParsers, Init...
+#include <llvm/Target/TargetMachine.h>  // for TargetMachine
+#include <llvm/Target/TargetOptions.h>  // for TargetOptions
+#include <cassert>                      // for assert
+#include <cstdio>                       // for fprintf, stderr, fputc
+#include <cstdlib>                      // for exit
+#include <fstream>                      // for operator<<
+#include <map>                          // for map, operator==, _Rb_tree_ite...
+#include <memory>                       // for unique_ptr, allocator, make_u...
+#include <string>                       // for string, operator<=>, operator+
+#include <system_error>                 // for error_code
+#include <utility>                      // for pair, move
+#include <vector>                       // for vector
+#include "error.h"                      // for LogErrorV
+#include "lexer.h"                      // for Lexer
+#include "parser.h"                     // for PrototypeAST, ExprAST, ForExp...
 
-// note: arrow will not be used yet
-// #include <arrow/api.h>
-// #include <arrow/csv/api.h>
-// #include <arrow/io/api.h>
-// #include <arrow/ipc/api.h>
-// #include <arrow/pretty_print.h>
-// #include <arrow/result.h>
-// #include <arrow/status.h>
-// #include <arrow/table.h>
-
-#include <algorithm>
-#include <cassert>
-#include <cctype>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <string>
-#include <system_error>
-#include <utility>
-#include <vector>
-
-#include <glog/logging.h>
-
-#include <llvm/ADT/APFloat.h>
-#include <llvm/ADT/Optional.h>
-#include <llvm/ADT/STLExtras.h>
-#include <llvm/Analysis/BasicAliasAnalysis.h>
-#include <llvm/Analysis/Passes.h>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/DataLayout.h>
-#include <llvm/IR/DebugInfoMetadata.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/DIBuilder.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/Instructions.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LegacyPassManager.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/Verifier.h>
-#include <llvm/MC/TargetRegistry.h>
-#include <llvm/Support/FileSystem.h>
-#include <llvm/Support/Host.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/Target/TargetMachine.h>
-#include <llvm/Target/TargetOptions.h>
-#include <llvm/Transforms/Scalar.h>
-
-#include "codegen/ast-to-object.h"
-#include "error.h"
-#include "io.h"
-#include "jit.h"
-#include "lexer.h"
-#include "parser.h"
+namespace llvm {
+  class Value;
+}
 
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;

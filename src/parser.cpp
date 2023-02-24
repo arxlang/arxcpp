@@ -1,16 +1,15 @@
-#include <algorithm>
-#include <cctype>
-#include <cstring>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "error.h"
-#include "lexer.h"
-#include "parser.h"
+#include "parser.h"     // for ExprAST, Parser, PrototypeAST, ForExprAST
+#include <cctype>       // for isascii
+#include <cstring>      // for strcat, strcpy
+#include <iostream>     // for operator<<, basic_ostream::operator<<, cout
+#include <map>          // for map
+#include <memory>       // for unique_ptr, make_unique
+#include <string>       // for string, to_string
+#include <type_traits>  // for __underlying_type_impl<>::type, underlying_type
+#include <utility>      // for move, pair
+#include <vector>       // for vector
+#include "error.h"      // for LogError
+#include "lexer.h"      // for Lexer, Lexer::CurTok, Lexer::CurLoc, tok_iden...
 
 /**
  * @brief This holds the precedence for each binary operator that
