@@ -25,6 +25,8 @@ groups:
         help: Build Arx for release
         env:
           ASAN_OPTIONS: '{{ args.asan_options }}'
+          CXXFLAGS: "-stdlib=libc++"
+          LDFLAGS: "-stdlib=libc++"
         args:
           asan-options:
             help: |
