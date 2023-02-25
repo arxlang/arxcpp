@@ -1,5 +1,5 @@
 #pragma once
 
-class TreeAST;
+#include "parser.h"  // for TreeAST
 
 auto print_ast(TreeAST*) -> void;

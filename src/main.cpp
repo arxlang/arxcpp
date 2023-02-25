@@ -8,10 +8,9 @@
 // #include <arrow/status.h>
 // #include <arrow/table.h>
 
-#include <glog/logging.h>            // for InitGoogleLogging
-#include <stdlib.h>                  // for exit
-#include <CLI/App.hpp>               // for App, CLI11_PARSE
-#include <CLI/impl/Option_inl.hpp>   // for Option::expected, Option::type_size
+#include <glog/logging.h>  // for InitGoogleLogging
+#include <stdlib.h>        // for exit
+#include <CLI/CLI.hpp>
 #include <string>                    // for string, allocator
 #include "codegen/ast-to-llvm-ir.h"  // for compile_llvm_ir
 #include "codegen/ast-to-object.h"   // for compile_object, open_shell_object
