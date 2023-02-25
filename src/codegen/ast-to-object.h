@@ -1,38 +1,26 @@
 #pragma once
 
-#include <map>
-#include <memory>
+#include <llvm/ADT/StringRef.h>   // for StringRef
+#include <llvm/IR/IRBuilder.h>    // for IRBuilder
+#include <llvm/IR/LLVMContext.h>  // for LLVMContext
+#include <llvm/IR/Module.h>       // for Module
+#include <map>                    // for map
+#include <memory>                 // for unique_ptr
+#include <string>                 // for string
+#include "jit.h"                  // for ArxJIT
+#include "parser.h"               // for PrototypeAST (ptr only), TreeAST (p...
 
-#include <llvm/ADT/APFloat.h>
-#include <llvm/ADT/Optional.h>
-#include <llvm/ADT/STLExtras.h>
-#include <llvm/Analysis/BasicAliasAnalysis.h>
-#include <llvm/Analysis/Passes.h>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/DataLayout.h>
-#include <llvm/IR/DebugInfoMetadata.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/DIBuilder.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/Instructions.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LegacyPassManager.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/Verifier.h>
-#include <llvm/MC/TargetRegistry.h>
-#include <llvm/Support/FileSystem.h>
-#include <llvm/Support/Host.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/Target/TargetMachine.h>
-#include <llvm/Target/TargetOptions.h>
-#include <llvm/Transforms/Scalar.h>
+namespace llvm {
+  class AllocaInst;
+}
 
-#include "jit.h"
-#include "parser.h"
+namespace llvm {
+  class Function;
+}
+
+namespace llvm {
+  class Value;
+}
 
 auto compile_object(TreeAST*) -> void;
 auto open_shell_object() -> void;

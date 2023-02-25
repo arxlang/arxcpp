@@ -1,6 +1,10 @@
 #include "ast-to-stdout.h"
-#include <iostream>
-#include "parser.h"
+#include <iostream>  // for operator<<, endl, basic_ostream, cout, ostream
+#include <memory>    // for allocator, unique_ptr
+#include <string>    // for operator<<, string
+#include <utility>   // for pair
+#include <vector>    // for vector
+#include "parser.h"  // for ExprAST, ForExprAST, IfExprAST, BinaryExprAST
 
 int INDENT_SIZE = 2;
 

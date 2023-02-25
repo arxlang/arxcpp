@@ -8,25 +8,16 @@
 // #include <arrow/status.h>
 // #include <arrow/table.h>
 
-#include <cctype>
-#include <cstdio>
-#include <filesystem>
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-
+#include <glog/logging.h>  // for InitGoogleLogging
+#include <stdlib.h>        // for exit
 #include <CLI/CLI.hpp>
-
-#include <glog/logging.h>
-
-#include "codegen/ast-to-llvm-ir.h"
-#include "codegen/ast-to-object.h"
-#include "codegen/ast-to-stdout.h"
-
-#include "io.h"
-#include "parser.h"
-#include "utils.h"
+#include <string>                    // for string, allocator
+#include "codegen/ast-to-llvm-ir.h"  // for compile_llvm_ir
+#include "codegen/ast-to-object.h"   // for compile_object, open_shell_object
+#include "codegen/ast-to-stdout.h"   // for print_ast
+#include "io.h"                      // for load_input_to_buffer
+#include "parser.h"                  // for Parser, TreeAST (ptr only)
+#include "utils.h"                   // for show_version
 
 std::string ARX_VERSION = "1.6.0";  // semantic-release
 extern std::string INPUT_FILE;

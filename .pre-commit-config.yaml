@@ -10,17 +10,15 @@ repos:
 
   - repo: local
     hooks:
-      # current issue:
-      # https://github.com/include-what-you-use/include-what-you-use/issues/270
-      # - id: iwyu
-      #   name: iwyu
-      #   entry: ./scripts/iwyu.sh
-      #   language: system
-      #   files: ^arx\/.*\.(cpp|h)$
-      #   pass_filenames: true
-      #   type_or: [c++, c]
-      #   stages:
-      #     - commit
+      - id: iwyu
+        name: iwyu
+        entry: iwyu_tool.py -p ./build
+        language: system
+        files: ^src\/.*\.(cpp|h)$
+        pass_filenames: true
+        type_or: [c++, c]
+        stages:
+          - commit
 
       - id: clang-tidy
         name: clang-tidy

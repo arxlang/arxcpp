@@ -1,35 +1,13 @@
 #pragma once
 
-#include <cassert>
-#include <functional>
-#include <map>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <llvm/Support/raw_ostream.h>
-
-#include "lexer.h"
-#include "utils.h"
-
-/**
- * @brief Include `llvm/IR/Function.h`
- *
- *
- */
-namespace llvm {
-  class Function;
-}
-
-/**
- * @brief Include `llvm/IR/Value.h`
- *
- *
- */
-namespace llvm {
-  class Value;
-}
+#include <llvm/Support/raw_ostream.h>  // for raw_ostream
+#include <map>                         // for map
+#include <memory>                      // for unique_ptr
+#include <string>                      // for string
+#include <utility>                     // for move, pair
+#include <vector>                      // for vector
+#include "lexer.h"                     // for SourceLocation, Lexer
+#include "utils.h"                     // for indent
 
 enum class ExprKind {
   NumberKind = 1,

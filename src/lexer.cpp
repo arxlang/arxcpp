@@ -1,11 +1,9 @@
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <iosfwd>  // for stringstream
-#include <string>
-
-#include "io.h"
-#include "lexer.h"
+#include "lexer.h"  // for Lexer, SourceLocation, tok_binary, tok_else, tok_eof
+#include <cctype>   // for isdigit, isalnum, isalpha, isspace
+#include <cstdio>   // for EOF
+#include <cstdlib>  // for strtod
+#include <string>   // for operator==, allocator, string, basic_string
+#include "io.h"     // for get_char
 
 SourceLocation Lexer::CurLoc;
 std::string Lexer::IdentifierStr =
