@@ -86,10 +86,10 @@ auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
 }
 
 /**
- * @brief Code generation for NumberExprAST.
+ * @brief Code generation for FloatExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(NumberExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(FloatExprAST* expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }

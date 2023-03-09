@@ -95,10 +95,10 @@ auto ASTToObjectVisitor::clean() -> void {
 }
 
 /**
- * @brief Code generation for NumberExprAST.
+ * @brief Code generation for FloatExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(NumberExprAST* expr) -> void {
+auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
   this->result_val =
     llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(expr->Val));
 }

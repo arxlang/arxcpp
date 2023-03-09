@@ -35,6 +35,7 @@ cxx = meson.get_compiler('cpp')
 
 deps = [
   dependency('arrow'),
+  dependency('arrow-glib'),
   dependency('llvm', version : '>=14.0.0'),
   dependency('CLI11'),
   dependency('threads'),
