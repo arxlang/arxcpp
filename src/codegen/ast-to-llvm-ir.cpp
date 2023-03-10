@@ -71,7 +71,7 @@ auto ASTToLLVMIRVisitor::getDoubleTy() -> llvm::DIType* {
 
 auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
   if (!AST) {
-    return this->Builder->SetCurrentDebugLocation(llvm::DebugLoc());
+    return this->builder->SetCurrentDebugLocation(llvm::DebugLoc());
   }
 
   llvm::DIScope* Scope;
@@ -81,7 +81,7 @@ auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
     Scope = this->LexicalBlocks.back();
   }
 
-  this->Builder->SetCurrentDebugLocation(llvm::DILocation::get(
+  this->builder->SetCurrentDebugLocation(llvm::DILocation::get(
     Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
 }
 
@@ -168,12 +168,12 @@ auto ASTToLLVMIRVisitor::visit(PrototypeAST* expr) -> void {
 /**
  * @brief Code generation for FunctionExprAST.
  *
- * Transfer ownership of the prototype to the FunctionProtos map, but
+ * Transfer ownership of the prototype to the function_protos map, but
  * keep a reference to it for use below.
  */
 auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   auto& P = *(expr->Proto);
-  FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
+  function_protos[expr->Proto->getName()] = std::move(expr->Proto);
   this->getFunction(P.getName());
   llvm::Function* TheFunction = this->result_func;
 
@@ -185,8 +185,8 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* BB =
-    llvm::BasicBlock::Create(*this->TheContext, "entry", TheFunction);
-  this->Builder->SetInsertPoint(BB);
+    llvm::BasicBlock::Create(*this->context, "entry", TheFunction);
+  this->builder->SetInsertPoint(BB);
 
   /* debugging-code:start*/
   // Create a subprogram DIE for this function.
@@ -216,9 +216,9 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   this->emitLocation(nullptr);
   /* debugging-code:end*/
 
-  // Record the function arguments in the NamedValues map.
-  // std::cout << "Record the function arguments in the NamedValues map.";
-  this->NamedValues.clear();
+  // Record the function arguments in the named_values map.
+  // std::cout << "Record the function arguments in the named_values map.";
+  this->named_values.clear();
 
   unsigned ArgIdx = 0;
   for (auto& Arg : TheFunction->args()) {
@@ -236,15 +236,15 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
       D,
       this->DBuilder->createExpression(),
       llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
-      this->Builder->GetInsertBlock());
+      this->builder->GetInsertBlock());
 
     /* debugging-code-end */
 
     // Store the initial value into the alloca.
-    this->Builder->CreateStore(&Arg, Alloca);
+    this->builder->CreateStore(&Arg, Alloca);
 
     // Add arguments to variable symbol table.
-    this->NamedValues[std::string(Arg.getName())] = Alloca;
+    this->named_values[std::string(Arg.getName())] = Alloca;
   }
 
   this->emitLocation(expr->Body.get());
@@ -254,7 +254,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
 
   if (RetVal) {
     // Finish off the function.
-    this->Builder->CreateRet(RetVal);
+    this->builder->CreateRet(RetVal);
 
     // Pop off the lexical block for the function.
     this->LexicalBlocks.pop_back();
@@ -283,11 +283,11 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
 auto ASTToLLVMIRVisitor::Initialize() -> void {
   ASTToObjectVisitor::Initialize();
 
-  this->TheJIT = this->ExitOnErr(llvm::orc::ArxJIT::Create());
-  this->TheModule->setDataLayout(this->TheJIT->getDataLayout());
+  this->jit = this->ExitOnErr(llvm::orc::ArxJIT::Create());
+  this->module->setDataLayout(this->jit->getDataLayout());
 
   /** Create a new builder for the module. */
-  this->DBuilder = std::make_unique<llvm::DIBuilder>(*this->TheModule);
+  this->DBuilder = std::make_unique<llvm::DIBuilder>(*this->module);
 }
 
 /**
@@ -324,17 +324,16 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
   LOG(INFO) << "Initialize Target";
 
   // Add the current debug info version into the module.
-  codegen->TheModule->addModuleFlag(
+  codegen->module->addModuleFlag(
     llvm::Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
 
   // Darwin only supports dwarf2.
   if (llvm::Triple(llvm::sys::getProcessTriple()).isOSDarwin()) {
-    codegen->TheModule->addModuleFlag(
-      llvm::Module::Warning, "Dwarf Version", 2);
+    codegen->module->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
   }
 
   // Construct the DIBuilder, we do this here because we need the module.
-  codegen->DBuilder = std::make_unique<llvm::DIBuilder>(*codegen->TheModule);
+  codegen->DBuilder = std::make_unique<llvm::DIBuilder>(*codegen->module);
 
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
@@ -354,7 +353,7 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
   codegen->DBuilder->finalize();
 
   // Print out all of the generated code.
-  codegen->TheModule->print(llvm::errs(), nullptr);
+  codegen->module->print(llvm::errs(), nullptr);
 }
 
 /**

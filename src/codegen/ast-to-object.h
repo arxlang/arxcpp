@@ -30,14 +30,14 @@ class ASTToObjectVisitor : public Visitor {
   llvm::Value* result_val;
   llvm::Function* result_func;
 
-  std::map<std::string, llvm::AllocaInst*> NamedValues;
+  std::map<std::string, llvm::AllocaInst*> named_values;
 
-  std::unique_ptr<llvm::LLVMContext> TheContext;
-  std::unique_ptr<llvm::Module> TheModule;
-  std::unique_ptr<llvm::IRBuilder<>> Builder;
+  std::unique_ptr<llvm::LLVMContext> context;
+  std::unique_ptr<llvm::Module> module;
+  std::unique_ptr<llvm::IRBuilder<>> builder;
 
-  std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
-  std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+  std::unique_ptr<llvm::orc::ArxJIT> jit;
+  std::map<std::string, std::unique_ptr<PrototypeAST>> function_protos;
 
   ~ASTToObjectVisitor() {
     this->result_val = nullptr;

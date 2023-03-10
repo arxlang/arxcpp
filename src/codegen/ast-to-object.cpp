@@ -57,13 +57,13 @@ extern std::string ARX_VERSION;
  * existing prototype. If no existing prototype exists, return null.
  */
 auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
-  if (auto* F = this->TheModule->getFunction(Name)) {
+  if (auto* F = this->module->getFunction(Name)) {
     this->result_func = F;
     return;
   }
 
-  auto FI = FunctionProtos.find(Name);
-  if (FI != FunctionProtos.end()) {
+  auto FI = function_protos.find(Name);
+  if (FI != function_protos.end()) {
     FI->second->accept(this);
   };
 }
@@ -82,7 +82,7 @@ auto ASTToObjectVisitor::CreateEntryBlockAlloca(
   llvm::IRBuilder<> TmpB(
     &TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
   return TmpB.CreateAlloca(
-    llvm::Type::getDoubleTy(*this->TheContext), nullptr, VarName);
+    llvm::Type::getDoubleTy(*this->context), nullptr, VarName);
 }
 
 /**
@@ -100,7 +100,7 @@ auto ASTToObjectVisitor::clean() -> void {
  */
 auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
   this->result_val =
-    llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(expr->Val));
+    llvm::ConstantFP::get(*this->context, llvm::APFloat(expr->Val));
 }
 
 /**
@@ -108,7 +108,7 @@ auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
-  llvm::Value* V = this->NamedValues[expr->Name];
+  llvm::Value* V = this->named_values[expr->Name];
 
   if (!V) {
     auto msg = std::string("Unknown variable name: ") + expr->Name;
@@ -116,8 +116,8 @@ auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
     return;
   }
 
-  this->result_val = this->Builder->CreateLoad(
-    llvm::Type::getDoubleTy(*this->TheContext), V, expr->Name.c_str());
+  this->result_val = this->builder->CreateLoad(
+    llvm::Type::getDoubleTy(*this->context), V, expr->Name.c_str());
 }
 
 /**
@@ -140,7 +140,7 @@ auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
     return;
   }
 
-  this->result_val = this->Builder->CreateCall(F, OperandV, "unop");
+  this->result_val = this->builder->CreateCall(F, OperandV, "unop");
 }
 
 /**
@@ -171,13 +171,13 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     };
 
     // Look up the name.//
-    llvm::Value* Variable = this->NamedValues[LHSE->getName()];
+    llvm::Value* Variable = this->named_values[LHSE->getName()];
     if (!Variable) {
       this->result_val = LogErrorV("Unknown variable name");
       return;
     }
 
-    this->Builder->CreateStore(Val, Variable);
+    this->builder->CreateStore(Val, Variable);
     this->result_val = Val;
   }
 
@@ -193,19 +193,19 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
 
   switch (expr->Op) {
     case '+':
-      this->result_val = this->Builder->CreateFAdd(L, R, "addtmp");
+      this->result_val = this->builder->CreateFAdd(L, R, "addtmp");
       return;
     case '-':
-      this->result_val = this->Builder->CreateFSub(L, R, "subtmp");
+      this->result_val = this->builder->CreateFSub(L, R, "subtmp");
       return;
     case '*':
-      this->result_val = this->Builder->CreateFMul(L, R, "multmp");
+      this->result_val = this->builder->CreateFMul(L, R, "multmp");
       return;
     case '<':
-      L = this->Builder->CreateFCmpULT(L, R, "cmptmp");
+      L = this->builder->CreateFCmpULT(L, R, "cmptmp");
       // Convert bool 0/1 to double 0.0 or 1.0 //
-      this->result_val = this->Builder->CreateUIToFP(
-        L, llvm::Type::getDoubleTy(*this->TheContext), "booltmp");
+      this->result_val = this->builder->CreateUIToFP(
+        L, llvm::Type::getDoubleTy(*this->context), "booltmp");
       return;
   }
 
@@ -216,7 +216,7 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
   assert(F && "binary operator not found!");
 
   llvm::Value* Ops[] = {L, R};
-  this->result_val = this->Builder->CreateCall(F, Ops, "binop");
+  this->result_val = this->builder->CreateCall(F, Ops, "binop");
 }
 
 /**
@@ -247,7 +247,7 @@ auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
     }
   }
 
-  this->result_val = this->Builder->CreateCall(CalleeF, ArgsV, "calltmp");
+  this->result_val = this->builder->CreateCall(CalleeF, ArgsV, "calltmp");
 }
 
 /**
@@ -263,26 +263,25 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   }
 
   // Convert condition to a bool by comparing non-equal to 0.0.
-  CondV = this->Builder->CreateFCmpONE(
+  CondV = this->builder->CreateFCmpONE(
     CondV,
-    llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(0.0)),
+    llvm::ConstantFP::get(*this->context, llvm::APFloat(0.0)),
     "ifcond");
 
-  llvm::Function* TheFunction = this->Builder->GetInsertBlock()->getParent();
+  llvm::Function* TheFunction = this->builder->GetInsertBlock()->getParent();
 
   // Create blocks for the then and else cases.  Insert the 'then' block
   // at the end of the function.
   llvm::BasicBlock* ThenBB =
-    llvm::BasicBlock::Create(*this->TheContext, "then", TheFunction);
-  llvm::BasicBlock* ElseBB =
-    llvm::BasicBlock::Create(*this->TheContext, "else");
+    llvm::BasicBlock::Create(*this->context, "then", TheFunction);
+  llvm::BasicBlock* ElseBB = llvm::BasicBlock::Create(*this->context, "else");
   llvm::BasicBlock* MergeBB =
-    llvm::BasicBlock::Create(*this->TheContext, "ifcont");
+    llvm::BasicBlock::Create(*this->context, "ifcont");
 
-  this->Builder->CreateCondBr(CondV, ThenBB, ElseBB);
+  this->builder->CreateCondBr(CondV, ThenBB, ElseBB);
 
   // Emit then value.
-  this->Builder->SetInsertPoint(ThenBB);
+  this->builder->SetInsertPoint(ThenBB);
 
   expr->Then.get()->accept(this);
   llvm::Value* ThenV = this->result_val;
@@ -291,14 +290,14 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
     return;
   }
 
-  this->Builder->CreateBr(MergeBB);
+  this->builder->CreateBr(MergeBB);
   // Codegen of 'Then' can change the current block, update ThenBB for
   // the PHI.
-  ThenBB = this->Builder->GetInsertBlock();
+  ThenBB = this->builder->GetInsertBlock();
 
   // Emit else block.
   TheFunction->getBasicBlockList().push_back(ElseBB);
-  this->Builder->SetInsertPoint(ElseBB);
+  this->builder->SetInsertPoint(ElseBB);
 
   expr->Else.get()->accept(this);
   llvm::Value* ElseV = this->result_val;
@@ -307,16 +306,16 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
     return;
   }
 
-  this->Builder->CreateBr(MergeBB);
+  this->builder->CreateBr(MergeBB);
   // Codegen of 'Else' can change the current block, update ElseBB for
   // the PHI.
-  ElseBB = this->Builder->GetInsertBlock();
+  ElseBB = this->builder->GetInsertBlock();
 
   // Emit merge block.
   TheFunction->getBasicBlockList().push_back(MergeBB);
-  this->Builder->SetInsertPoint(MergeBB);
-  llvm::PHINode* PN = this->Builder->CreatePHI(
-    llvm::Type::getDoubleTy(*this->TheContext), 2, "iftmp");
+  this->builder->SetInsertPoint(MergeBB);
+  llvm::PHINode* PN = this->builder->CreatePHI(
+    llvm::Type::getDoubleTy(*this->context), 2, "iftmp");
 
   PN->addIncoming(ThenV, ThenBB);
   PN->addIncoming(ElseV, ElseBB);
@@ -331,7 +330,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
  * @param expr A `for` expression.
  */
 auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
-  llvm::Function* TheFunction = this->Builder->GetInsertBlock()->getParent();
+  llvm::Function* TheFunction = this->builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
   llvm::AllocaInst* Alloca =
@@ -346,25 +345,25 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   }
 
   // Store the value into the alloca.
-  this->Builder->CreateStore(StartVal, Alloca);
+  this->builder->CreateStore(StartVal, Alloca);
 
   // Make the new basic block for the loop header, inserting after
   // current block.
   llvm::BasicBlock* LoopBB =
-    llvm::BasicBlock::Create(*this->TheContext, "loop", TheFunction);
+    llvm::BasicBlock::Create(*this->context, "loop", TheFunction);
 
   // Insert an explicit fall through from the current block to the
   // LoopBB.
-  this->Builder->CreateBr(LoopBB);
+  this->builder->CreateBr(LoopBB);
 
   // Start insertion in LoopBB.
-  this->Builder->SetInsertPoint(LoopBB);
+  this->builder->SetInsertPoint(LoopBB);
 
   // Within the loop, the variable is defined equal to the PHI node.  If
   // it shadows an existing variable, we have to restore it, so save it
   // now.
-  llvm::AllocaInst* OldVal = this->NamedValues[expr->VarName];
-  this->NamedValues[expr->VarName] = Alloca;
+  llvm::AllocaInst* OldVal = this->named_values[expr->VarName];
+  this->named_values[expr->VarName] = Alloca;
 
   // Emit the body of the loop.  This, like any other expr, can change
   // the current BB.  Note that we ignore the value computed by the body,
@@ -388,7 +387,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
     }
   } else {
     // If not specified, use 1.0.
-    StepVal = llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(1.0));
+    StepVal = llvm::ConstantFP::get(*this->context, llvm::APFloat(1.0));
   }
 
   // Compute the end condition.
@@ -401,37 +400,37 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
-  llvm::Value* CurVar = this->Builder->CreateLoad(
-    llvm::Type::getDoubleTy(*this->TheContext), Alloca, expr->VarName.c_str());
-  llvm::Value* NextVar = this->Builder->CreateFAdd(CurVar, StepVal, "nextvar");
-  this->Builder->CreateStore(NextVar, Alloca);
+  llvm::Value* CurVar = this->builder->CreateLoad(
+    llvm::Type::getDoubleTy(*this->context), Alloca, expr->VarName.c_str());
+  llvm::Value* NextVar = this->builder->CreateFAdd(CurVar, StepVal, "nextvar");
+  this->builder->CreateStore(NextVar, Alloca);
 
   // Convert condition to a bool by comparing non-equal to 0.0.
-  EndCond = this->Builder->CreateFCmpONE(
+  EndCond = this->builder->CreateFCmpONE(
     EndCond,
-    llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(0.0)),
+    llvm::ConstantFP::get(*this->context, llvm::APFloat(0.0)),
     "loopcond");
 
   // Create the "after loop" block and insert it.
   llvm::BasicBlock* AfterBB =
-    llvm::BasicBlock::Create(*this->TheContext, "afterloop", TheFunction);
+    llvm::BasicBlock::Create(*this->context, "afterloop", TheFunction);
 
   // Insert the conditional branch into the end of LoopEndBB.
-  this->Builder->CreateCondBr(EndCond, LoopBB, AfterBB);
+  this->builder->CreateCondBr(EndCond, LoopBB, AfterBB);
 
   // Any new code will be inserted in AfterBB.
-  this->Builder->SetInsertPoint(AfterBB);
+  this->builder->SetInsertPoint(AfterBB);
 
   // Restore the unshadowed variable.
   if (OldVal) {
-    this->NamedValues[expr->VarName] = OldVal;
+    this->named_values[expr->VarName] = OldVal;
   } else {
-    this->NamedValues.erase(expr->VarName);
+    this->named_values.erase(expr->VarName);
   }
 
   // for expr always returns 0.0.
   this->result_val =
-    llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*this->TheContext));
+    llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*this->context));
 }
 
 /**
@@ -441,7 +440,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
   std::vector<llvm::AllocaInst*> OldBindings;
 
-  llvm::Function* TheFunction = this->Builder->GetInsertBlock()->getParent();
+  llvm::Function* TheFunction = this->builder->GetInsertBlock()->getParent();
 
   // Register all variables and emit their initializer.
   for (auto& i : expr->VarNames) {
@@ -463,18 +462,18 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
         return;
       }
     } else {  // If not specified, use 0.0.
-      InitVal = llvm::ConstantFP::get(*this->TheContext, llvm::APFloat(0.0));
+      InitVal = llvm::ConstantFP::get(*this->context, llvm::APFloat(0.0));
     }
 
     llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(TheFunction, VarName);
-    this->Builder->CreateStore(InitVal, Alloca);
+    this->builder->CreateStore(InitVal, Alloca);
 
     // Remember the old variable binding so that we can restore the
     // binding when we unrecurse.
-    OldBindings.push_back(this->NamedValues[VarName]);
+    OldBindings.push_back(this->named_values[VarName]);
 
     // Remember this binding.
-    this->NamedValues[VarName] = Alloca;
+    this->named_values[VarName] = Alloca;
   }
 
   // Codegen the body, now that all vars are in scope.
@@ -487,7 +486,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 
   // Pop all our variables from scope.
   for (unsigned i = 0, e = expr->VarNames.size(); i != e; ++i) {
-    this->NamedValues[expr->VarNames[i].first] = OldBindings[i];
+    this->named_values[expr->VarNames[i].first] = OldBindings[i];
   }
 
   // Return the body computation.
@@ -501,12 +500,12 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
   // Make the function type:  double(double,double) etc.
   std::vector<llvm::Type*> Doubles(
-    expr->Args.size(), llvm::Type::getDoubleTy(*this->TheContext));
+    expr->Args.size(), llvm::Type::getDoubleTy(*this->context));
   llvm::FunctionType* FT = llvm::FunctionType::get(
-    llvm::Type::getDoubleTy(*this->TheContext), Doubles, false);
+    llvm::Type::getDoubleTy(*this->context), Doubles, false);
 
   llvm::Function* F = llvm::Function::Create(
-    FT, llvm::Function::ExternalLinkage, expr->Name, this->TheModule.get());
+    FT, llvm::Function::ExternalLinkage, expr->Name, this->module.get());
 
   // Set names for all arguments.
   unsigned Idx = 0;
@@ -520,12 +519,12 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
 /**
  * @brief Code generation for FunctionExprAST.
  *
- * Transfer ownership of the prototype to the FunctionProtos map, but
+ * Transfer ownership of the prototype to the function_protos map, but
  * keep a reference to it for use below.
  */
 auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   auto& P = *(expr->Proto);
-  FunctionProtos[expr->Proto->getName()] = std::move(expr->Proto);
+  function_protos[expr->Proto->getName()] = std::move(expr->Proto);
   this->getFunction(P.getName());
   llvm::Function* TheFunction = this->result_func;
 
@@ -537,12 +536,12 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* BB =
-    llvm::BasicBlock::Create(*this->TheContext, "entry", TheFunction);
-  this->Builder->SetInsertPoint(BB);
+    llvm::BasicBlock::Create(*this->context, "entry", TheFunction);
+  this->builder->SetInsertPoint(BB);
 
-  // Record the function arguments in the NamedValues map.
-  // std::cout << "Record the function arguments in the NamedValues map.";
-  this->NamedValues.clear();
+  // Record the function arguments in the named_values map.
+  // std::cout << "Record the function arguments in the named_values map.";
+  this->named_values.clear();
 
   for (auto& Arg : TheFunction->args()) {
     // Create an alloca for this variable.
@@ -550,10 +549,10 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
       CreateEntryBlockAlloca(TheFunction, Arg.getName());
 
     // Store the initial value into the alloca.
-    this->Builder->CreateStore(&Arg, Alloca);
+    this->builder->CreateStore(&Arg, Alloca);
 
     // Add arguments to variable symbol table.
-    this->NamedValues[std::string(Arg.getName())] = Alloca;
+    this->named_values[std::string(Arg.getName())] = Alloca;
   }
 
   expr->Body->accept(this);
@@ -561,7 +560,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
 
   if (RetVal) {
     // Finish off the function.
-    this->Builder->CreateRet(RetVal);
+    this->builder->CreateRet(RetVal);
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
@@ -581,12 +580,11 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::Initialize() -> void {
-  this->TheContext = std::make_unique<llvm::LLVMContext>();
-  this->TheModule =
-    std::make_unique<llvm::Module>("arx jit", *this->TheContext);
+  this->context = std::make_unique<llvm::LLVMContext>();
+  this->module = std::make_unique<llvm::Module>("arx jit", *this->context);
 
   /** Create a new builder for the module. */
-  this->Builder = std::make_unique<llvm::IRBuilder<>>(*this->TheContext);
+  this->builder = std::make_unique<llvm::IRBuilder<>>(*this->context);
 }
 
 /**
@@ -656,7 +654,7 @@ auto compile_object(TreeAST* tree_ast) -> void {
   LOG(INFO) << "TargetTriple";
 
   auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-  codegen->TheModule->setTargetTriple(TargetTriple);
+  codegen->module->setTargetTriple(TargetTriple);
 
   std::string Error;
   auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
@@ -683,7 +681,7 @@ auto compile_object(TreeAST* tree_ast) -> void {
 
   LOG(INFO) << "Set Data Layout";
 
-  codegen->TheModule->setDataLayout(TheTargetMachine->createDataLayout());
+  codegen->module->setDataLayout(TheTargetMachine->createDataLayout());
 
   LOG(INFO) << "dest output";
   std::error_code EC;
@@ -707,7 +705,7 @@ auto compile_object(TreeAST* tree_ast) -> void {
     exit(1);
   }
 
-  pass.run(*codegen->TheModule);
+  pass.run(*codegen->module);
   dest.flush();
 }
 
