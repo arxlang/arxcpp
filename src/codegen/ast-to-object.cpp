@@ -80,8 +80,7 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
 auto ASTToObjectVisitor::CreateEntryBlockAlloca(
   llvm::Function* fn, llvm::StringRef VarName) -> llvm::AllocaInst* {
   llvm::IRBuilder<> TmpB(&fn->getEntryBlock(), fn->getEntryBlock().begin());
-  return TmpB.CreateAlloca(
-    llvm::Type::getDoubleTy(*this->context), nullptr, VarName);
+  return TmpB.CreateAlloca(this->LLVM_DOUBLE_TYPE, nullptr, VarName);
 }
 
 /**
@@ -101,18 +100,16 @@ auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
   llvm::StructType* floatScalarType =
     llvm::StructType::create(*this->context, "struct._GArrowFloatScalar");
 
-  llvm::Type* floatFields[] = {llvm::Type::getFloatTy(*this->context)};
+  llvm::Type* floatFields[] = {this->LLVM_FLOAT_TYPE};
   floatScalarType->setBody(floatFields);
   llvm::AllocaInst* scalar_float =
     this->builder->CreateAlloca(floatScalarType, 0, "scalar_float");
-  llvm::Value* zero =
-    llvm::ConstantInt::get(llvm::Type::getInt32Ty(*this->context), 0);
+  llvm::Value* zero = llvm::ConstantInt::get(this->LLVM_INT32_TYPE, 0);
   llvm::Value* valuePtr = llvm::GetElementPtrInst::CreateInBounds(
     floatScalarType, scalar_float, {zero}, "");
 
   this->builder->CreateStore(
-    llvm::ConstantFP::get(llvm::Type::getFloatTy(*this->context), expr->Val),
-    valuePtr);
+    llvm::ConstantFP::get(this->LLVM_FLOAT_TYPE, expr->Val), valuePtr);
 
   this->result_val = scalar_float;
 
@@ -135,8 +132,8 @@ auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
     return;
   }
 
-  this->result_val = this->builder->CreateLoad(
-    llvm::Type::getDoubleTy(*this->context), V, expr->Name.c_str());
+  this->result_val =
+    this->builder->CreateLoad(this->LLVM_DOUBLE_TYPE, V, expr->Name.c_str());
 }
 
 /**
@@ -223,8 +220,8 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     case '<':
       L = this->builder->CreateFCmpULT(L, R, "cmptmp");
       // Convert bool 0/1 to double 0.0 or 1.0 //
-      this->result_val = this->builder->CreateUIToFP(
-        L, llvm::Type::getDoubleTy(*this->context), "booltmp");
+      this->result_val =
+        this->builder->CreateUIToFP(L, this->LLVM_DOUBLE_TYPE, "booltmp");
       return;
   }
 
@@ -333,8 +330,8 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   // Emit merge block.
   fn->getBasicBlockList().push_back(MergeBB);
   this->builder->SetInsertPoint(MergeBB);
-  llvm::PHINode* PN = this->builder->CreatePHI(
-    llvm::Type::getDoubleTy(*this->context), 2, "iftmp");
+  llvm::PHINode* PN =
+    this->builder->CreatePHI(this->LLVM_DOUBLE_TYPE, 2, "iftmp");
 
   PN->addIncoming(ThenV, ThenBB);
   PN->addIncoming(ElseV, ElseBB);
@@ -419,7 +416,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
   llvm::Value* CurVar = this->builder->CreateLoad(
-    llvm::Type::getDoubleTy(*this->context), Alloca, expr->VarName.c_str());
+    this->LLVM_DOUBLE_TYPE, Alloca, expr->VarName.c_str());
   llvm::Value* NextVar = this->builder->CreateFAdd(CurVar, StepVal, "nextvar");
   this->builder->CreateStore(NextVar, Alloca);
 
@@ -447,8 +444,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   }
 
   // for expr always returns 0.0.
-  this->result_val =
-    llvm::Constant::getNullValue(llvm::Type::getDoubleTy(*this->context));
+  this->result_val = llvm::Constant::getNullValue(this->LLVM_DOUBLE_TYPE);
 }
 
 /**
@@ -517,10 +513,9 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
  */
 auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
   // Make the function type:  double(double,double) etc.
-  std::vector<llvm::Type*> Doubles(
-    expr->Args.size(), llvm::Type::getDoubleTy(*this->context));
-  llvm::FunctionType* FT = llvm::FunctionType::get(
-    llvm::Type::getDoubleTy(*this->context), Doubles, false);
+  std::vector<llvm::Type*> Doubles(expr->Args.size(), this->LLVM_DOUBLE_TYPE);
+  llvm::FunctionType* FT =
+    llvm::FunctionType::get(this->LLVM_DOUBLE_TYPE, Doubles, false);
 
   llvm::Function* F = llvm::Function::Create(
     FT, llvm::Function::ExternalLinkage, expr->Name, this->module.get());
@@ -601,6 +596,12 @@ auto ASTToObjectVisitor::Initialize() -> void {
 
   /** Create a new builder for the module. */
   this->builder = std::make_unique<llvm::IRBuilder<>>(*this->context);
+
+  /* Data Types */
+  this->LLVM_DOUBLE_TYPE = llvm::Type::getDoubleTy(*this->context);
+  this->LLVM_FLOAT_TYPE = llvm::Type::getFloatTy(*this->context);
+  this->LLVM_INT8_TYPE = llvm::Type::getInt8Ty(*this->context);
+  this->LLVM_INT32_TYPE = llvm::Type::getInt32Ty(*this->context);
 }
 
 /**

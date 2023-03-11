@@ -39,6 +39,12 @@ class ASTToObjectVisitor : public Visitor {
   std::unique_ptr<llvm::orc::ArxJIT> jit;
   std::map<std::string, std::unique_ptr<PrototypeAST>> function_protos;
 
+  /* Data types */
+  llvm::Type* LLVM_DOUBLE_TYPE;
+  llvm::Type* LLVM_FLOAT_TYPE;
+  llvm::Type* LLVM_INT8_TYPE;
+  llvm::Type* LLVM_INT32_TYPE;
+
   ~ASTToObjectVisitor() {
     this->result_val = nullptr;
     this->result_func = nullptr;
