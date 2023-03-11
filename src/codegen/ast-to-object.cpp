@@ -70,7 +70,7 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
 
 /**
  * @brief Create the Entry Block Allocation.
- * @param TheFunction The llvm function
+ * @param fn The llvm function
  * @param VarName The variable name
  * @return An llvm allocation instance.
  *
@@ -78,9 +78,8 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
  * block of the function.  This is used for mutable variables etc.
  */
 auto ASTToObjectVisitor::CreateEntryBlockAlloca(
-  llvm::Function* TheFunction, llvm::StringRef VarName) -> llvm::AllocaInst* {
-  llvm::IRBuilder<> TmpB(
-    &TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
+  llvm::Function* fn, llvm::StringRef VarName) -> llvm::AllocaInst* {
+  llvm::IRBuilder<> TmpB(&fn->getEntryBlock(), fn->getEntryBlock().begin());
   return TmpB.CreateAlloca(
     llvm::Type::getDoubleTy(*this->context), nullptr, VarName);
 }
@@ -99,8 +98,28 @@ auto ASTToObjectVisitor::clean() -> void {
  *
  */
 auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
+  llvm::StructType* floatScalarType =
+    llvm::StructType::create(*this->context, "struct._GArrowFloatScalar");
+
+  llvm::Type* floatFields[] = {llvm::Type::getFloatTy(*this->context)};
+  floatScalarType->setBody(floatFields);
+  llvm::AllocaInst* scalar_float =
+    this->builder->CreateAlloca(floatScalarType, 0, "scalar_float");
+  llvm::Value* zero =
+    llvm::ConstantInt::get(llvm::Type::getInt32Ty(*this->context), 0);
+  llvm::Value* valuePtr = llvm::GetElementPtrInst::CreateInBounds(
+    floatScalarType, scalar_float, {zero}, "");
+
+  this->builder->CreateStore(
+    llvm::ConstantFP::get(llvm::Type::getFloatTy(*this->context), expr->Val),
+    valuePtr);
+
+  this->result_val = scalar_float;
+
+  /*
   this->result_val =
     llvm::ConstantFP::get(*this->context, llvm::APFloat(expr->Val));
+  */
 }
 
 /**
@@ -268,12 +287,12 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
     llvm::ConstantFP::get(*this->context, llvm::APFloat(0.0)),
     "ifcond");
 
-  llvm::Function* TheFunction = this->builder->GetInsertBlock()->getParent();
+  llvm::Function* fn = this->builder->GetInsertBlock()->getParent();
 
   // Create blocks for the then and else cases.  Insert the 'then' block
   // at the end of the function.
   llvm::BasicBlock* ThenBB =
-    llvm::BasicBlock::Create(*this->context, "then", TheFunction);
+    llvm::BasicBlock::Create(*this->context, "then", fn);
   llvm::BasicBlock* ElseBB = llvm::BasicBlock::Create(*this->context, "else");
   llvm::BasicBlock* MergeBB =
     llvm::BasicBlock::Create(*this->context, "ifcont");
@@ -296,7 +315,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   ThenBB = this->builder->GetInsertBlock();
 
   // Emit else block.
-  TheFunction->getBasicBlockList().push_back(ElseBB);
+  fn->getBasicBlockList().push_back(ElseBB);
   this->builder->SetInsertPoint(ElseBB);
 
   expr->Else.get()->accept(this);
@@ -312,7 +331,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   ElseBB = this->builder->GetInsertBlock();
 
   // Emit merge block.
-  TheFunction->getBasicBlockList().push_back(MergeBB);
+  fn->getBasicBlockList().push_back(MergeBB);
   this->builder->SetInsertPoint(MergeBB);
   llvm::PHINode* PN = this->builder->CreatePHI(
     llvm::Type::getDoubleTy(*this->context), 2, "iftmp");
@@ -330,11 +349,10 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
  * @param expr A `for` expression.
  */
 auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
-  llvm::Function* TheFunction = this->builder->GetInsertBlock()->getParent();
+  llvm::Function* fn = this->builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
-  llvm::AllocaInst* Alloca =
-    CreateEntryBlockAlloca(TheFunction, expr->VarName);
+  llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, expr->VarName);
 
   // Emit the start code first, without 'variable' in scope.
   expr->Start.get()->accept(this);
@@ -350,7 +368,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Make the new basic block for the loop header, inserting after
   // current block.
   llvm::BasicBlock* LoopBB =
-    llvm::BasicBlock::Create(*this->context, "loop", TheFunction);
+    llvm::BasicBlock::Create(*this->context, "loop", fn);
 
   // Insert an explicit fall through from the current block to the
   // LoopBB.
@@ -413,7 +431,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 
   // Create the "after loop" block and insert it.
   llvm::BasicBlock* AfterBB =
-    llvm::BasicBlock::Create(*this->context, "afterloop", TheFunction);
+    llvm::BasicBlock::Create(*this->context, "afterloop", fn);
 
   // Insert the conditional branch into the end of LoopEndBB.
   this->builder->CreateCondBr(EndCond, LoopBB, AfterBB);
@@ -440,7 +458,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
   std::vector<llvm::AllocaInst*> OldBindings;
 
-  llvm::Function* TheFunction = this->builder->GetInsertBlock()->getParent();
+  llvm::Function* fn = this->builder->GetInsertBlock()->getParent();
 
   // Register all variables and emit their initializer.
   for (auto& i : expr->VarNames) {
@@ -465,7 +483,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
       InitVal = llvm::ConstantFP::get(*this->context, llvm::APFloat(0.0));
     }
 
-    llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(TheFunction, VarName);
+    llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(fn, VarName);
     this->builder->CreateStore(InitVal, Alloca);
 
     // Remember the old variable binding so that we can restore the
@@ -526,27 +544,25 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
   auto& P = *(expr->Proto);
   function_protos[expr->Proto->getName()] = std::move(expr->Proto);
   this->getFunction(P.getName());
-  llvm::Function* TheFunction = this->result_func;
+  llvm::Function* fn = this->result_func;
 
-  if (!TheFunction) {
+  if (!fn) {
     this->result_func = nullptr;
     return;
   }
 
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
-  llvm::BasicBlock* BB =
-    llvm::BasicBlock::Create(*this->context, "entry", TheFunction);
+  llvm::BasicBlock* BB = llvm::BasicBlock::Create(*this->context, "entry", fn);
   this->builder->SetInsertPoint(BB);
 
   // Record the function arguments in the named_values map.
   // std::cout << "Record the function arguments in the named_values map.";
   this->named_values.clear();
 
-  for (auto& Arg : TheFunction->args()) {
+  for (auto& Arg : fn->args()) {
     // Create an alloca for this variable.
-    llvm::AllocaInst* Alloca =
-      CreateEntryBlockAlloca(TheFunction, Arg.getName());
+    llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, Arg.getName());
 
     // Store the initial value into the alloca.
     this->builder->CreateStore(&Arg, Alloca);
@@ -563,14 +579,14 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     this->builder->CreateRet(RetVal);
 
     // Validate the generated code, checking for consistency.
-    verifyFunction(*TheFunction);
+    verifyFunction(*fn);
 
-    this->result_func = TheFunction;
+    this->result_func = fn;
     return;
   }
 
   // Error reading body, remove function.
-  TheFunction->eraseFromParent();
+  fn->eraseFromParent();
 
   this->result_func = nullptr;
 }

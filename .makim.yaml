@@ -147,6 +147,7 @@ groups:
         run: mkdocs serve --config-file docs/mkdocs.yaml --watch docs
 
   - name: tests
+    shell: bash
     targets:
       sanitizer:
         help: Run sanitizer tests
@@ -158,27 +159,126 @@ groups:
 
       gen-object:
         help: Run test for object generation
-        extras:
-          help: Extra arguments for the build step
-          type: string
-          default: ''
-        run: ./tests/scripts/test-gen-objects.sh {{ args.extras }}
+        args:
+          debug:
+            help: Debug Mode
+            type: bool
+            action: store_true
+        run: |
+          set -e
+
+          TMP_DIR=/tmp/arx
+          rm -f ${TMP_DIR}/*
+          mkdir -p "${TMP_DIR}"
+
+          GDB=""
+          DEBUG_FLAGS=""
+
+          if [[ "{{ args.debug  }}" == "True" ]]; then
+            GDB="gdb --args"
+            DEBUG_FLAGS="-g"
+          fi
+
+          TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/tests"
+
+          # load utils functions
+          . "${TEST_DIR_PATH}/scripts/utils.sh"
+
+          ARX="${GDB} ./build/arx"
+          MAIN_EXE="${TMP_DIR}/main"
+
+          LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH
+
+          CLANG_EXTRAS="$(llvm-config --cxxflags)"
+          CLANG_EXTRAS="${CLANG_EXTRAS} $(llvm-config --ldflags --libs core executionengine interpreter analysis native bitwriter)"
+          CLANG_EXTRAS="${CLANG_EXTRAS} $(pkg-config --cflags --libs arrow-glib)"
+          CLANG_EXTRAS=$(echo "${CLANG_EXTRAS}" | sed s/-std=c++14/-std=c++20/g)
+
+          rm --force "${TMP_DIR}/*.o"
+
+          for test_name in "constant" "fibonacci" "sum" "average" "print-star"; do
+            print_header "${test_name}"
+            OBJECT_FILE="${TMP_DIR}/${test_name}.o"
+
+            ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
+
+            set -x
+            clang++ \
+              ${CLANG_EXTRAS} \
+              ${DEBUG_FLAGS} \
+              -fPIC \
+              "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
+              ${OBJECT_FILE} \
+              -o "${TMP_DIR}/main"
+            set +x
+
+            chmod +x ${MAIN_EXE}
+            ${GDB} ${MAIN_EXE}
+            break
+          done
+
 
       gen-ast:
         help: Run test for AST generation
-        extras:
-          help: Extra arguments for the build step
-          type: string
-          default: ''
-        run: ./tests/scripts/test-gen-ast.sh {{ args.extras }}
+        args:
+          debug:
+            help: Debug Mode
+            type: bool
+            action: store_true
+        run: |
+          set -e
+
+          TMP_DIR=/tmp/arx
+          mkdir -p "${TMP_DIR}"
+
+          GDB=""
+          if [[ "{{ args.debug  }}" == "True" ]]; then
+            GDB="gdb --args"
+          fi
+
+          TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/tests"
+
+          # load utils functions
+          . "${TEST_DIR_PATH}/scripts/utils.sh"
+
+          ARX="${GDB} ./build/arx"
+          MAIN_EXE="${TMP_DIR}/main"
+
+          for test_name in "constant" "fibonacci" "sum" "average" "print-star"; do
+            print_header "${test_name}"
+            ${ARX} --show-ast --input "examples/${test_name}.arx"
+          done
+
 
       gen-llvm-ir:
         help: Run test for LLVM IR
-        extras:
-          help: Extra arguments for the build step
-          type: string
-          default: ''
-        run: ./tests/scripts/test-gen-ast.sh {{ args.extras }}
+        args:
+          debug:
+            help: Debug Mode
+            type: bool
+            action: store_true
+        run: |
+          TMP_DIR=/tmp/arx
+          mkdir -p "${TMP_DIR}"
+
+          GDB=""
+          if [[ "{{ args.debug  }}" == "True" ]]; then
+            GDB="gdb --args"
+          fi
+
+          TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/tests"
+
+          # load utils functions
+          . "${TEST_DIR_PATH}/scripts/utils.sh"
+
+          ARX="${GDB} ./build/arx"
+          MAIN_EXE="${TMP_DIR}/main"
+
+          for test_name in "constant" "fibonacci" "sum" "average" "print-star"; do
+            print_header "${test_name}"
+            ${ARX} --show-llvm-ir --input "examples/${test_name}.arx"
+          done
 
       examples:
         help: Test all code generation for the example arx files

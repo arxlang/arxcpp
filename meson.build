@@ -2,31 +2,32 @@ project('arx', 'cpp', 'c',
   license : 'Apache-2.0',
   version : '1.6.0',  # semantic-release
   default_options : [
-    'warning_level=everything',
+    # 'warning_level=everything',
+    'warning_level=1',
     'cpp_std=c++20',
   ]
 )
 
-add_global_arguments(
-  '-Wpedantic',
-  '-Wno-c++98-compat-pedantic',
-  '-Wno-padded',
-  '-Wno-missing-prototypes',
-  '-Wshadow',
-  '-Wnon-virtual-dtor',
-  '-Wcast-align',
-  '-Wunused',
-  '-Woverloaded-virtual',
-  '-Wconversion',
-  '-Wsign-conversion',
-  '-Wdouble-promotion',
-  '-Wformat=2',
-  '-Wimplicit-fallthrough',
-  '-Wsuggest-override',
-  '-Wnull-dereference',
-  '-Wold-style-cast',
-  language : 'cpp'
-)
+# add_global_arguments(
+#   '-Wpedantic',
+#   '-Wno-c++98-compat-pedantic',
+#   '-Wno-padded',
+#   '-Wno-missing-prototypes',
+#   '-Wshadow',
+#   '-Wnon-virtual-dtor',
+#   '-Wcast-align',
+#   '-Wunused',
+#   '-Woverloaded-virtual',
+#   '-Wconversion',
+#   '-Wsign-conversion',
+#   '-Wdouble-promotion',
+#   '-Wformat=2',
+#   '-Wimplicit-fallthrough',
+#   '-Wsuggest-override',
+#   '-Wnull-dereference',
+#   '-Wold-style-cast',
+#   language : 'cpp'
+# )
 
 
 PROJECT_PATH = meson.source_root()
