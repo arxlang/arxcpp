@@ -17,8 +17,8 @@ int main() {
   printf("(arrow-glib) The scalar float value is: %f\n", myFloatResult);
 
   GArrowFloatScalar* myArxFloatScalar = get_constant(3.0);
-  // gfloat myArxFloatResult = garrow_float_scalar_get_value(myArxFloatScalar);
-  // printf("(arx) get_constant(3): %f\n", myArxFloatResult);
+  gfloat myArxFloatResult = garrow_float_scalar_get_value(myArxFloatScalar);
+  printf("(arx) get_constant(3): %f\n", myArxFloatResult);
 
   return 0;
 }
