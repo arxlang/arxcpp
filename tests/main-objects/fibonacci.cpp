@@ -1,3 +1,4 @@
+#include <arrow-glib/arrow-glib.h>
 #include <iostream>
 
 extern "C" {

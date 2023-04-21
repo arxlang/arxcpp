@@ -10,17 +10,49 @@
 #include "utils.h"                     // for indent
 
 enum class ExprKind {
-  NumberKind = 1,
-  VariableKind = 2,
-  UnaryKind = 3,
-  BinaryKind = 4,
-  CallKind = 5,
-  IfKind = 6,
-  ForKind = 7,
-  VarKind = 8,
-  PrototypeKind = 9,
-  FunctionKind = 10,
-  GenericKind = -1
+  GenericKind = -1,
+
+  // variables
+  VariableKind = -10,
+  VarKind = -11,  // var keyword for variable declaration
+
+  // operators
+  UnaryOpKind = -20,
+  BinaryOpKind = -21,
+
+  // functions
+  PrototypeKind = -30,
+  FunctionKind = -31,
+  CallKind = -32,
+
+  // control flow
+  IfKind = -40,
+  ForKind = -41,
+
+  // data types
+  NullDTKind = -100,
+  BooleanDTKind = -101,
+  Int8DTKind = -102,
+  UInt8DTKind = -103,
+  Int16DTKind = -104,
+  UInt16DTKind = -105,
+  Int32DTKind = -106,
+  UInt32DTKind = -107,
+  Int64DTKind = -108,
+  UInt64DTKind = -109,
+  FloatDTKind = -110,
+  DoubleDTKind = -111,
+  BinaryDTKind = -112,
+  StringDTKind = -113,
+  FixedSizeBinaryDTKind = -114,
+  Date32DTKind = -115,
+  Date64DTKind = -116,
+  TimestampDTKind = -117,
+  Time32DTKind = -118,
+  Time64DTKind = -119,
+  Decimal128DTKind = -120,
+  Decimal256DTKind = -121,
+
 };
 
 class Visitor;
@@ -64,12 +96,12 @@ class ExprAST {
  *
  *
  */
-class NumberExprAST : public ExprAST {
+class FloatExprAST : public ExprAST {
  public:
   double Val;
 
-  NumberExprAST(double Val) : Val(Val) {
-    this->kind = ExprKind::NumberKind;
+  FloatExprAST(double Val) : Val(Val) {
+    this->kind = ExprKind::FloatDTKind;
   }
 
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
@@ -118,7 +150,7 @@ class UnaryExprAST : public ExprAST {
    */
   UnaryExprAST(char Opcode, std::unique_ptr<ExprAST> Operand)
       : Opcode(Opcode), Operand(std::move(Operand)) {
-    this->kind = ExprKind::UnaryKind;
+    this->kind = ExprKind::UnaryOpKind;
   }
 
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
@@ -149,7 +181,7 @@ class BinaryExprAST : public ExprAST {
     std::unique_ptr<ExprAST> LHS,
     std::unique_ptr<ExprAST> RHS)
       : ExprAST(Loc), Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {
-    this->kind = ExprKind::BinaryKind;
+    this->kind = ExprKind::BinaryOpKind;
   }
 
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
@@ -366,7 +398,7 @@ class TreeAST : public ExprAST {
 
 class Visitor {
  public:
-  virtual void visit(NumberExprAST*) = 0;
+  virtual void visit(FloatExprAST*) = 0;
   virtual void visit(VariableExprAST*) = 0;
   virtual void visit(UnaryExprAST*) = 0;
   virtual void visit(BinaryExprAST*) = 0;
@@ -401,7 +433,7 @@ class Parser {
   static std::unique_ptr<ExprAST> ParsePrimary();
   static std::unique_ptr<ExprAST> ParseExpression();
   static std::unique_ptr<IfExprAST> ParseIfExpr();
-  static std::unique_ptr<NumberExprAST> ParseNumberExpr();
+  static std::unique_ptr<FloatExprAST> ParseFloatExpr();
   static std::unique_ptr<ExprAST> ParseParenExpr();
   static std::unique_ptr<ExprAST> ParseIdentifierExpr();
   static std::unique_ptr<ForExprAST> ParseForExpr();

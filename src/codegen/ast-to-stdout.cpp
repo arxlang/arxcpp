@@ -15,7 +15,7 @@ class ASTToOutputVisitor : public Visitor {
 
   ~ASTToOutputVisitor() = default;
 
-  virtual void visit(NumberExprAST*) override;
+  virtual void visit(FloatExprAST*) override;
   virtual void visit(VariableExprAST*) override;
   virtual void visit(UnaryExprAST*) override;
   virtual void visit(BinaryExprAST*) override;
@@ -44,7 +44,7 @@ class ASTToOutputVisitor : public Visitor {
   }
 };
 
-void ASTToOutputVisitor::visit(NumberExprAST* expr) {
+void ASTToOutputVisitor::visit(FloatExprAST* expr) {
   std::cout << this->indentation() << this->get_annotation() << "(Number "
             << expr->Val << ")";
 }

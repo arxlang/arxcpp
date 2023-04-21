@@ -1,2 +1,2 @@
-containers-sugar >=1.3.2
-makim >=1.5.0
+containers-sugar ==1.5
+makim ==1.6.6

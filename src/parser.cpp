@@ -20,19 +20,19 @@ std::map<char, int> Parser::BinopPrecedence;
 
 void ExprAST::accept(Visitor* visitor) {
   switch (this->kind) {
-    case ExprKind::NumberKind: {
-      visitor->visit((NumberExprAST*) this);
+    case ExprKind::FloatDTKind: {
+      visitor->visit((FloatExprAST*) this);
       break;
     }
     case ExprKind::VariableKind: {
       visitor->visit((VariableExprAST*) this);
       break;
     }
-    case ExprKind::UnaryKind: {
+    case ExprKind::UnaryOpKind: {
       visitor->visit((UnaryExprAST*) this);
       break;
     }
-    case ExprKind::BinaryKind: {
+    case ExprKind::BinaryOpKind: {
       visitor->visit((BinaryExprAST*) this);
       break;
     }
@@ -96,8 +96,8 @@ auto Parser::GetTokPrecedence() -> int {
  * @return
  * numberexpr ::= number
  */
-std::unique_ptr<NumberExprAST> Parser::ParseNumberExpr() {
-  auto Result = std::make_unique<NumberExprAST>(Lexer::NumVal);
+std::unique_ptr<FloatExprAST> Parser::ParseFloatExpr() {
+  auto Result = std::make_unique<FloatExprAST>(Lexer::NumVal);
   Lexer::getNextToken();  // consume the number
   return Result;
 }
@@ -359,7 +359,7 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
     case tok_identifier:
       return Parser::ParseIdentifierExpr();
     case tok_number:
-      return static_cast<std::unique_ptr<ExprAST>>(ParseNumberExpr());
+      return static_cast<std::unique_ptr<ExprAST>>(ParseFloatExpr());
     case '(':
       return Parser::ParseParenExpr();
     case tok_if:

@@ -35,6 +35,7 @@ cxx = meson.get_compiler('cpp')
 
 deps = [
   dependency('arrow'),
+  dependency('arrow-glib'),
   dependency('llvm', version : '>=14.0.0'),
   dependency('CLI11'),
   dependency('threads'),
@@ -43,15 +44,17 @@ deps = [
 
 inc = include_directories('./src')
 
+SRC_PATH = PROJECT_PATH + '/src'
+
 project_src_files = files(
-  PROJECT_PATH + '/src/codegen/ast-to-llvm-ir.cpp',
-  PROJECT_PATH + '/src/codegen/ast-to-object.cpp',
-  PROJECT_PATH + '/src/codegen/ast-to-stdout.cpp',
-  PROJECT_PATH + '/src/error.cpp',
-  PROJECT_PATH + '/src/io.cpp',
-  PROJECT_PATH + '/src/lexer.cpp',
-  PROJECT_PATH + '/src/parser.cpp',
-  PROJECT_PATH + '/src/utils.cpp',
+  SRC_PATH + '/codegen/ast-to-llvm-ir.cpp',
+  SRC_PATH + '/codegen/ast-to-object.cpp',
+  SRC_PATH + '/codegen/ast-to-stdout.cpp',
+  SRC_PATH + '/error.cpp',
+  SRC_PATH + '/io.cpp',
+  SRC_PATH + '/lexer.cpp',
+  SRC_PATH + '/parser.cpp',
+  SRC_PATH + '/utils.cpp',
 )
 
 gtest_dep = dependency('gtest', main : true, required: get_option('dev'))

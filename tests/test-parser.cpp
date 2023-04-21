@@ -80,9 +80,9 @@ TEST(ParserTest, BinopPrecedenceTest) {
   EXPECT_EQ(Parser::BinopPrecedence['*'], 40);
 }
 
-TEST(ParserTest, ParseNumberExprTest) {
+TEST(ParserTest, ParseFloatExprTest) {
   /* Test gettok for main tokens */
-  std::unique_ptr<NumberExprAST> expr;
+  std::unique_ptr<FloatExprAST> expr;
   int tok;
 
   // TODO: check why it is necessary to add ; here
@@ -90,12 +90,12 @@ TEST(ParserTest, ParseNumberExprTest) {
 
   tok = Lexer::getNextToken();  // update Lexer::CurTok
   EXPECT_EQ(tok, tok_number);
-  expr = Parser::ParseNumberExpr();
+  expr = Parser::ParseFloatExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 1);
   expr.reset();
 
-  expr = Parser::ParseNumberExpr();
+  expr = Parser::ParseFloatExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 2);
   expr.reset();
@@ -104,7 +104,7 @@ TEST(ParserTest, ParseNumberExprTest) {
 
   tok = Lexer::getNextToken();
   EXPECT_EQ(tok, tok_number);
-  expr = Parser::ParseNumberExpr();
+  expr = Parser::ParseFloatExpr();
   EXPECT_NE(expr, nullptr);
   EXPECT_EQ(expr->Val, 3);
   expr.reset();

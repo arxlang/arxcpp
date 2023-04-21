@@ -49,7 +49,7 @@ class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
     this->result_func = nullptr;
   }
 
-  virtual void visit(NumberExprAST*) override;
+  virtual void visit(FloatExprAST*) override;
   virtual void visit(VariableExprAST*) override;
   virtual void visit(UnaryExprAST*) override;
   virtual void visit(BinaryExprAST*) override;

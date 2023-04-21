@@ -30,21 +30,27 @@ class ASTToObjectVisitor : public Visitor {
   llvm::Value* result_val;
   llvm::Function* result_func;
 
-  std::map<std::string, llvm::AllocaInst*> NamedValues;
+  std::map<std::string, llvm::AllocaInst*> named_values;
 
-  std::unique_ptr<llvm::LLVMContext> TheContext;
-  std::unique_ptr<llvm::Module> TheModule;
-  std::unique_ptr<llvm::IRBuilder<>> Builder;
+  std::unique_ptr<llvm::LLVMContext> context;
+  std::unique_ptr<llvm::Module> module;
+  std::unique_ptr<llvm::IRBuilder<>> builder;
 
-  std::unique_ptr<llvm::orc::ArxJIT> TheJIT;
-  std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+  std::unique_ptr<llvm::orc::ArxJIT> jit;
+  std::map<std::string, std::unique_ptr<PrototypeAST>> function_protos;
+
+  /* Data types */
+  llvm::Type* LLVM_DOUBLE_TYPE;
+  llvm::Type* LLVM_FLOAT_TYPE;
+  llvm::Type* LLVM_INT8_TYPE;
+  llvm::Type* LLVM_INT32_TYPE;
 
   ~ASTToObjectVisitor() {
     this->result_val = nullptr;
     this->result_func = nullptr;
   }
 
-  virtual void visit(NumberExprAST*) override;
+  virtual void visit(FloatExprAST*) override;
   virtual void visit(VariableExprAST*) override;
   virtual void visit(UnaryExprAST*) override;
   virtual void visit(BinaryExprAST*) override;
