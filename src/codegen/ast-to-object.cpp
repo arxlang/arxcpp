@@ -97,26 +97,8 @@ auto ASTToObjectVisitor::clean() -> void {
  *
  */
 auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
-  llvm::StructType* floatScalarType =
-    llvm::StructType::create(*this->context, "struct._GArrowFloatScalar");
-
-  llvm::Type* floatFields[] = {this->LLVM_FLOAT_TYPE};
-  floatScalarType->setBody(floatFields);
-  llvm::AllocaInst* scalar_float =
-    this->builder->CreateAlloca(floatScalarType, 0, "scalar_float");
-  llvm::Value* zero = llvm::ConstantInt::get(this->LLVM_INT32_TYPE, 0);
-  llvm::Value* valuePtr = llvm::GetElementPtrInst::CreateInBounds(
-    floatScalarType, scalar_float, {zero}, "");
-
-  this->builder->CreateStore(
-    llvm::ConstantFP::get(this->LLVM_FLOAT_TYPE, expr->Val), valuePtr);
-
-  this->result_val = scalar_float;
-
-  /*
   this->result_val =
     llvm::ConstantFP::get(*this->context, llvm::APFloat(expr->Val));
-  */
 }
 
 /**

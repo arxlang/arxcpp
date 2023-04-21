@@ -1,6 +1,6 @@
 version: 1.0.0
 groups:
-  - name: build
+  build:
     targets:
       clean-gcda:
         help: Remove temporary gcda files
@@ -74,7 +74,7 @@ groups:
               clean: {{ args.clean }}
               asan-options: "fast_unwind_on_malloc=0"
 
-  - name: env
+  env:
     targets:
       create-file:
         help: Create a .env file
@@ -83,7 +83,7 @@ groups:
           echo -n @("HOST_UID=" + $(id -u) + "HOST_GID=" + $(id -g)) > .env
 
 
-  - name: conda
+  conda:
     targets:
       build:
         help: Create the conda package for arx
@@ -93,7 +93,7 @@ groups:
           conda mambabuild .
 
 
-  - name: release
+  release:
     vars:
       app: |
         npx --yes \
@@ -117,7 +117,7 @@ groups:
         help: Run semantic-release on CI for tests in dry-run mode.
         run: {{ app }} --dry-run
 
-  - name: docs
+  docs:
     targets:
       api:
         help: Build API docs
@@ -146,7 +146,7 @@ groups:
           - target: docs.api
         run: mkdocs serve --config-file docs/mkdocs.yaml --watch docs
 
-  - name: tests
+  tests:
     shell: bash
     targets:
       sanitizer:
@@ -164,6 +164,11 @@ groups:
             help: Debug Mode
             type: bool
             action: store_true
+          tests:
+            help: Name of the tests to be executed
+            type: string
+            default: "constant fibonacci sum average print-star"
+        shell: bash
         run: |
           set -e
 
@@ -179,7 +184,7 @@ groups:
             DEBUG_FLAGS="-g"
           fi
 
-          TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/tests"
+          TEST_DIR_PATH="./tests"
 
           # load utils functions
           . "${TEST_DIR_PATH}/scripts/utils.sh"
@@ -197,7 +202,7 @@ groups:
 
           rm --force "${TMP_DIR}/*.o"
 
-          for test_name in "constant" "fibonacci" "sum" "average" "print-star"; do
+          for test_name in {{ args.tests }}; do
             print_header "${test_name}"
             OBJECT_FILE="${TMP_DIR}/${test_name}.o"
 
@@ -213,11 +218,11 @@ groups:
               -o "${TMP_DIR}/main"
             set +x
 
+            echo ">>> RUN THE PROGRAM:"
             chmod +x ${MAIN_EXE}
             ${GDB} ${MAIN_EXE}
             break
           done
-
 
       gen-ast:
         help: Run test for AST generation
@@ -297,17 +302,25 @@ groups:
         help: Run linter tools
         run: pre-commit run --all-files --verbose
 
-  - name: debug
+  debug:
     targets:
-      fibonacci:
-        help: Debug arx via an example file (fibonacci)
+      example:
+        help: Debug arx via an example file
         args:
           extras:
             help: Extra arguments for the build step
             type: string
             default: ''
+          test-name:
+            help: Name of the tests that should be executed
+            type: string
+            default: ''
+            required: true
+        env:
+          LSAN_OPTIONS: "verbosity=1:log_threads=1"
+        shell: bash
         run: |
-          LSAN_OPTIONS=verbosity=1:log_threads=1 gdb \
+          gdb \
             --args build/arx \
-            --input `pwd`/examples/fibonacci.arx \
-            --output "/tmp/fibonacci" {{ args.extras }}
+            --input `pwd`/examples/{{ args.test_name }}.arx \
+            --output "/tmp/{{ args.test_name }}" {{ args.extras }}

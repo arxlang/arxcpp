@@ -8,26 +8,26 @@ project('arx', 'cpp', 'c',
   ]
 )
 
-# add_global_arguments(
-#   '-Wpedantic',
-#   '-Wno-c++98-compat-pedantic',
-#   '-Wno-padded',
-#   '-Wno-missing-prototypes',
-#   '-Wshadow',
-#   '-Wnon-virtual-dtor',
-#   '-Wcast-align',
-#   '-Wunused',
-#   '-Woverloaded-virtual',
-#   '-Wconversion',
-#   '-Wsign-conversion',
-#   '-Wdouble-promotion',
-#   '-Wformat=2',
-#   '-Wimplicit-fallthrough',
-#   '-Wsuggest-override',
-#   '-Wnull-dereference',
-#   '-Wold-style-cast',
-#   language : 'cpp'
-# )
+add_global_arguments(
+  '-Wpedantic',
+  '-Wno-c++98-compat-pedantic',
+  '-Wno-padded',
+  '-Wno-missing-prototypes',
+  '-Wshadow',
+  '-Wnon-virtual-dtor',
+  '-Wcast-align',
+  '-Wunused',
+  '-Woverloaded-virtual',
+  '-Wconversion',
+  '-Wsign-conversion',
+  '-Wdouble-promotion',
+  '-Wformat=2',
+  '-Wimplicit-fallthrough',
+  '-Wsuggest-override',
+  '-Wnull-dereference',
+  '-Wold-style-cast',
+  language : 'cpp'
+)
 
 
 PROJECT_PATH = meson.source_root()
@@ -45,15 +45,18 @@ deps = [
 
 inc = include_directories('./src')
 
+SRC_PATH = PROJECT_PATH + '/src'
+
 project_src_files = files(
-  PROJECT_PATH + '/src/codegen/ast-to-llvm-ir.cpp',
-  PROJECT_PATH + '/src/codegen/ast-to-object.cpp',
-  PROJECT_PATH + '/src/codegen/ast-to-stdout.cpp',
-  PROJECT_PATH + '/src/error.cpp',
-  PROJECT_PATH + '/src/io.cpp',
-  PROJECT_PATH + '/src/lexer.cpp',
-  PROJECT_PATH + '/src/parser.cpp',
-  PROJECT_PATH + '/src/utils.cpp',
+  SRC_PATH + '/codegen/ast-to-llvm-ir.cpp',
+  SRC_PATH + '/codegen/ast-to-object.cpp',
+  SRC_PATH + '/codegen/ast-to-stdout.cpp',
+  SRC_PATH + '/codegen/arx-arrow.cpp',
+  SRC_PATH + '/error.cpp',
+  SRC_PATH + '/io.cpp',
+  SRC_PATH + '/lexer.cpp',
+  SRC_PATH + '/parser.cpp',
+  SRC_PATH + '/utils.cpp',
 )
 
 gtest_dep = dependency('gtest', main : true, required: get_option('dev'))
