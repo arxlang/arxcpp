@@ -242,7 +242,7 @@ groups:
             GDB="gdb --args"
           fi
 
-          TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/tests"
+          TEST_DIR_PATH="./tests"
 
           # load utils functions
           . "${TEST_DIR_PATH}/scripts/utils.sh"
@@ -272,7 +272,7 @@ groups:
             GDB="gdb --args"
           fi
 
-          TEST_DIR_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/tests"
+          TEST_DIR_PATH="./tests"
 
           # load utils functions
           . "${TEST_DIR_PATH}/scripts/utils.sh"
