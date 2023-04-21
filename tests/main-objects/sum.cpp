@@ -2,10 +2,10 @@
 #include <iostream>
 
 extern "C" {
-GArrowFloatScalar sum(double, double);
+double sum(double, double);
 }
 
 int main() {
-  GArrowFloatScalar sum_3_4 = sum(3.0, 4.0);
+  double sum_3_4 = sum(3.0, 4.0);
   std::cout << "sum of 3.0 and 4.0: " << sum_3_4 << std::endl;
 }
