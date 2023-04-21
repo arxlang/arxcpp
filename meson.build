@@ -50,7 +50,6 @@ project_src_files = files(
   SRC_PATH + '/codegen/ast-to-llvm-ir.cpp',
   SRC_PATH + '/codegen/ast-to-object.cpp',
   SRC_PATH + '/codegen/ast-to-stdout.cpp',
-  SRC_PATH + '/codegen/arx-arrow.cpp',
   SRC_PATH + '/error.cpp',
   SRC_PATH + '/io.cpp',
   SRC_PATH + '/lexer.cpp',
