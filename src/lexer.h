@@ -34,13 +34,15 @@ enum Token {
   // var definition
   tok_var = -40,
   tok_const = -41,
+  tok_arrow_right = -42,
 
-  tok_not_initialized = -9999
+  tok_not_initialized = -9999,
+  tok_expression = -10000  // generic used just for error message
 };
 
 struct SourceLocation {
-  int line;
-  int col;
+  int line = 1;
+  int col = 0;
 };
 
 class Lexer {
@@ -52,6 +54,7 @@ class Lexer {
   static SourceLocation lex_loc;
 
   static std::string get_tok_name(int);
+  static std::string get_tok_name_display(int);
   static int gettok();
   static int advance();
   static int get_next_token();

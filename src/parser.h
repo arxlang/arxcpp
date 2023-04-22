@@ -116,13 +116,14 @@ class FloatExprAST : public ExprAST {
 class VariableExprAST : public ExprAST {
  public:
   std::string name;
+  std::string type_name;
 
   /**
    * @param _loc The token location
    * @param _name The variable name
    */
-  VariableExprAST(SourceLocation _loc, std::string _name)
-      : ExprAST(_loc), name(std::move(_name)) {
+  VariableExprAST(SourceLocation _loc, std::string _name, std::string _type_name)
+      : ExprAST(_loc), name(std::move(_name), type_name(std::move(_type_name)) {
     this->kind = ExprKind::VariableKind;
   }
 
@@ -253,7 +254,7 @@ class IfExprAST : public ExprAST {
     ExprAST::dump(out << "if", ind);
     this->cond->dump(indent(out, ind) << "cond:", ind + 1);
     this->then->dump(indent(out, ind) << "then:", ind + 1);
-    this->else_->dump(indent(out, ind) << "else_:", ind + 1);
+    this->else_->dump(indent(out, ind) << "else:", ind + 1);
     return out;
   }
 };
@@ -340,6 +341,7 @@ class VarExprAST : public ExprAST {
 class PrototypeAST : public ExprAST {
  public:
   std::string name;
+  std::string type_name;
   std::vector<std::unique_ptr<VariableExprAST>> args;
   int line;
 
@@ -351,8 +353,9 @@ class PrototypeAST : public ExprAST {
   PrototypeAST(
     SourceLocation _loc,
     std::string _name,
+    std::string _type_name,
     std::vector<std::unique_ptr<VariableExprAST>>&& _args)
-      : name(std::move(_name)), args(std::move(_args)), line(_loc.line) {
+      : name(std::move(_name)), type_name(std::move(_type_name)), args(std::move(_args)), line(_loc.line) {
     this->kind = ExprKind::PrototypeKind;
   }
 

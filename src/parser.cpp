@@ -1,6 +1,5 @@
 #include "parser.h"     // for ExprAST, Parser, PrototypeAST, ForExprAST
 #include <cctype>       // for isascii
-#include <cstring>      // for strcat, strcpy
 #include <iostream>     // for operator<<, basic_ostream::operator<<, cout
 #include <map>          // for map
 #include <memory>       // for unique_ptr, make_unique
@@ -10,6 +9,38 @@
 #include <vector>       // for vector
 #include "error.h"      // for LogError
 #include "lexer.h"  // for Lexer, Lexer::cur_tok, Lexer::cur_loc, tok_iden...
+
+static auto get_token_value(int tok) -> std::string {
+  switch (tok) {
+    case tok_identifier:
+      return std::string("(") + Lexer::identifier_str + std::string(")");
+    case tok_float_literal:
+      return std::string("(") + std::to_string(Lexer::num_float) +
+        std::string(")");
+    default:
+      return std::string("");
+  }
+}
+
+static auto parse_semicolon() -> void {
+  // NOTE: improve the way of parse `;`
+  while (Lexer::cur_tok == ';') {
+    Lexer::get_next_token();
+  }
+}
+
+template <typename T>
+std::unique_ptr<T> log_full_parser_error(
+  int tok_expected, int tok_received, std::string msg) {
+  return LogParserError<T>(
+    (std::string("Expected ") + Lexer::get_tok_name_display(tok_expected) +
+     std::string(", but received ") +
+     Lexer::get_tok_name_display(tok_received) +
+     get_token_value(tok_received) + std::string(". ") + msg)
+      .c_str(),
+    Lexer::cur_loc.line,
+    Lexer::cur_loc.col);
+}
 
 /**
  * @brief This holds the precedence for each binary operator that
@@ -136,7 +167,7 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
   Lexer::get_next_token();  // eat identifier.
 
   if (Lexer::cur_tok != '(') {  // Simple variable ref.
-    return std::make_unique<VariableExprAST>(LitLoc, IdName);
+    return std::make_unique<VariableExprAST>(LitLoc, IdName, "REF");
   }
 
   // Call. //
@@ -175,7 +206,7 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
  */
 std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
   SourceLocation if_loc = Lexer::cur_loc;
-  char msg[80];
+  std::string msg;
 
   Lexer::get_next_token();  // eat the if.
 
@@ -186,10 +217,9 @@ std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
   };
 
   if (Lexer::cur_tok != ':') {
-    strcpy(msg, "Parser: `if` statement expected ':', received: '");
-    strcat(msg, std::to_string(Lexer::cur_tok).c_str());
-    strcat(msg, "'.");
-    return LogError<IfExprAST>(msg);
+    msg = std::string("Parser: `if` statement expected ':', received: '") +
+      std::to_string(Lexer::cur_tok) + std::string("'.");
+    return LogError<IfExprAST>(msg.c_str());
   }
   Lexer::get_next_token();  // eat the ':'
 
@@ -198,16 +228,18 @@ std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
     return nullptr;
   };
 
+  parse_semicolon();
+
   if (Lexer::cur_tok != tok_else) {
-    return LogError<IfExprAST>("Parser: Expected else");
+    return log_full_parser_error<IfExprAST>(
+      tok_else, Lexer::cur_tok, std::string(""));
   }
   Lexer::get_next_token();  // eat the else token
 
   if (Lexer::cur_tok != ':') {
-    strcpy(msg, "Parser: `else` statement expected ':', received: '");
-    strcat(msg, std::to_string(Lexer::cur_tok).c_str());
-    strcat(msg, "'.");
-    return LogError<IfExprAST>(msg);
+    msg = std::string("Parser: `else` statement expected ':', received: '") +
+      std::to_string(Lexer::cur_tok) + std::string("'.");
+    return LogError<IfExprAST>(msg.c_str());
   }
   Lexer::get_next_token();  // eat the ':'
 
@@ -353,7 +385,10 @@ std::unique_ptr<VarExprAST> Parser::parse_var_expr() {
  *   ::= varexpr
  */
 std::unique_ptr<ExprAST> Parser::parse_primary() {
-  char msg[80];
+  std::string msg;
+  int tmp_tok = 0;
+
+  parse_semicolon();
 
   switch (Lexer::cur_tok) {
     case tok_identifier:
@@ -368,15 +403,15 @@ std::unique_ptr<ExprAST> Parser::parse_primary() {
       return static_cast<std::unique_ptr<ExprAST>>(parse_for_expr());
     case tok_var:
       return static_cast<std::unique_ptr<ExprAST>>(parse_var_expr());
-    case ';':
-      // ignore top-level semicolons.
-      Lexer::get_next_token();  // eat `;`
+    case tok_return:
+      // NOTE: it would be treated in a proper way in a follow-up PR
+      Lexer::get_next_token();  // eat `return`
       return Parser::parse_primary();
     default:
-      strcpy(msg, "Parser: Unknown token when expecting an expression: '");
-      strcat(msg, std::to_string(Lexer::cur_tok).c_str());
-      strcat(msg, "'.");
-      return LogError<ExprAST>(msg);
+      tmp_tok = Lexer::cur_tok;
+      Lexer::get_next_token();  // eat the wrong token
+      return log_full_parser_error<ExprAST>(
+        tok_expression, tmp_tok, std::string(""));
   }
 }
 
@@ -388,18 +423,23 @@ std::unique_ptr<ExprAST> Parser::parse_primary() {
  *   ::= '!' unary
  */
 std::unique_ptr<ExprAST> Parser::parse_unary() {
+  if (Lexer::cur_tok == ';') {
+    Lexer::get_next_token();
+    return Parser::parse_primary();
+  }
+
   // If the current token is not an operator, it must be a primary expr.
   if (
     !isascii(Lexer::cur_tok) || Lexer::cur_tok == '(' ||
-    Lexer::cur_tok == ',') {
+    Lexer::cur_tok == ',' || Lexer::cur_tok == tok_return) {
     return Parser::parse_primary();
   }
 
   // If this is a unary operator, read it.
-  int Opc = Lexer::cur_tok;
+  int op_code = Lexer::cur_tok;
   Lexer::get_next_token();
   if (auto operand = Parser::parse_unary()) {
-    return std::make_unique<UnaryExprAST>(Opc, std::move(operand));
+    return std::make_unique<UnaryExprAST>(op_code, std::move(operand));
   }
   return nullptr;
 }
@@ -416,7 +456,7 @@ std::unique_ptr<ExprAST> Parser::parse_bin_op_rhs(
   int expr_prec, std::unique_ptr<ExprAST> lhs) {
   // If this is a binop, find its precedence. //
   while (true) {
-    int tok_prec = get_tok_precedence();
+    int tok_prec = Parser::get_tok_precedence();
 
     // If this is a binop that binds at least as tightly as the current binop,
     // consume it, otherwise we are done.
@@ -486,30 +526,47 @@ std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
       break;
 
     default:
-      return LogError<PrototypeAST>(
-        "Parser: Expected function name in prototype");
+      return log_full_parser_error<PrototypeAST>(
+        tok_identifier,
+        Lexer::cur_tok,
+        std::string("Expected function name in the function definition."));
   }
 
   if (Lexer::cur_tok != '(') {
-    return LogError<PrototypeAST>(
-      "Parser: Expected '(' in the function definition.");
+    return log_full_parser_error<PrototypeAST>(
+      '(', Lexer::cur_tok, std::string(""));
   }
 
   std::vector<std::unique_ptr<VariableExprAST>> args;
   while (Lexer::get_next_token() == tok_identifier) {
-    auto arg = std::make_unique<VariableExprAST>(
-      VariableExprAST(Lexer::cur_loc, Lexer::identifier_str));
-    args.emplace_back(std::move(arg));
+    args.emplace_back(std::make_unique<VariableExprAST>(
+      Lexer::cur_loc, Lexer::identifier_str, Lexer::identifier_str));
   }
+
   if (Lexer::cur_tok != ')') {
-    return LogError<PrototypeAST>(
-      "Parser: Expected ')' in the function definition.");
+    return log_full_parser_error<PrototypeAST>(
+      ')', Lexer::cur_tok, std::string(""));
   }
 
   // success. //
-  Lexer::get_next_token();  // eat ')'.
+  if (Lexer::get_next_token() != tok_arrow_right) {
+    return log_full_parser_error<PrototypeAST>(
+      tok_arrow_right,
+      Lexer::cur_tok,
+      std::string("Returning type annotation required. ") +
+        std::string("If the function doesn't return a value, use `void`."));
+  }
 
-  return std::make_unique<PrototypeAST>(fn_loc, fn_name, std::move(args));
+  if (Lexer::get_next_token() != tok_identifier) {
+    return log_full_parser_error<PrototypeAST>(
+      tok_identifier,
+      Lexer::cur_tok,
+      std::string("Returning type annotation required. ") +
+        std::string("If the function doesn't return a value, use `void`."));
+  }
+
+  return std::make_unique<PrototypeAST>(
+    fn_loc, fn_name, Lexer::identifier_str, std::move(args));
 }
 
 /**
@@ -522,6 +579,13 @@ std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
  */
 std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
   std::string fn_name;
+  std::string var_type_annotation;
+  std::string ret_type_annotation;
+  std::string identifier_name;
+  std::string msg;
+
+  SourceLocation cur_loc;
+
   SourceLocation fn_loc = Lexer::cur_loc;
 
   switch (Lexer::cur_tok) {
@@ -531,37 +595,79 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
       break;
 
     default:
-      return LogError<PrototypeAST>(
-        "Parser: Expected function name in prototype");
+      return log_full_parser_error<PrototypeAST>(
+        tok_identifier,
+        Lexer::cur_tok,
+        std::string("Expected function name in prototype."));
   }
 
   if (Lexer::cur_tok != '(') {
-    return LogError<PrototypeAST>(
-      "Parser: Expected '(' in the function definition.");
+    return log_full_parser_error<PrototypeAST>(
+      '(', Lexer::cur_tok, std::string(""));
   }
 
   std::vector<std::unique_ptr<VariableExprAST>> args;
   while (Lexer::get_next_token() == tok_identifier) {
-    auto arg = std::make_unique<VariableExprAST>(
-      VariableExprAST(Lexer::cur_loc, Lexer::identifier_str));
-    args.emplace_back(std::move(arg));
+    // note: this is a workaround
+    identifier_name = Lexer::identifier_str;
+    cur_loc = Lexer::cur_loc;
+
+    if (Lexer::get_next_token() != ':') {
+      return log_full_parser_error<PrototypeAST>(
+        tok_identifier,
+        Lexer::cur_tok,
+        std::string("Variable type annotation required."));
+    }
+    if (Lexer::get_next_token() != tok_identifier) {
+      return log_full_parser_error<PrototypeAST>(
+        tok_identifier,
+        Lexer::cur_tok,
+        std::string("Variable type annotation required."));
+    }
+    var_type_annotation = Lexer::identifier_str;
+
+    args.push_back(std::make_unique<VariableExprAST>(
+      cur_loc, identifier_name, var_type_annotation));
+
+    if (Lexer::get_next_token() != ',') {
+      break;
+    }
   }
+
   if (Lexer::cur_tok != ')') {
-    return LogError<PrototypeAST>(
-      "Parser: Expected ')' in the function definition.");
+    return log_full_parser_error<PrototypeAST>(
+      ')', Lexer::cur_tok, std::string(""));
   }
 
   // success. //
-  Lexer::get_next_token();  // eat ')'.
-
-  if (Lexer::cur_tok != ':') {
-    return LogError<PrototypeAST>(
-      "Parser: Expected ':' in the function definition");
+  if (Lexer::get_next_token() != tok_arrow_right) {
+    return log_full_parser_error<PrototypeAST>(
+      tok_arrow_right,
+      Lexer::cur_tok,
+      std::string("Returning type annotation required. ") +
+        std::string("If the function doesn't return a value, use `void`."));
   }
 
-  Lexer::get_next_token();  // eat ':'.
+  if (Lexer::get_next_token() != tok_identifier) {
+    return log_full_parser_error<PrototypeAST>(
+      tok_identifier,
+      Lexer::cur_tok,
+      std::string("Returning type annotation required. ") +
+        std::string("If the function doesn't return a value, use `void`."));
+  }
 
-  return std::make_unique<PrototypeAST>(fn_loc, fn_name, std::move(args));
+  // TODO: ret_type_annotation is not used yet
+  ret_type_annotation = Lexer::identifier_str;
+
+  if (Lexer::get_next_token() != ':') {
+    return log_full_parser_error<PrototypeAST>(
+      ':',
+      Lexer::cur_tok,
+      std::string("Before starting the function body, use ':'."));
+  }
+
+  return std::make_unique<PrototypeAST>(
+    fn_loc, fn_name, ret_type_annotation, std::move(args));
 }
 
 /**
@@ -594,6 +700,7 @@ std::unique_ptr<FunctionAST> Parser::parse_top_level_expr() {
     auto proto = std::make_unique<PrototypeAST>(
       fn_loc,
       "__anon_expr",
+      "void",  // ANONYMOUS
       std::move(std::vector<std::unique_ptr<VariableExprAST>>()));
     return std::make_unique<FunctionAST>(std::move(proto), std::move(E));
   }

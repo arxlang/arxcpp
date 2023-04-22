@@ -1,2 +1,2 @@
-function get_constant(x):
-  x;
+fn get_constant(x: float) -> float:
+  return x;

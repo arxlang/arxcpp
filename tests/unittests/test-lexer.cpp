@@ -59,11 +59,11 @@ TEST(LexerTest, GetNextTokenSimpleTest) {
 TEST(LexerTest, GetTokTest) {
   /* Test gettok for main tokens */
   string_to_buffer((char*) R""""(
-  function math(x):
+  fn math(x: float) -> float:
     if x > 10:
-      x + 1
+      return x + 1;
     else:
-      x * 20
+      return x * 20;
 
   math(1);
   )"""");
@@ -72,21 +72,29 @@ TEST(LexerTest, GetTokTest) {
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '(');
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
+  EXPECT_EQ(Lexer::gettok(), (int) ':');
+  EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) ')');
+  EXPECT_EQ(Lexer::gettok(), tok_arrow_right);
+  EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) ':');
   EXPECT_EQ(Lexer::gettok(), tok_if);
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '>');
   EXPECT_EQ(Lexer::gettok(), tok_float_literal);
   EXPECT_EQ(Lexer::gettok(), (int) ':');
+  EXPECT_EQ(Lexer::gettok(), tok_return);
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '+');
   EXPECT_EQ(Lexer::gettok(), tok_float_literal);
+  EXPECT_EQ(Lexer::gettok(), (int) ';');
   EXPECT_EQ(Lexer::gettok(), tok_else);
   EXPECT_EQ(Lexer::gettok(), (int) ':');
+  EXPECT_EQ(Lexer::gettok(), tok_return);
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '*');
   EXPECT_EQ(Lexer::gettok(), tok_float_literal);
+  EXPECT_EQ(Lexer::gettok(), (int) ';');
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '(');
   EXPECT_EQ(Lexer::gettok(), tok_float_literal);

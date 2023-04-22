@@ -97,8 +97,9 @@ auto ASTToObjectVisitor::getFunction(std::string name) -> void {
  */
 auto ASTToObjectVisitor::CreateEntryBlockAlloca(
   llvm::Function* fn, llvm::StringRef var_name) -> llvm::AllocaInst* {
-  llvm::IRBuilder<> TmpB(&fn->getEntryBlock(), fn->getEntryBlock().begin());
-  return TmpB.CreateAlloca(ArxLLVM::FLOAT_TYPE, nullptr, var_name);
+  llvm::IRBuilder<> tmp_builder(
+    &fn->getEntryBlock(), fn->getEntryBlock().begin());
+  return tmp_builder.CreateAlloca(ArxLLVM::FLOAT_TYPE, nullptr, var_name);
 }
 
 /**
@@ -165,7 +166,7 @@ auto ASTToObjectVisitor::visit(UnaryExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
-  //  Special case '=' because we don't want to emit the lhs as an
+  // Special case '=' because we don't want to emit the lhs as an
   // expression.*/
   if (expr.op == '=') {
     // Assignment requires the lhs to be an identifier.
@@ -188,13 +189,13 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
     };
 
     // Look up the name.//
-    llvm::Value* Variable = ArxLLVM::named_values[var_lhs->get_name()];
-    if (!Variable) {
+    llvm::Value* variable = ArxLLVM::named_values[LHSE->getName()];
+    if (!variable) {
       this->result_val = LogErrorV("Unknown variable name");
       return;
     }
 
-    ArxLLVM::ir_builder->CreateStore(val, Variable);
+    ArxLLVM::ir_builder->CreateStore(val, variable);
     this->result_val = val;
   }
 
@@ -520,11 +521,32 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
-  std::vector<llvm::Type*> args_type(expr.args.size(), ArxLLVM::FLOAT_TYPE);
-  llvm::Type* return_type = ArxLLVM::get_data_type("float");
+  // Make the function type:  double(double,double) etc.
+  std::vector<llvm::Type*> args;
+  llvm::Type* arg_type;
 
-  llvm::FunctionType* fn_type =
-    llvm::FunctionType::get(return_type, args_type, false /* isVarArg */);
+  for (auto& arg : expr.args) {
+    arg_type = ArxLLVM::get_data_type(arg->type_name);
+    if (arg_type != nullptr) {
+      args.emplace_back(arg_type);
+    } else {
+      llvm::errs() << "ARX::GEN-OBJECT[ERROR]: PrototypeAST: "
+                   << "Argument data type " << arg->type_name
+                   << " not implemented yet.";
+    }
+  }
+
+  llvm::Type* return_type = ArxLLVM::get_data_type(expr.type_name);
+
+  if (return_type == nullptr) {
+    llvm::errs() << "ARX::GEN-OBJECT[ERROR]: PrototypeAST: "
+                 << "Argument data type " << expr.type_name
+                 << " not implemented yet.";
+  }
+
+  llvm::FunctionType* fn_type = llvm::FunctionType::get(
+    return_type, args, false /* isVarArg */
+  );
 
   llvm::Function* fn = llvm::Function::Create(
     fn_type,
@@ -794,7 +816,7 @@ auto compile_object(TreeAST& tree_ast) -> int {
   std::cout << "ARX[INFO]: " << compiler_cmd << std::endl;
   int compile_result = system(compiler_cmd.c_str());
 
-  // ArxFile::delete_file(main_cpp_path);
+  ArxFile::delete_file(main_cpp_path);
 
   if (compile_result != 0) {
     llvm::errs() << "failed to compile and link object file";

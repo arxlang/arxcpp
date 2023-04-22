@@ -1,2 +1,2 @@
-function average(x y):
-  (x + y) * 0.5;
+fn average(x: float, y: float) -> float:
+  return (x + y) * 0.5;
