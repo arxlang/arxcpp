@@ -25,11 +25,18 @@ groups:
         help: Build Arx for release
         env:
           ASAN_OPTIONS: '{{ args.asan_options }}'
+          LSAN_OPTIONS: '{{ args.lsan_options }}'
         args:
           asan-options:
             help: |
               Define a custom value for the environment variable
               `ASAN_OPTIONS`
+            type: string
+            default: ''
+          lsan-options:
+            help: |
+              Define a custom value for the environment variable
+              `LSAN_OPTIONS`
             type: string
             default: ''
           build-type:
@@ -49,6 +56,7 @@ groups:
         dependencies:
           - target: build.clean
             if: {{ args.clean }}
+        shell: bash
         run: |
           meson setup \
             --prefix $CONDA_PREFIX \
@@ -70,9 +78,10 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"
+              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0 -Db_sanitize=address"
               clean: {{ args.clean }}
-              asan-options: "fast_unwind_on_malloc=0"
+              asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
+              lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
 
   env:
     targets:
@@ -82,7 +91,6 @@ groups:
           touch .env
           echo -n @("HOST_UID=" + $(id -u) + "HOST_GID=" + $(id -g)) > .env
 
-
   conda:
     targets:
       build:
@@ -91,7 +99,6 @@ groups:
           cd conda/recipe
           conda build purge
           conda mambabuild .
-
 
   release:
     vars:
@@ -178,6 +185,10 @@ groups:
 
           GDB=""
           DEBUG_FLAGS=""
+          # another options: halt_on_error=true
+          # it could be a useful flag: -fsanitize-recover
+          export LSAN_OPTIONS=verbosity=2:log_threads=1
+          export ASAN_OPTIONS=verbosity=2:check_initialization_order=1:detect_leaks=1
 
           if [[ "{{ args.debug  }}" == "True" ]]; then
             GDB="gdb --args"
