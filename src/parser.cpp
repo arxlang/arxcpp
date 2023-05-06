@@ -18,7 +18,7 @@
 
 std::map<char, int> Parser::BinopPrecedence;
 
-void ExprAST::accept(Visitor* visitor) {
+void ExprAST::accept(std::shared_ptr<Visitor> visitor) {
   switch (this->kind) {
     case ExprKind::FloatDTKind: {
       visitor->visit((FloatExprAST*) this);
@@ -603,15 +603,15 @@ std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
   return Parser::ParseExternPrototype();
 }
 
-auto Parser::parse() -> TreeAST* {
-  TreeAST* ast = new TreeAST();
+auto Parser::parse() -> std::unique_ptr<TreeAST> {
+  auto ast = std::make_unique<TreeAST>(TreeAST());
 
   while (true) {
     std::unique_ptr<ExprAST> node_uptr = nullptr;
 
     switch (Lexer::CurTok) {
       case tok_eof:
-        return ast;
+        return std::move(ast);
       case tok_not_initialized:
         Lexer::getNextToken();
         break;

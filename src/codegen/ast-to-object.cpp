@@ -64,7 +64,8 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
 
   auto FI = function_protos.find(Name);
   if (FI != function_protos.end()) {
-    FI->second->accept(this);
+    std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+    FI->second->accept(shared_this);
   };
 }
 
@@ -123,7 +124,8 @@ auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
-  expr->Operand.get()->accept(this);
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+  expr->Operand.get()->accept(shared_this);
   llvm::Value* OperandV = this->result_val;
 
   if (!OperandV) {
@@ -160,7 +162,8 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     }
 
     // Codegen the RHS.//
-    expr->RHS.get()->accept(this);
+    std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+    expr->RHS.get()->accept(shared_this);
     llvm::Value* Val = this->result_val;
 
     if (!Val) {
@@ -179,9 +182,11 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     this->result_val = Val;
   }
 
-  expr->LHS.get()->accept(this);
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+
+  expr->LHS.get()->accept(shared_this);
   llvm::Value* L = this->result_val;
-  expr->RHS.get()->accept(this);
+  expr->RHS.get()->accept(shared_this);
   llvm::Value* R = this->result_val;
 
   if (!L || !R) {
@@ -234,9 +239,11 @@ auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
     return;
   }
 
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+
   std::vector<llvm::Value*> ArgsV;
   for (unsigned i = 0, e = expr->Args.size(); i != e; ++i) {
-    expr->Args[i].get()->accept(this);
+    expr->Args[i].get()->accept(shared_this);
     llvm::Value* ArgsV_item = this->result_val;
     ArgsV.push_back(ArgsV_item);
     if (!ArgsV.back()) {
@@ -252,7 +259,8 @@ auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
  * @brief Code generation for IfExprAST.
  */
 auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
-  expr->Cond.get()->accept(this);
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+  expr->Cond.get()->accept(shared_this);
   llvm::Value* CondV = this->result_val;
 
   if (!CondV) {
@@ -281,7 +289,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   // Emit then value.
   this->builder->SetInsertPoint(ThenBB);
 
-  expr->Then.get()->accept(this);
+  expr->Then.get()->accept(shared_this);
   llvm::Value* ThenV = this->result_val;
   if (!ThenV) {
     this->result_val = nullptr;
@@ -297,7 +305,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   fn->getBasicBlockList().push_back(ElseBB);
   this->builder->SetInsertPoint(ElseBB);
 
-  expr->Else.get()->accept(this);
+  expr->Else.get()->accept(shared_this);
   llvm::Value* ElseV = this->result_val;
   if (!ElseV) {
     this->result_val = nullptr;
@@ -328,13 +336,14 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
  * @param expr A `for` expression.
  */
 auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
   llvm::Function* fn = this->builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
   llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, expr->VarName);
 
   // Emit the start code first, without 'variable' in scope.
-  expr->Start.get()->accept(this);
+  expr->Start.get()->accept(shared_this);
   llvm::Value* StartVal = this->result_val;
   if (!StartVal) {
     this->result_val = nullptr;
@@ -365,7 +374,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Emit the body of the loop.  This, like any other expr, can change
   // the current BB.  Note that we ignore the value computed by the body,
   // but don't allow an error.
-  expr->Body.get()->accept(this);
+  expr->Body.get()->accept(shared_this);
   llvm::Value* BodyVal = this->result_val;
 
   if (!BodyVal) {
@@ -376,7 +385,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
   if (expr->Step) {
-    expr->Step.get()->accept(this);
+    expr->Step.get()->accept(shared_this);
     StepVal = this->result_val;
     if (!StepVal) {
       this->result_val = nullptr;
@@ -388,7 +397,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   }
 
   // Compute the end condition.
-  expr->End.get()->accept(this);
+  expr->End.get()->accept(shared_this);
   llvm::Value* EndCond = this->result_val;
   if (!EndCond) {
     this->result_val = nullptr;
@@ -434,6 +443,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
   std::vector<llvm::AllocaInst*> OldBindings;
 
   llvm::Function* fn = this->builder->GetInsertBlock()->getParent();
@@ -451,7 +461,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 
     llvm::Value* InitVal = nullptr;
     if (Init) {
-      Init->accept(this);
+      Init->accept(shared_this);
       InitVal = this->result_val;
       if (!InitVal) {
         this->result_val = nullptr;
@@ -473,7 +483,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
   }
 
   // Codegen the body, now that all vars are in scope.
-  expr->Body.get()->accept(this);
+  expr->Body.get()->accept(shared_this);
   llvm::Value* BodyVal = this->result_val;
   if (!BodyVal) {
     this->result_val = nullptr;
@@ -518,6 +528,7 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
  * keep a reference to it for use below.
  */
 auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
   auto& P = *(expr->Proto);
   function_protos[expr->Proto->getName()] = std::move(expr->Proto);
   this->getFunction(P.getName());
@@ -548,7 +559,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     this->named_values[std::string(Arg.getName())] = Alloca;
   }
 
-  expr->Body->accept(this);
+  expr->Body->accept(shared_this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
@@ -590,9 +601,10 @@ auto ASTToObjectVisitor::Initialize() -> void {
  * @brief The main loop that walks the AST.
  * top ::= definition | external | expression | ';'
  */
-auto ASTToObjectVisitor::MainLoop(TreeAST* ast) -> void {
-  for (auto node = ast->nodes.begin(); node != ast->nodes.end(); ++node) {
-    node->get()->accept(this);
+auto ASTToObjectVisitor::MainLoop(std::unique_ptr<TreeAST> ast) -> void {
+  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+  for (auto& node : ast->nodes) {
+    node->accept(shared_this);
   }
 }
 
@@ -629,7 +641,7 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
  *
  * @param tree_ast The AST tree object.
  */
-auto compile_object(TreeAST* tree_ast) -> void {
+auto compile_object(std::unique_ptr<TreeAST> tree_ast) -> void {
   auto codegen = new ASTToObjectVisitor();
 
   Lexer::getNextToken();
@@ -639,7 +651,7 @@ auto compile_object(TreeAST* tree_ast) -> void {
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
 
-  codegen->MainLoop(tree_ast);
+  codegen->MainLoop(std::move(tree_ast));
 
   LOG(INFO) << "Initialize Target";
 
@@ -717,7 +729,7 @@ auto open_shell_object() -> void {
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile_object(new TreeAST());
+  compile_object(std::make_unique<TreeAST>(TreeAST()));
 
   exit(0);
 }

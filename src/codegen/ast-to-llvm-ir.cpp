@@ -249,7 +249,8 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
 
   this->emitLocation(expr->Body.get());
 
-  expr->Body->accept(this);
+  std::shared_ptr<ASTToLLVMIRVisitor> shared_this = this->weak_this_ptr.lock();
+  expr->Body->accept(shared_this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
@@ -295,8 +296,9 @@ auto ASTToLLVMIRVisitor::Initialize() -> void {
  *
  * @param ast The AST tree object.
  */
-auto compile_llvm_ir(TreeAST* ast) -> void {
-  auto codegen = new ASTToLLVMIRVisitor();
+auto compile_llvm_ir(std::unique_ptr<TreeAST> ast) -> void {
+  auto codegen = std::make_shared<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
+  codegen->weak_this_ptr = codegen;
 
   Lexer::getNextToken();
 
@@ -347,7 +349,7 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
     0);
 
   // Run the main "interpreter loop" now.
-  codegen->MainLoop(ast);
+  codegen->MainLoop(std::move(ast));
 
   // Finalize the debug info.
   codegen->DBuilder->finalize();
@@ -365,7 +367,7 @@ auto open_shell_llvm_ir() -> void {
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile_llvm_ir(new TreeAST());
+  compile_llvm_ir(std::make_unique<TreeAST>(TreeAST()));
 
   exit(0);
 }

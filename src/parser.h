@@ -84,7 +84,7 @@ class ExprAST {
     return Loc.Col;
   }
 
-  void accept(Visitor* visitor);
+  void accept(std::shared_ptr<Visitor> visitor);
 
   virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
     return out << ':' << this->getLine() << ':' << this->getCol() << "\n";
@@ -409,6 +409,7 @@ class Visitor {
   virtual void visit(PrototypeAST*) = 0;
   virtual void visit(FunctionAST*) = 0;
   virtual void clean() = 0;
+  virtual ~Visitor() = default;
 };
 
 class Parser {
@@ -423,7 +424,7 @@ class Parser {
     Parser::BinopPrecedence['*'] = 40;
   }
 
-  static auto parse() -> TreeAST*;
+  static auto parse() -> std::unique_ptr<TreeAST>;
 
   static auto GetTokPrecedence() -> int;
 

@@ -52,8 +52,7 @@ auto main_show_version(__attribute__((unused)) int count) -> void {
  */
 auto main_show_ast(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
-  TreeAST* ast = Parser::parse();
-  print_ast(ast);
+  print_ast(std::move(Parser::parse()));
   exit(0);
 }
 
@@ -63,8 +62,7 @@ auto main_show_ast(__attribute__((unused)) int count) -> void {
  */
 auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
-  TreeAST* ast = Parser::parse();
-  compile_llvm_ir(ast);
+  compile_llvm_ir(std::move(Parser::parse()));
   exit(0);
 }
 
@@ -74,8 +72,7 @@ auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
  */
 auto main_compile() -> void {
   load_input_to_buffer();
-  TreeAST* ast = Parser::parse();
-  compile_object(ast);
+  compile_object(std::move(Parser::parse()));
   exit(0);
 }
 

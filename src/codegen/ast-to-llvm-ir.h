@@ -31,11 +31,12 @@
 #include "codegen/ast-to-object.h"
 #include "parser.h"
 
-auto compile_llvm_ir(TreeAST*) -> void;
+auto compile_llvm_ir(std::unique_ptr<TreeAST>) -> void;
 auto open_shell_llvm_ir() -> void;
 
 class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
  public:
+  std::weak_ptr<ASTToLLVMIRVisitor> weak_this_ptr;
   std::unique_ptr<llvm::DIBuilder> DBuilder;
   llvm::ExitOnError ExitOnErr;
 
@@ -43,6 +44,8 @@ class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
   llvm::DICompileUnit* TheCU;
   llvm::DIType* DblTy;
   std::vector<llvm::DIScope*> LexicalBlocks;
+
+  ASTToLLVMIRVisitor() = default;
 
   ~ASTToLLVMIRVisitor() {
     this->result_val = nullptr;

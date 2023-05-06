@@ -6,7 +6,7 @@
 #include "../src/lexer.h"
 #include "../src/utils.h"
 
-auto lexer = new Lexer();
+// auto lexer = new Lexer();
 
 TEST(LexerTest, TokenNameTest) {
   /* Test some results from getTokName */
