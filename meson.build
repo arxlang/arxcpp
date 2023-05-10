@@ -47,6 +47,7 @@ inc = include_directories('./src')
 SRC_PATH = PROJECT_PATH + '/src'
 
 project_src_files = files(
+  SRC_PATH + '/codegen/arx-llvm.cpp',
   SRC_PATH + '/codegen/ast-to-llvm-ir.cpp',
   SRC_PATH + '/codegen/ast-to-object.cpp',
   SRC_PATH + '/codegen/ast-to-stdout.cpp',

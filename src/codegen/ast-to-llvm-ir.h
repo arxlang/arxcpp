@@ -37,20 +37,15 @@ auto open_shell_llvm_ir() -> void;
 class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
  public:
   std::weak_ptr<ASTToLLVMIRVisitor> weak_this_ptr;
-  std::unique_ptr<llvm::DIBuilder> DBuilder;
-  llvm::ExitOnError ExitOnErr;
 
   // DebugInfo
   llvm::DICompileUnit* TheCU;
   llvm::DIType* DblTy;
   std::vector<llvm::DIScope*> LexicalBlocks;
 
-  ASTToLLVMIRVisitor() = default;
+  llvm::ExitOnError ExitOnErr;
 
-  ~ASTToLLVMIRVisitor() {
-    this->result_val = nullptr;
-    this->result_func = nullptr;
-  }
+  ASTToLLVMIRVisitor() = default;
 
   virtual void visit(FloatExprAST*) override;
   virtual void visit(VariableExprAST*) override;

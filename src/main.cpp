@@ -12,6 +12,7 @@
 #include <stdlib.h>        // for exit
 #include <CLI/CLI.hpp>
 #include <string>                    // for string, allocator
+#include "codegen/arx-llvm.h"        // for ArxLLVM
 #include "codegen/ast-to-llvm-ir.h"  // for compile_llvm_ir
 #include "codegen/ast-to-object.h"   // for compile_object, open_shell_object
 #include "codegen/ast-to-stdout.h"   // for print_ast

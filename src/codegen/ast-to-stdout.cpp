@@ -8,8 +8,9 @@
 
 int INDENT_SIZE = 2;
 
-class ASTToOutputVisitor : public Visitor,
-                           std::enable_shared_from_this<ASTToOutputVisitor> {
+class ASTToOutputVisitor
+    : public std::enable_shared_from_this<ASTToOutputVisitor>,
+      public Visitor {
  public:
   int indent = 0;
   std::string annotation = "";

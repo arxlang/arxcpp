@@ -7,7 +7,7 @@
 #include <map>                    // for map
 #include <memory>                 // for unique_ptr
 #include <string>                 // for string
-#include "jit.h"                  // for ArxJIT
+#include "codegen/jit.h"          // for ArxJIT
 #include "parser.h"               // for PrototypeAST (ptr only), TreeAST (p...
 
 namespace llvm {
@@ -25,31 +25,14 @@ namespace llvm {
 auto compile_object(std::unique_ptr<TreeAST>) -> void;
 auto open_shell_object() -> void;
 
-class ASTToObjectVisitor : public Visitor,
-                           std::enable_shared_from_this<ASTToObjectVisitor> {
+class ASTToObjectVisitor
+    : public std::enable_shared_from_this<ASTToObjectVisitor>,
+      public Visitor {
  public:
   llvm::Value* result_val;
   llvm::Function* result_func;
 
-  std::map<std::string, llvm::AllocaInst*> named_values;
-
-  std::unique_ptr<llvm::LLVMContext> context;
-  std::unique_ptr<llvm::Module> module;
-  std::unique_ptr<llvm::IRBuilder<>> builder;
-
-  std::unique_ptr<llvm::orc::ArxJIT> jit;
-  std::map<std::string, std::unique_ptr<PrototypeAST>> function_protos;
-
-  /* Data types */
-  llvm::Type* LLVM_DOUBLE_TYPE;
-  llvm::Type* LLVM_FLOAT_TYPE;
-  llvm::Type* LLVM_INT8_TYPE;
-  llvm::Type* LLVM_INT32_TYPE;
-
-  ~ASTToObjectVisitor() {
-    this->result_val = nullptr;
-    this->result_func = nullptr;
-  }
+  ASTToObjectVisitor() = default;
 
   virtual void visit(FloatExprAST*) override;
   virtual void visit(VariableExprAST*) override;
