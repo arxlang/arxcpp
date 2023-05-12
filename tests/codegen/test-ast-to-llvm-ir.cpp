@@ -13,5 +13,6 @@ TEST(CodeGenTest, ObjectGeneration) {
   add(1);
   )"""");
 
-  compile_llvm_ir(std::make_unique<TreeAST>(TreeAST()));
+  auto ast = std::make_unique<TreeAST>(TreeAST());
+  compile_llvm_ir(*ast);
 }

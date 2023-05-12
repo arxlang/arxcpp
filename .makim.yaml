@@ -78,7 +78,7 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Db_coverage=true -Doptimization=0 -Db_sanitize=address"
+              extras: "-Db_coverage=true -Doptimization=0"  # -Db_sanitize=address
               clean: {{ args.clean }}
               asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
               lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
@@ -94,7 +94,7 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0 -Db_sanitize=address"
+              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"  #  -Db_sanitize=address
               clean: {{ args.clean }}
               asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
               lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"

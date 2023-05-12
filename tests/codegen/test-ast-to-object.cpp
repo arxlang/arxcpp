@@ -13,5 +13,6 @@ TEST(CodeGenTest, ObjectGeneration) {
   add(1);
   )"""");
 
-  compile_object(std::make_unique<TreeAST>(TreeAST()));
+  auto ast = std::make_unique<TreeAST>(TreeAST());
+  compile_object(*ast);
 }
