@@ -84,7 +84,7 @@ class ExprAST {
     return Loc.Col;
   }
 
-  void accept(std::shared_ptr<Visitor> visitor);
+  void accept(Visitor& visitor);
 
   virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
     return out << ':' << this->getLine() << ':' << this->getCol() << "\n";
@@ -340,7 +340,7 @@ class VarExprAST : public ExprAST {
 class PrototypeAST : public ExprAST {
  public:
   std::string Name;
-  std::vector<VariableExprAST*> Args;
+  std::vector<std::unique_ptr<VariableExprAST>> Args;
   int Line;
 
   /**
@@ -349,7 +349,9 @@ class PrototypeAST : public ExprAST {
    * @param Args The prototype arguments
    */
   PrototypeAST(
-    SourceLocation Loc, std::string Name, std::vector<VariableExprAST*> Args)
+    SourceLocation Loc,
+    std::string Name,
+    std::vector<std::unique_ptr<VariableExprAST>>&& Args)
       : Name(std::move(Name)), Args(std::move(Args)), Line(Loc.Line) {
     this->kind = ExprKind::PrototypeKind;
   }
@@ -398,16 +400,16 @@ class TreeAST : public ExprAST {
 
 class Visitor {
  public:
-  virtual void visit(FloatExprAST*) = 0;
-  virtual void visit(VariableExprAST*) = 0;
-  virtual void visit(UnaryExprAST*) = 0;
-  virtual void visit(BinaryExprAST*) = 0;
-  virtual void visit(CallExprAST*) = 0;
-  virtual void visit(IfExprAST*) = 0;
-  virtual void visit(ForExprAST*) = 0;
-  virtual void visit(VarExprAST*) = 0;
-  virtual void visit(PrototypeAST*) = 0;
-  virtual void visit(FunctionAST*) = 0;
+  virtual void visit(FloatExprAST&) = 0;
+  virtual void visit(VariableExprAST&) = 0;
+  virtual void visit(UnaryExprAST&) = 0;
+  virtual void visit(BinaryExprAST&) = 0;
+  virtual void visit(CallExprAST&) = 0;
+  virtual void visit(IfExprAST&) = 0;
+  virtual void visit(ForExprAST&) = 0;
+  virtual void visit(VarExprAST&) = 0;
+  virtual void visit(PrototypeAST&) = 0;
+  virtual void visit(FunctionAST&) = 0;
   virtual void clean() = 0;
   virtual ~Visitor() = default;
 };

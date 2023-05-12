@@ -70,8 +70,8 @@ auto ASTToLLVMIRVisitor::getDoubleTy() -> llvm::DIType* {
   return DblTy;
 }
 
-auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
-  if (!AST) {
+auto ASTToLLVMIRVisitor::emitLocation(ExprAST& ast) -> void {
+  if (!std::addressof(ast)) {
     return ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DebugLoc());
   }
 
@@ -83,14 +83,14 @@ auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
   }
 
   ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DILocation::get(
-    Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
+    Scope->getContext(), ast.getLine(), ast.getCol(), Scope));
 }
 
 /**
  * @brief Code generation for FloatExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(FloatExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(FloatExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -99,7 +99,7 @@ auto ASTToLLVMIRVisitor::visit(FloatExprAST* expr) -> void {
  * @brief Code generation for VariableExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(VariableExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(VariableExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -108,7 +108,7 @@ auto ASTToLLVMIRVisitor::visit(VariableExprAST* expr) -> void {
  * @brief Code generation for UnaryExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(UnaryExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(UnaryExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -117,7 +117,7 @@ auto ASTToLLVMIRVisitor::visit(UnaryExprAST* expr) -> void {
  * @brief Code generation for BinaryExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(BinaryExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(BinaryExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -126,7 +126,7 @@ auto ASTToLLVMIRVisitor::visit(BinaryExprAST* expr) -> void {
  * @brief Code generation for CallExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(CallExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(CallExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -134,7 +134,7 @@ auto ASTToLLVMIRVisitor::visit(CallExprAST* expr) -> void {
 /**
  * @brief Code generation for IfExprAST.
  */
-auto ASTToLLVMIRVisitor::visit(IfExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(IfExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -144,7 +144,7 @@ auto ASTToLLVMIRVisitor::visit(IfExprAST* expr) -> void {
  *
  * @param expr A `for` expression.
  */
-auto ASTToLLVMIRVisitor::visit(ForExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(ForExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -153,7 +153,7 @@ auto ASTToLLVMIRVisitor::visit(ForExprAST* expr) -> void {
  * @brief Code generation for VarExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(VarExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(VarExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -162,7 +162,7 @@ auto ASTToLLVMIRVisitor::visit(VarExprAST* expr) -> void {
  * @brief Code generation for PrototypeExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(PrototypeAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(PrototypeAST& expr) -> void {
   ASTToObjectVisitor::visit(expr);
 }
 
@@ -172,9 +172,9 @@ auto ASTToLLVMIRVisitor::visit(PrototypeAST* expr) -> void {
  * Transfer ownership of the prototype to the ArxLLVM::function_protos map,
  * but keep a reference to it for use below.
  */
-auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
-  auto& P = *(expr->Proto);
-  ArxLLVM::function_protos[expr->Proto->getName()] = std::move(expr->Proto);
+auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
+  auto& P = *(expr.Proto);
+  ArxLLVM::function_protos[expr.Proto->getName()] = std::move(expr.Proto);
   this->getFunction(P.getName());
   llvm::Function* TheFunction = this->result_func;
 
@@ -214,7 +214,9 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   // Unset the location for the prologue emission (leading instructions with no
   // location in a function are considered part of the prologue and the
   // debugger will run past them when breaking on a function)
-  this->emitLocation(nullptr);
+  ExprAST null_ast;
+  this->emitLocation(null_ast);
+
   /* debugging-code:end*/
 
   // Record the function arguments in the named_values map.
@@ -248,10 +250,9 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
     ArxLLVM::named_values[std::string(Arg.getName())] = Alloca;
   }
 
-  this->emitLocation(expr->Body.get());
+  this->emitLocation(*expr.Body.get());
 
-  std::shared_ptr<ASTToLLVMIRVisitor> shared_this = this->weak_this_ptr.lock();
-  expr->Body->accept(shared_this);
+  expr.Body->accept(*this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
@@ -296,9 +297,8 @@ auto ASTToLLVMIRVisitor::Initialize() -> void {
  *
  * @param ast The AST tree object.
  */
-auto compile_llvm_ir(std::unique_ptr<TreeAST> ast) -> void {
-  auto codegen = std::make_shared<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
-  codegen->weak_this_ptr = codegen;
+auto compile_llvm_ir(TreeAST& ast) -> void {
+  auto codegen = std::make_unique<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
 
   Lexer::getNextToken();
 
@@ -349,7 +349,7 @@ auto compile_llvm_ir(std::unique_ptr<TreeAST> ast) -> void {
     0);
 
   // Run the main "interpreter loop" now.
-  codegen->MainLoop(std::move(ast));
+  codegen->MainLoop(ast);
 
   // Finalize the debug info.
   ArxLLVM::di_builder->finalize();
@@ -367,7 +367,8 @@ auto open_shell_llvm_ir() -> void {
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile_llvm_ir(std::make_unique<TreeAST>(TreeAST()));
+  auto ast = std::make_unique<TreeAST>(TreeAST());
+  compile_llvm_ir(*ast);
 
   exit(0);
 }

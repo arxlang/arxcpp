@@ -6,8 +6,6 @@
 #include "../src/lexer.h"
 #include "../src/utils.h"
 
-// auto lexer = new Lexer();
-
 TEST(LexerTest, TokenNameTest) {
   /* Test some results from getTokName */
   EXPECT_EQ(Lexer::getTokName(tok_eof), "eof");

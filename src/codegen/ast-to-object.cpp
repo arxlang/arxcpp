@@ -65,8 +65,7 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
 
   auto FI = ArxLLVM::function_protos.find(Name);
   if (FI != ArxLLVM::function_protos.end()) {
-    std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-    FI->second->accept(shared_this);
+    FI->second->accept(*this);
   };
 }
 
@@ -98,35 +97,34 @@ auto ASTToObjectVisitor::clean() -> void {
  * @brief Code generation for FloatExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(FloatExprAST* expr) -> void {
+auto ASTToObjectVisitor::visit(FloatExprAST& expr) -> void {
   this->result_val =
-    llvm::ConstantFP::get(*ArxLLVM::context, llvm::APFloat(expr->Val));
+    llvm::ConstantFP::get(*ArxLLVM::context, llvm::APFloat(expr.Val));
 }
 
 /**
  * @brief Code generation for VariableExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(VariableExprAST* expr) -> void {
-  llvm::Value* V = ArxLLVM::named_values[expr->Name];
+auto ASTToObjectVisitor::visit(VariableExprAST& expr) -> void {
+  llvm::Value* V = ArxLLVM::named_values[expr.Name];
 
   if (!V) {
-    auto msg = std::string("Unknown variable name: ") + expr->Name;
+    auto msg = std::string("Unknown variable name: ") + expr.Name;
     this->result_val = LogErrorV(msg.c_str());
     return;
   }
 
   this->result_val = ArxLLVM::ir_builder->CreateLoad(
-    ArxLLVM::DOUBLE_TYPE, V, expr->Name.c_str());
+    ArxLLVM::DOUBLE_TYPE, V, expr.Name.c_str());
 }
 
 /**
  * @brief Code generation for UnaryExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-  expr->Operand.get()->accept(shared_this);
+auto ASTToObjectVisitor::visit(UnaryExprAST& expr) -> void {
+  expr.Operand.get()->accept(*this);
   llvm::Value* OperandV = this->result_val;
 
   if (!OperandV) {
@@ -134,7 +132,7 @@ auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
     return;
   }
 
-  this->getFunction(std::string("unary") + expr->Opcode);
+  this->getFunction(std::string("unary") + expr.Opcode);
   llvm::Function* F = this->result_func;
   if (!F) {
     this->result_val = LogErrorV("Unknown unary operator");
@@ -148,23 +146,22 @@ auto ASTToObjectVisitor::visit(UnaryExprAST* expr) -> void {
  * @brief Code generation for BinaryExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
+auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
   //  Special case '=' because we don't want to emit the LHS as an
   // expression.*/
-  if (expr->Op == '=') {
+  if (expr.Op == '=') {
     // Assignment requires the LHS to be an identifier.
     // This assume we're building without RTTI because LLVM builds that
     // way by default.  If you build LLVM with RTTI this can be changed
     // to a dynamic_cast for automatic error checking.
-    VariableExprAST* LHSE = static_cast<VariableExprAST*>(expr->LHS.get());
+    VariableExprAST* LHSE = static_cast<VariableExprAST*>(expr.LHS.get());
     if (!LHSE) {
       this->result_val = LogErrorV("destination of '=' must be a variable");
       return;
     }
 
     // Codegen the RHS.//
-    std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-    expr->RHS.get()->accept(shared_this);
+    expr.RHS.get()->accept(*this);
     llvm::Value* Val = this->result_val;
 
     if (!Val) {
@@ -183,11 +180,9 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     this->result_val = Val;
   }
 
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-
-  expr->LHS.get()->accept(shared_this);
+  expr.LHS.get()->accept(*this);
   llvm::Value* L = this->result_val;
-  expr->RHS.get()->accept(shared_this);
+  expr.RHS.get()->accept(*this);
   llvm::Value* R = this->result_val;
 
   if (!L || !R) {
@@ -195,7 +190,7 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
     return;
   }
 
-  switch (expr->Op) {
+  switch (expr.Op) {
     case '+':
       this->result_val = ArxLLVM::ir_builder->CreateFAdd(L, R, "addtmp");
       return;
@@ -215,7 +210,7 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
 
   // If it wasn't a builtin binary operator, it must be a user defined
   // one. Emit a call to it.
-  this->getFunction(std::string("binary") + expr->Op);
+  this->getFunction(std::string("binary") + expr.Op);
   llvm::Function* F = this->result_func;
   assert(F && "binary operator not found!");
 
@@ -227,24 +222,22 @@ auto ASTToObjectVisitor::visit(BinaryExprAST* expr) -> void {
  * @brief Code generation for CallExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
-  this->getFunction(expr->Callee);
+auto ASTToObjectVisitor::visit(CallExprAST& expr) -> void {
+  this->getFunction(expr.Callee);
   llvm::Function* CalleeF = this->result_func;
   if (!CalleeF) {
     this->result_val = LogErrorV("Unknown function referenced");
     return;
   }
 
-  if (CalleeF->arg_size() != expr->Args.size()) {
+  if (CalleeF->arg_size() != expr.Args.size()) {
     this->result_val = LogErrorV("Incorrect # arguments passed");
     return;
   }
 
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-
   std::vector<llvm::Value*> ArgsV;
-  for (unsigned i = 0, e = expr->Args.size(); i != e; ++i) {
-    expr->Args[i].get()->accept(shared_this);
+  for (unsigned i = 0, e = expr.Args.size(); i != e; ++i) {
+    expr.Args[i].get()->accept(*this);
     llvm::Value* ArgsV_item = this->result_val;
     ArgsV.push_back(ArgsV_item);
     if (!ArgsV.back()) {
@@ -260,9 +253,8 @@ auto ASTToObjectVisitor::visit(CallExprAST* expr) -> void {
 /**
  * @brief Code generation for IfExprAST.
  */
-auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-  expr->Cond.get()->accept(shared_this);
+auto ASTToObjectVisitor::visit(IfExprAST& expr) -> void {
+  expr.Cond.get()->accept(*this);
   llvm::Value* CondV = this->result_val;
 
   if (!CondV) {
@@ -292,7 +284,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   // Emit then value.
   ArxLLVM::ir_builder->SetInsertPoint(ThenBB);
 
-  expr->Then.get()->accept(shared_this);
+  expr.Then.get()->accept(*this);
   llvm::Value* ThenV = this->result_val;
   if (!ThenV) {
     this->result_val = nullptr;
@@ -308,7 +300,7 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
   fn->getBasicBlockList().push_back(ElseBB);
   ArxLLVM::ir_builder->SetInsertPoint(ElseBB);
 
-  expr->Else.get()->accept(shared_this);
+  expr.Else.get()->accept(*this);
   llvm::Value* ElseV = this->result_val;
   if (!ElseV) {
     this->result_val = nullptr;
@@ -338,15 +330,14 @@ auto ASTToObjectVisitor::visit(IfExprAST* expr) -> void {
  *
  * @param expr A `for` expression.
  */
-auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   llvm::Function* fn = ArxLLVM::ir_builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
-  llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, expr->VarName);
+  llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, expr.VarName);
 
   // Emit the start code first, without 'variable' in scope.
-  expr->Start.get()->accept(shared_this);
+  expr.Start.get()->accept(*this);
   llvm::Value* StartVal = this->result_val;
   if (!StartVal) {
     this->result_val = nullptr;
@@ -371,13 +362,13 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Within the loop, the variable is defined equal to the PHI node.  If
   // it shadows an existing variable, we have to restore it, so save it
   // now.
-  llvm::AllocaInst* OldVal = ArxLLVM::named_values[expr->VarName];
-  ArxLLVM::named_values[expr->VarName] = Alloca;
+  llvm::AllocaInst* OldVal = ArxLLVM::named_values[expr.VarName];
+  ArxLLVM::named_values[expr.VarName] = Alloca;
 
   // Emit the body of the loop.  This, like any other expr, can change
   // the current BB.  Note that we ignore the value computed by the body,
   // but don't allow an error.
-  expr->Body.get()->accept(shared_this);
+  expr.Body.get()->accept(*this);
   llvm::Value* BodyVal = this->result_val;
 
   if (!BodyVal) {
@@ -387,8 +378,8 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
-  if (expr->Step) {
-    expr->Step.get()->accept(shared_this);
+  if (expr.Step) {
+    expr.Step.get()->accept(*this);
     StepVal = this->result_val;
     if (!StepVal) {
       this->result_val = nullptr;
@@ -400,7 +391,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   }
 
   // Compute the end condition.
-  expr->End.get()->accept(shared_this);
+  expr.End.get()->accept(*this);
   llvm::Value* EndCond = this->result_val;
   if (!EndCond) {
     this->result_val = nullptr;
@@ -410,7 +401,7 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
   llvm::Value* CurVar = ArxLLVM::ir_builder->CreateLoad(
-    ArxLLVM::DOUBLE_TYPE, Alloca, expr->VarName.c_str());
+    ArxLLVM::DOUBLE_TYPE, Alloca, expr.VarName.c_str());
   llvm::Value* NextVar =
     ArxLLVM::ir_builder->CreateFAdd(CurVar, StepVal, "nextvar");
   ArxLLVM::ir_builder->CreateStore(NextVar, Alloca);
@@ -433,9 +424,9 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
 
   // Restore the unshadowed variable.
   if (OldVal) {
-    ArxLLVM::named_values[expr->VarName] = OldVal;
+    ArxLLVM::named_values[expr.VarName] = OldVal;
   } else {
-    ArxLLVM::named_values.erase(expr->VarName);
+    ArxLLVM::named_values.erase(expr.VarName);
   }
 
   // for expr always returns 0.0.
@@ -446,14 +437,13 @@ auto ASTToObjectVisitor::visit(ForExprAST* expr) -> void {
  * @brief Code generation for VarExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
+auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
   std::vector<llvm::AllocaInst*> OldBindings;
 
   llvm::Function* fn = ArxLLVM::ir_builder->GetInsertBlock()->getParent();
 
   // Register all variables and emit their initializer.
-  for (auto& i : expr->VarNames) {
+  for (auto& i : expr.VarNames) {
     const std::string& VarName = i.first;
     ExprAST* Init = i.second.get();
 
@@ -465,7 +455,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
 
     llvm::Value* InitVal = nullptr;
     if (Init) {
-      Init->accept(shared_this);
+      Init->accept(*this);
       InitVal = this->result_val;
       if (!InitVal) {
         this->result_val = nullptr;
@@ -487,7 +477,7 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
   }
 
   // Codegen the body, now that all vars are in scope.
-  expr->Body.get()->accept(shared_this);
+  expr.Body.get()->accept(*this);
   llvm::Value* BodyVal = this->result_val;
   if (!BodyVal) {
     this->result_val = nullptr;
@@ -495,8 +485,8 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
   }
 
   // Pop all our variables from scope.
-  for (unsigned i = 0, e = expr->VarNames.size(); i != e; ++i) {
-    ArxLLVM::named_values[expr->VarNames[i].first] = OldBindings[i];
+  for (unsigned i = 0, e = expr.VarNames.size(); i != e; ++i) {
+    ArxLLVM::named_values[expr.VarNames[i].first] = OldBindings[i];
   }
 
   // Return the body computation.
@@ -507,19 +497,19 @@ auto ASTToObjectVisitor::visit(VarExprAST* expr) -> void {
  * @brief Code generation for PrototypeExprAST.
  *
  */
-auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
+auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
   // Make the function type:  double(double,double) etc.
-  std::vector<llvm::Type*> Doubles(expr->Args.size(), ArxLLVM::DOUBLE_TYPE);
+  std::vector<llvm::Type*> Doubles(expr.Args.size(), ArxLLVM::DOUBLE_TYPE);
   llvm::FunctionType* FT =
     llvm::FunctionType::get(ArxLLVM::DOUBLE_TYPE, Doubles, false);
 
   llvm::Function* F = llvm::Function::Create(
-    FT, llvm::Function::ExternalLinkage, expr->Name, ArxLLVM::module.get());
+    FT, llvm::Function::ExternalLinkage, expr.Name, ArxLLVM::module.get());
 
   // Set names for all arguments.
   unsigned Idx = 0;
   for (auto& Arg : F->args()) {
-    Arg.setName(expr->Args[Idx++]->Name);
+    Arg.setName(expr.Args[Idx++]->Name);
   }
 
   this->result_func = F;
@@ -531,10 +521,9 @@ auto ASTToObjectVisitor::visit(PrototypeAST* expr) -> void {
  * Transfer ownership of the prototype to the ArxLLVM::function_protos map,
  * but keep a reference to it for use below.
  */
-auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-  auto& P = *(expr->Proto);
-  ArxLLVM::function_protos[expr->Proto->getName()] = std::move(expr->Proto);
+auto ASTToObjectVisitor::visit(FunctionAST& expr) -> void {
+  auto& P = *(expr.Proto);
+  ArxLLVM::function_protos[expr.Proto->getName()] = std::move(expr.Proto);
   this->getFunction(P.getName());
   llvm::Function* fn = this->result_func;
 
@@ -564,7 +553,7 @@ auto ASTToObjectVisitor::visit(FunctionAST* expr) -> void {
     ArxLLVM::named_values[std::string(Arg.getName())] = Alloca;
   }
 
-  expr->Body->accept(shared_this);
+  expr.Body->accept(*this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
@@ -607,10 +596,9 @@ auto ASTToObjectVisitor::Initialize() -> void {
  * @brief The main loop that walks the AST.
  * top ::= definition | external | expression | ';'
  */
-auto ASTToObjectVisitor::MainLoop(std::unique_ptr<TreeAST> ast) -> void {
-  std::shared_ptr<ASTToObjectVisitor> shared_this = this->shared_from_this();
-  for (auto& node : ast->nodes) {
-    node->accept(shared_this);
+auto ASTToObjectVisitor::MainLoop(TreeAST& ast) -> void {
+  for (auto& node : ast.nodes) {
+    node->accept(*this);
   }
 }
 
@@ -647,8 +635,8 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
  *
  * @param tree_ast The AST tree object.
  */
-auto compile_object(std::unique_ptr<TreeAST> tree_ast) -> void {
-  auto codegen = new ASTToObjectVisitor();
+auto compile_object(TreeAST& tree_ast) -> void {
+  auto codegen = std::make_unique<ASTToObjectVisitor>(ASTToObjectVisitor());
 
   Lexer::getNextToken();
 
@@ -657,7 +645,7 @@ auto compile_object(std::unique_ptr<TreeAST> tree_ast) -> void {
   // Run the main "interpreter loop" now.
   LOG(INFO) << "Starting MainLoop";
 
-  codegen->MainLoop(std::move(tree_ast));
+  codegen->MainLoop(tree_ast);
 
   LOG(INFO) << "Initialize Target";
 
@@ -735,7 +723,9 @@ auto open_shell_object() -> void {
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile_object(std::make_unique<TreeAST>(TreeAST()));
+  auto ast = std::make_unique<TreeAST>(TreeAST());
+
+  compile_object(*ast);
 
   exit(0);
 }

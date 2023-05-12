@@ -22,33 +22,31 @@ namespace llvm {
   class Value;
 }
 
-auto compile_object(std::unique_ptr<TreeAST>) -> void;
+auto compile_object(TreeAST&) -> void;
 auto open_shell_object() -> void;
 
-class ASTToObjectVisitor
-    : public std::enable_shared_from_this<ASTToObjectVisitor>,
-      public Visitor {
+class ASTToObjectVisitor : public Visitor {
  public:
   llvm::Value* result_val;
   llvm::Function* result_func;
 
   ASTToObjectVisitor() = default;
 
-  virtual void visit(FloatExprAST*) override;
-  virtual void visit(VariableExprAST*) override;
-  virtual void visit(UnaryExprAST*) override;
-  virtual void visit(BinaryExprAST*) override;
-  virtual void visit(CallExprAST*) override;
-  virtual void visit(IfExprAST*) override;
-  virtual void visit(ForExprAST*) override;
-  virtual void visit(VarExprAST*) override;
-  virtual void visit(PrototypeAST*) override;
-  virtual void visit(FunctionAST*) override;
+  virtual void visit(FloatExprAST&) override;
+  virtual void visit(VariableExprAST&) override;
+  virtual void visit(UnaryExprAST&) override;
+  virtual void visit(BinaryExprAST&) override;
+  virtual void visit(CallExprAST&) override;
+  virtual void visit(IfExprAST&) override;
+  virtual void visit(ForExprAST&) override;
+  virtual void visit(VarExprAST&) override;
+  virtual void visit(PrototypeAST&) override;
+  virtual void visit(FunctionAST&) override;
   virtual void clean() override;
 
   auto getFunction(std::string Name) -> void;
   auto CreateEntryBlockAlloca(
     llvm::Function* TheFunction, llvm::StringRef VarName) -> llvm::AllocaInst*;
-  auto MainLoop(std::unique_ptr<TreeAST> ast) -> void;
+  auto MainLoop(TreeAST&) -> void;
   auto Initialize() -> void;
 };

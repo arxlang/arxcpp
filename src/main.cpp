@@ -53,7 +53,8 @@ auto main_show_version(__attribute__((unused)) int count) -> void {
  */
 auto main_show_ast(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
-  print_ast(std::move(Parser::parse()));
+  auto ast = Parser::parse();
+  print_ast(*ast);
   exit(0);
 }
 
@@ -63,7 +64,8 @@ auto main_show_ast(__attribute__((unused)) int count) -> void {
  */
 auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
-  compile_llvm_ir(std::move(Parser::parse()));
+  auto ast = Parser::parse();
+  compile_llvm_ir(*ast);
   exit(0);
 }
 
@@ -73,7 +75,8 @@ auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
  */
 auto main_compile() -> void {
   load_input_to_buffer();
-  compile_object(std::move(Parser::parse()));
+  auto ast = Parser::parse();
+  compile_object(*ast);
   exit(0);
 }
 
