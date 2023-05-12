@@ -8,23 +8,25 @@
 
 int INDENT_SIZE = 2;
 
-class ASTToOutputVisitor : public Visitor {
+class ASTToOutputVisitor
+    : public std::enable_shared_from_this<ASTToOutputVisitor>,
+      public Visitor {
  public:
   int indent = 0;
   std::string annotation = "";
 
   ~ASTToOutputVisitor() = default;
 
-  virtual void visit(FloatExprAST*) override;
-  virtual void visit(VariableExprAST*) override;
-  virtual void visit(UnaryExprAST*) override;
-  virtual void visit(BinaryExprAST*) override;
-  virtual void visit(CallExprAST*) override;
-  virtual void visit(IfExprAST*) override;
-  virtual void visit(ForExprAST*) override;
-  virtual void visit(VarExprAST*) override;
-  virtual void visit(PrototypeAST*) override;
-  virtual void visit(FunctionAST*) override;
+  virtual void visit(FloatExprAST&) override;
+  virtual void visit(VariableExprAST&) override;
+  virtual void visit(UnaryExprAST&) override;
+  virtual void visit(BinaryExprAST&) override;
+  virtual void visit(CallExprAST&) override;
+  virtual void visit(IfExprAST&) override;
+  virtual void visit(ForExprAST&) override;
+  virtual void visit(VarExprAST&) override;
+  virtual void visit(PrototypeAST&) override;
+  virtual void visit(FunctionAST&) override;
 
   virtual void clean() override {}
 
@@ -44,22 +46,22 @@ class ASTToOutputVisitor : public Visitor {
   }
 };
 
-void ASTToOutputVisitor::visit(FloatExprAST* expr) {
+void ASTToOutputVisitor::visit(FloatExprAST& expr) {
   std::cout << this->indentation() << this->get_annotation() << "(Number "
-            << expr->Val << ")";
+            << expr.Val << ")";
 }
 
-void ASTToOutputVisitor::visit(VariableExprAST* expr) {
+void ASTToOutputVisitor::visit(VariableExprAST& expr) {
   std::cout << this->indentation() << this->get_annotation()
-            << "(VariableExprAST " << expr->Name << ")";
+            << "(VariableExprAST " << expr.Name << ")";
 }
 
-void ASTToOutputVisitor::visit(UnaryExprAST* expr) {
+void ASTToOutputVisitor::visit(UnaryExprAST& expr) {
   std::cout << "(UnaryExprAST"
             << ")" << std::endl;
 }
 
-void ASTToOutputVisitor::visit(BinaryExprAST* expr) {
+void ASTToOutputVisitor::visit(BinaryExprAST& expr) {
   std::cout << this->indentation() << this->get_annotation() << '('
             << std::endl;
   this->indent += INDENT_SIZE;
@@ -67,12 +69,12 @@ void ASTToOutputVisitor::visit(BinaryExprAST* expr) {
   std::cout << this->indentation() << "BinaryExprAST (" << std::endl;
   this->indent += INDENT_SIZE;
 
-  expr->LHS->accept(this);
+  expr.LHS->accept(*this);
   std::cout << ", " << std::endl;
 
-  std::cout << this->indentation() << "(OP " << expr->Op << ")," << std::endl;
+  std::cout << this->indentation() << "(OP " << expr.Op << ")," << std::endl;
 
-  expr->RHS->accept(this);
+  expr.RHS->accept(*this);
   std::cout << this->indentation() << std::endl;
 
   this->indent -= INDENT_SIZE;
@@ -82,18 +84,18 @@ void ASTToOutputVisitor::visit(BinaryExprAST* expr) {
   std::cout << this->indentation() << ")";
 }
 
-void ASTToOutputVisitor::visit(CallExprAST* expr) {
+void ASTToOutputVisitor::visit(CallExprAST& expr) {
   std::cout << this->indentation() << this->get_annotation() << '('
             << std::endl;
   this->indent += INDENT_SIZE;
 
   // start CallExprAST and open the arguments section
-  std::cout << this->indentation() << "CallExprAST " << expr->Callee << '('
+  std::cout << this->indentation() << "CallExprAST " << expr.Callee << '('
             << std::endl;
   this->indent += INDENT_SIZE;
 
-  for (auto node = expr->Args.begin(); node != expr->Args.end(); ++node) {
-    node->get()->accept(this);
+  for (auto node = expr.Args.begin(); node != expr.Args.end(); ++node) {
+    node->get()->accept(*this);
     std::cout << std::endl;
   }
 
@@ -106,7 +108,7 @@ void ASTToOutputVisitor::visit(CallExprAST* expr) {
   std::cout << this->indentation() << ")";
 }
 
-void ASTToOutputVisitor::visit(IfExprAST* expr) {
+void ASTToOutputVisitor::visit(IfExprAST& expr) {
   std::cout << this->indentation() << '(' << std::endl;
   this->indent += INDENT_SIZE;
 
@@ -115,16 +117,16 @@ void ASTToOutputVisitor::visit(IfExprAST* expr) {
   this->indent += INDENT_SIZE;
   this->set_annotation("<COND>");
 
-  expr->Cond->accept(this);
+  expr.Cond->accept(*this);
   std::cout << ',' << std::endl;
   this->set_annotation("<THEN>");
 
-  expr->Then->accept(this);
+  expr.Then->accept(*this);
 
-  if (expr->Else) {
+  if (expr.Else) {
     std::cout << ',' << std::endl;
     this->set_annotation("<ELSE>");
-    expr->Else->accept(this);
+    expr.Else->accept(*this);
     std::cout << std::endl;
   } else {
     std::cout << std::endl;
@@ -140,7 +142,7 @@ void ASTToOutputVisitor::visit(IfExprAST* expr) {
   std::cout << this->indentation() << ")";
 }
 
-void ASTToOutputVisitor::visit(ForExprAST* expr) {
+void ASTToOutputVisitor::visit(ForExprAST& expr) {
   // TODO: implement it
   std::cout << this->indentation() << this->get_annotation() << '('
             << std::endl;
@@ -151,22 +153,22 @@ void ASTToOutputVisitor::visit(ForExprAST* expr) {
 
   // start
   this->set_annotation("<START>");
-  expr->Start->accept(this);
+  expr.Start->accept(*this);
   std::cout << ", " << std::endl;
 
   // end
   this->set_annotation("<END>");
-  expr->End->accept(this);
+  expr.End->accept(*this);
   std::cout << ", " << std::endl;
 
   // step
   this->set_annotation("<STEP>");
-  expr->Step->accept(this);
+  expr.Step->accept(*this);
   std::cout << ", " << std::endl;
 
   // body
   this->set_annotation("<BODY>");
-  expr->Body->accept(this);
+  expr.Body->accept(*this);
   std::cout << std::endl;
 
   this->indent -= INDENT_SIZE;
@@ -176,15 +178,14 @@ void ASTToOutputVisitor::visit(ForExprAST* expr) {
   std::cout << this->indentation() << ")";
 }
 
-void ASTToOutputVisitor::visit(VarExprAST* expr) {
+void ASTToOutputVisitor::visit(VarExprAST& expr) {
   // TODO: implement it
   std::cout << "(VarExprAST " << std::endl;
   this->indent += INDENT_SIZE;
 
-  for (auto var_expr = expr->VarNames.begin();
-       var_expr != expr->VarNames.end();
+  for (auto var_expr = expr.VarNames.begin(); var_expr != expr.VarNames.end();
        ++var_expr) {
-    var_expr->second->accept(this);
+    var_expr->second->accept(*this);
     std::cout << "," << std::endl;
   }
 
@@ -193,24 +194,24 @@ void ASTToOutputVisitor::visit(VarExprAST* expr) {
   std::cout << ")" << std::endl;
 }
 
-void ASTToOutputVisitor::visit(PrototypeAST* expr) {
+void ASTToOutputVisitor::visit(PrototypeAST& expr) {
   // TODO: implement it
-  std::cout << "(PrototypeAST " << expr->Name << ")" << std::endl;
+  std::cout << "(PrototypeAST " << expr.Name << ")" << std::endl;
 }
 
-void ASTToOutputVisitor::visit(FunctionAST* expr) {
+void ASTToOutputVisitor::visit(FunctionAST& expr) {
   std::cout << this->indentation() << '(' << std::endl;
   this->indent += INDENT_SIZE;
 
   // create the function and open the args section
-  std::cout << this->indentation() << "Function " << expr->Proto->Name
+  std::cout << this->indentation() << "Function " << expr.Proto->Name
             << " <ARGS> (" << std::endl;
   this->indent += INDENT_SIZE;
 
-  // std::cout << expr->Proto->Args.front();
+  // std::cout << expr.Proto->Args.front();
 
-  for (auto node : expr->Proto->Args) {
-    node->accept(this);
+  for (const auto& node : expr.Proto->Args) {
+    node->accept(*this);
     std::cout << ", " << std::endl;
   }
 
@@ -221,7 +222,7 @@ void ASTToOutputVisitor::visit(FunctionAST* expr) {
 
   this->indent += INDENT_SIZE;
   // TODO: Body should be a vector of unique_ptr<Expr>
-  expr->Body->accept(this);
+  expr.Body->accept(*this);
 
   // close body section
   this->indent -= INDENT_SIZE;
@@ -232,14 +233,15 @@ void ASTToOutputVisitor::visit(FunctionAST* expr) {
   std::cout << this->indentation() << ")" << std::endl;
 }
 
-auto print_ast(TreeAST* ast) -> void {
-  auto visitor_print = new ASTToOutputVisitor();
+auto print_ast(TreeAST& ast) -> void {
+  auto visitor_print =
+    std::make_unique<ASTToOutputVisitor>(ASTToOutputVisitor());
 
   std::cout << "[" << std::endl;
   visitor_print->indent += INDENT_SIZE;
 
-  for (auto node = ast->nodes.begin(); node != ast->nodes.end(); ++node) {
-    node->get()->accept(visitor_print);
+  for (auto& node : ast.nodes) {
+    node->accept(*visitor_print);
     std::cout << visitor_print->indentation() << "," << std::endl;
   }
 

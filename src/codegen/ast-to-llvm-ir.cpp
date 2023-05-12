@@ -28,8 +28,9 @@
 #include <string>                       // for string, operator<=>
 #include <utility>                      // for move
 #include <vector>                       // for vector
+#include "codegen/arx-llvm.h"           // for ArxLLVM
 #include "codegen/ast-to-object.h"      // for ASTToObjectVisitor
-#include "jit.h"                        // for ArxJIT
+#include "codegen/jit.h"                // for ArxJIT
 #include "lexer.h"                      // for Lexer
 #include "parser.h"                     // for PrototypeAST, FunctionAST
 
@@ -47,14 +48,14 @@ auto ASTToLLVMIRVisitor::CreateFunctionType(unsigned NumArgs)
   llvm::DIType* DblTy = this->getDoubleTy();
 
   // Add the result type.
-  EltTys.push_back(DblTy);
+  EltTys.emplace_back(DblTy);
 
   for (unsigned i = 0, e = NumArgs; i != e; ++i) {
-    EltTys.push_back(DblTy);
+    EltTys.emplace_back(DblTy);
   }
 
-  return this->DBuilder->createSubroutineType(
-    this->DBuilder->getOrCreateTypeArray(EltTys));
+  return ArxLLVM::di_builder->createSubroutineType(
+    ArxLLVM::di_builder->getOrCreateTypeArray(EltTys));
 }
 
 // DebugInfo
@@ -64,14 +65,14 @@ auto ASTToLLVMIRVisitor::getDoubleTy() -> llvm::DIType* {
     return this->DblTy;
   }
 
-  DblTy =
-    this->DBuilder->createBasicType("double", 64, llvm::dwarf::DW_ATE_float);
+  DblTy = ArxLLVM::di_builder->createBasicType(
+    "double", 64, llvm::dwarf::DW_ATE_float);
   return DblTy;
 }
 
-auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
-  if (!AST) {
-    return this->builder->SetCurrentDebugLocation(llvm::DebugLoc());
+auto ASTToLLVMIRVisitor::emitLocation(ExprAST& ast) -> void {
+  if (!std::addressof(ast)) {
+    return ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DebugLoc());
   }
 
   llvm::DIScope* Scope;
@@ -81,15 +82,15 @@ auto ASTToLLVMIRVisitor::emitLocation(ExprAST* AST) -> void {
     Scope = this->LexicalBlocks.back();
   }
 
-  this->builder->SetCurrentDebugLocation(llvm::DILocation::get(
-    Scope->getContext(), AST->getLine(), AST->getCol(), Scope));
+  ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DILocation::get(
+    Scope->getContext(), ast.getLine(), ast.getCol(), Scope));
 }
 
 /**
  * @brief Code generation for FloatExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(FloatExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(FloatExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -98,7 +99,7 @@ auto ASTToLLVMIRVisitor::visit(FloatExprAST* expr) -> void {
  * @brief Code generation for VariableExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(VariableExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(VariableExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -107,7 +108,7 @@ auto ASTToLLVMIRVisitor::visit(VariableExprAST* expr) -> void {
  * @brief Code generation for UnaryExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(UnaryExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(UnaryExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -116,7 +117,7 @@ auto ASTToLLVMIRVisitor::visit(UnaryExprAST* expr) -> void {
  * @brief Code generation for BinaryExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(BinaryExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(BinaryExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -125,7 +126,7 @@ auto ASTToLLVMIRVisitor::visit(BinaryExprAST* expr) -> void {
  * @brief Code generation for CallExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(CallExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(CallExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -133,7 +134,7 @@ auto ASTToLLVMIRVisitor::visit(CallExprAST* expr) -> void {
 /**
  * @brief Code generation for IfExprAST.
  */
-auto ASTToLLVMIRVisitor::visit(IfExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(IfExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -143,7 +144,7 @@ auto ASTToLLVMIRVisitor::visit(IfExprAST* expr) -> void {
  *
  * @param expr A `for` expression.
  */
-auto ASTToLLVMIRVisitor::visit(ForExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(ForExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -152,7 +153,7 @@ auto ASTToLLVMIRVisitor::visit(ForExprAST* expr) -> void {
  * @brief Code generation for VarExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(VarExprAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(VarExprAST& expr) -> void {
   this->emitLocation(expr);
   ASTToObjectVisitor::visit(expr);
 }
@@ -161,19 +162,19 @@ auto ASTToLLVMIRVisitor::visit(VarExprAST* expr) -> void {
  * @brief Code generation for PrototypeExprAST.
  *
  */
-auto ASTToLLVMIRVisitor::visit(PrototypeAST* expr) -> void {
+auto ASTToLLVMIRVisitor::visit(PrototypeAST& expr) -> void {
   ASTToObjectVisitor::visit(expr);
 }
 
 /**
  * @brief Code generation for FunctionExprAST.
  *
- * Transfer ownership of the prototype to the function_protos map, but
- * keep a reference to it for use below.
+ * Transfer ownership of the prototype to the ArxLLVM::function_protos map,
+ * but keep a reference to it for use below.
  */
-auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
-  auto& P = *(expr->Proto);
-  function_protos[expr->Proto->getName()] = std::move(expr->Proto);
+auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
+  auto& P = *(expr.Proto);
+  ArxLLVM::function_protos[expr.Proto->getName()] = std::move(expr.Proto);
   this->getFunction(P.getName());
   llvm::Function* TheFunction = this->result_func;
 
@@ -185,17 +186,17 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* BB =
-    llvm::BasicBlock::Create(*this->context, "entry", TheFunction);
-  this->builder->SetInsertPoint(BB);
+    llvm::BasicBlock::Create(*ArxLLVM::context, "entry", TheFunction);
+  ArxLLVM::ir_builder->SetInsertPoint(BB);
 
   /* debugging-code:start*/
   // Create a subprogram DIE for this function.
-  llvm::DIFile* Unit = this->DBuilder->createFile(
+  llvm::DIFile* Unit = ArxLLVM::di_builder->createFile(
     this->TheCU->getFilename(), this->TheCU->getDirectory());
   llvm::DIScope* FContext = Unit;
   unsigned LineNo = P.getLine();
   unsigned ScopeLine = LineNo;
-  llvm::DISubprogram* SP = this->DBuilder->createFunction(
+  llvm::DISubprogram* SP = ArxLLVM::di_builder->createFunction(
     FContext,
     P.getName(),
     llvm::StringRef(),
@@ -208,17 +209,19 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
   TheFunction->setSubprogram(SP);
 
   // Push the current scope.
-  this->LexicalBlocks.push_back(SP);
+  this->LexicalBlocks.emplace_back(SP);
 
   // Unset the location for the prologue emission (leading instructions with no
   // location in a function are considered part of the prologue and the
   // debugger will run past them when breaking on a function)
-  this->emitLocation(nullptr);
+  ExprAST null_ast;
+  this->emitLocation(null_ast);
+
   /* debugging-code:end*/
 
   // Record the function arguments in the named_values map.
   // std::cout << "Record the function arguments in the named_values map.";
-  this->named_values.clear();
+  ArxLLVM::named_values.clear();
 
   unsigned ArgIdx = 0;
   for (auto& Arg : TheFunction->args()) {
@@ -228,33 +231,33 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
 
     /* debugging-code: start */
     // Create a debug descriptor for the variable.
-    llvm::DILocalVariable* D = this->DBuilder->createParameterVariable(
+    llvm::DILocalVariable* D = ArxLLVM::di_builder->createParameterVariable(
       SP, Arg.getName(), ++ArgIdx, Unit, LineNo, this->getDoubleTy(), true);
 
-    this->DBuilder->insertDeclare(
+    ArxLLVM::di_builder->insertDeclare(
       Alloca,
       D,
-      this->DBuilder->createExpression(),
+      ArxLLVM::di_builder->createExpression(),
       llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
-      this->builder->GetInsertBlock());
+      ArxLLVM::ir_builder->GetInsertBlock());
 
     /* debugging-code-end */
 
     // Store the initial value into the alloca.
-    this->builder->CreateStore(&Arg, Alloca);
+    ArxLLVM::ir_builder->CreateStore(&Arg, Alloca);
 
     // Add arguments to variable symbol table.
-    this->named_values[std::string(Arg.getName())] = Alloca;
+    ArxLLVM::named_values[std::string(Arg.getName())] = Alloca;
   }
 
-  this->emitLocation(expr->Body.get());
+  this->emitLocation(*expr.Body.get());
 
-  expr->Body->accept(this);
+  expr.Body->accept(*this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
     // Finish off the function.
-    this->builder->CreateRet(RetVal);
+    ArxLLVM::ir_builder->CreateRet(RetVal);
 
     // Pop off the lexical block for the function.
     this->LexicalBlocks.pop_back();
@@ -283,11 +286,10 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST* expr) -> void {
 auto ASTToLLVMIRVisitor::Initialize() -> void {
   ASTToObjectVisitor::Initialize();
 
-  this->jit = this->ExitOnErr(llvm::orc::ArxJIT::Create());
-  this->module->setDataLayout(this->jit->getDataLayout());
-
+  ArxLLVM::jit = this->ExitOnErr(llvm::orc::ArxJIT::Create());
+  ArxLLVM::module->setDataLayout(ArxLLVM::jit->getDataLayout());
   /** Create a new builder for the module. */
-  this->DBuilder = std::make_unique<llvm::DIBuilder>(*this->module);
+  ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
 }
 
 /**
@@ -295,8 +297,8 @@ auto ASTToLLVMIRVisitor::Initialize() -> void {
  *
  * @param ast The AST tree object.
  */
-auto compile_llvm_ir(TreeAST* ast) -> void {
-  auto codegen = new ASTToLLVMIRVisitor();
+auto compile_llvm_ir(TreeAST& ast) -> void {
+  auto codegen = std::make_unique<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
 
   Lexer::getNextToken();
 
@@ -313,9 +315,9 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
   // but we'd like actual source locations.
-  codegen->TheCU = codegen->DBuilder->createCompileUnit(
+  codegen->TheCU = ArxLLVM::di_builder->createCompileUnit(
     llvm::dwarf::DW_LANG_C,
-    codegen->DBuilder->createFile("fib.ks", "."),
+    ArxLLVM::di_builder->createFile("fib.ks", "."),
     "Arx Compiler",
     false,
     "",
@@ -324,23 +326,23 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
   LOG(INFO) << "Initialize Target";
 
   // Add the current debug info version into the module.
-  codegen->module->addModuleFlag(
+  ArxLLVM::module->addModuleFlag(
     llvm::Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
 
   // Darwin only supports dwarf2.
   if (llvm::Triple(llvm::sys::getProcessTriple()).isOSDarwin()) {
-    codegen->module->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
+    ArxLLVM::module->addModuleFlag(llvm::Module::Warning, "Dwarf Version", 2);
   }
 
   // Construct the DIBuilder, we do this here because we need the module.
-  codegen->DBuilder = std::make_unique<llvm::DIBuilder>(*codegen->module);
+  ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
 
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
   // but we'd like actual source locations.
-  codegen->TheCU = codegen->DBuilder->createCompileUnit(
+  codegen->TheCU = ArxLLVM::di_builder->createCompileUnit(
     llvm::dwarf::DW_LANG_C,
-    codegen->DBuilder->createFile("fib.arxks", "."),
+    ArxLLVM::di_builder->createFile("fib.arxks", "."),
     "Arx Compiler",
     false,
     "",
@@ -350,10 +352,10 @@ auto compile_llvm_ir(TreeAST* ast) -> void {
   codegen->MainLoop(ast);
 
   // Finalize the debug info.
-  codegen->DBuilder->finalize();
+  ArxLLVM::di_builder->finalize();
 
   // Print out all of the generated code.
-  codegen->module->print(llvm::errs(), nullptr);
+  ArxLLVM::module->print(llvm::errs(), nullptr);
 }
 
 /**
@@ -365,7 +367,8 @@ auto open_shell_llvm_ir() -> void {
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
-  compile_llvm_ir(new TreeAST());
+  auto ast = std::make_unique<TreeAST>(TreeAST());
+  compile_llvm_ir(*ast);
 
   exit(0);
 }

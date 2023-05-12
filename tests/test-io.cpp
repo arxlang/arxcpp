@@ -7,8 +7,6 @@
 #include "../src/io.h"
 #include "../src/lexer.h"
 
-auto lexer = new Lexer();
-
 TEST(InputTest, GetCharTest) {
   string_to_buffer((char*) "1");
   EXPECT_EQ(get_char(), 49);

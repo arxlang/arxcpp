@@ -18,46 +18,46 @@
 
 std::map<char, int> Parser::BinopPrecedence;
 
-void ExprAST::accept(Visitor* visitor) {
+void ExprAST::accept(Visitor& visitor) {
   switch (this->kind) {
     case ExprKind::FloatDTKind: {
-      visitor->visit((FloatExprAST*) this);
+      visitor.visit((FloatExprAST&) *this);
       break;
     }
     case ExprKind::VariableKind: {
-      visitor->visit((VariableExprAST*) this);
+      visitor.visit((VariableExprAST&) *this);
       break;
     }
     case ExprKind::UnaryOpKind: {
-      visitor->visit((UnaryExprAST*) this);
+      visitor.visit((UnaryExprAST&) *this);
       break;
     }
     case ExprKind::BinaryOpKind: {
-      visitor->visit((BinaryExprAST*) this);
+      visitor.visit((BinaryExprAST&) *this);
       break;
     }
     case ExprKind::CallKind: {
-      visitor->visit((CallExprAST*) this);
+      visitor.visit((CallExprAST&) *this);
       break;
     }
     case ExprKind::IfKind: {
-      visitor->visit((IfExprAST*) this);
+      visitor.visit((IfExprAST&) *this);
       break;
     }
     case ExprKind::ForKind: {
-      visitor->visit((ForExprAST*) this);
+      visitor.visit((ForExprAST&) *this);
       break;
     }
     case ExprKind::VarKind: {
-      visitor->visit((VarExprAST*) this);
+      visitor.visit((VarExprAST&) *this);
       break;
     }
     case ExprKind::PrototypeKind: {
-      visitor->visit((PrototypeAST*) this);
+      visitor.visit((PrototypeAST&) *this);
       break;
     }
     case ExprKind::FunctionKind: {
-      visitor->visit((FunctionAST*) this);
+      visitor.visit((FunctionAST&) *this);
       break;
     }
     case ExprKind::GenericKind: {
@@ -68,7 +68,7 @@ void ExprAST::accept(Visitor* visitor) {
                      this->kind)
                 << std::endl;
       std::cout << "[WW] DOWNCASTING MATCH FAILED";
-      visitor->clean();
+      visitor.clean();
     }
   };
 }
@@ -145,7 +145,7 @@ std::unique_ptr<ExprAST> Parser::ParseIdentifierExpr() {
   if (Lexer::CurTok != ')') {
     while (true) {
       if (auto Arg = Parser::ParseExpression()) {
-        Args.push_back(std::move(Arg));
+        Args.emplace_back(std::move(Arg));
       } else {
         return nullptr;
       }
@@ -494,9 +494,11 @@ std::unique_ptr<PrototypeAST> Parser::ParseExternPrototype() {
       "Parser: Expected '(' in the function definition.");
   }
 
-  std::vector<VariableExprAST*> Args;
+  std::vector<std::unique_ptr<VariableExprAST>> Args;
   while (Lexer::getNextToken() == tok_identifier) {
-    Args.push_back(new VariableExprAST(Lexer::CurLoc, Lexer::IdentifierStr));
+    auto arg = std::make_unique<VariableExprAST>(
+      VariableExprAST(Lexer::CurLoc, Lexer::IdentifierStr));
+    Args.emplace_back(std::move(arg));
   }
   if (Lexer::CurTok != ')') {
     return LogError<PrototypeAST>(
@@ -506,7 +508,7 @@ std::unique_ptr<PrototypeAST> Parser::ParseExternPrototype() {
   // success. //
   Lexer::getNextToken();  // eat ')'.
 
-  return std::make_unique<PrototypeAST>(FnLoc, FnName, Args);
+  return std::make_unique<PrototypeAST>(FnLoc, FnName, std::move(Args));
 }
 
 /**
@@ -537,9 +539,11 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
       "Parser: Expected '(' in the function definition.");
   }
 
-  std::vector<VariableExprAST*> Args;
+  std::vector<std::unique_ptr<VariableExprAST>> Args;
   while (Lexer::getNextToken() == tok_identifier) {
-    Args.push_back(new VariableExprAST(Lexer::CurLoc, Lexer::IdentifierStr));
+    auto arg = std::make_unique<VariableExprAST>(
+      VariableExprAST(Lexer::CurLoc, Lexer::IdentifierStr));
+    Args.emplace_back(std::move(arg));
   }
   if (Lexer::CurTok != ')') {
     return LogError<PrototypeAST>(
@@ -556,7 +560,7 @@ std::unique_ptr<PrototypeAST> Parser::ParsePrototype() {
 
   Lexer::getNextToken();  // eat ':'.
 
-  return std::make_unique<PrototypeAST>(FnLoc, FnName, Args);
+  return std::make_unique<PrototypeAST>(FnLoc, FnName, std::move(Args));
 }
 
 /**
@@ -587,7 +591,9 @@ std::unique_ptr<FunctionAST> Parser::ParseTopLevelExpr() {
   if (auto E = Parser::ParseExpression()) {
     // Make an anonymous proto.
     auto Proto = std::make_unique<PrototypeAST>(
-      FnLoc, "__anon_expr", std::vector<VariableExprAST*>());
+      FnLoc,
+      "__anon_expr",
+      std::move(std::vector<std::unique_ptr<VariableExprAST>>()));
     return std::make_unique<FunctionAST>(std::move(Proto), std::move(E));
   }
   return nullptr;
@@ -603,15 +609,15 @@ std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
   return Parser::ParseExternPrototype();
 }
 
-auto Parser::parse() -> TreeAST* {
-  TreeAST* ast = new TreeAST();
+auto Parser::parse() -> std::unique_ptr<TreeAST> {
+  auto ast = std::make_unique<TreeAST>(TreeAST());
 
   while (true) {
     std::unique_ptr<ExprAST> node_uptr = nullptr;
 
     switch (Lexer::CurTok) {
       case tok_eof:
-        return ast;
+        return std::move(ast);
       case tok_not_initialized:
         Lexer::getNextToken();
         break;

@@ -31,39 +31,35 @@
 #include "codegen/ast-to-object.h"
 #include "parser.h"
 
-auto compile_llvm_ir(TreeAST*) -> void;
+auto compile_llvm_ir(TreeAST&) -> void;
 auto open_shell_llvm_ir() -> void;
 
 class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
  public:
-  std::unique_ptr<llvm::DIBuilder> DBuilder;
-  llvm::ExitOnError ExitOnErr;
-
   // DebugInfo
   llvm::DICompileUnit* TheCU;
   llvm::DIType* DblTy;
   std::vector<llvm::DIScope*> LexicalBlocks;
 
-  ~ASTToLLVMIRVisitor() {
-    this->result_val = nullptr;
-    this->result_func = nullptr;
-  }
+  llvm::ExitOnError ExitOnErr;
 
-  virtual void visit(FloatExprAST*) override;
-  virtual void visit(VariableExprAST*) override;
-  virtual void visit(UnaryExprAST*) override;
-  virtual void visit(BinaryExprAST*) override;
-  virtual void visit(CallExprAST*) override;
-  virtual void visit(IfExprAST*) override;
-  virtual void visit(ForExprAST*) override;
-  virtual void visit(VarExprAST*) override;
-  virtual void visit(PrototypeAST*) override;
-  virtual void visit(FunctionAST*) override;
+  ASTToLLVMIRVisitor() = default;
+
+  virtual void visit(FloatExprAST&) override;
+  virtual void visit(VariableExprAST&) override;
+  virtual void visit(UnaryExprAST&) override;
+  virtual void visit(BinaryExprAST&) override;
+  virtual void visit(CallExprAST&) override;
+  virtual void visit(IfExprAST&) override;
+  virtual void visit(ForExprAST&) override;
+  virtual void visit(VarExprAST&) override;
+  virtual void visit(PrototypeAST&) override;
+  virtual void visit(FunctionAST&) override;
 
   auto Initialize() -> void;
   auto CreateFunctionType(unsigned NumArgs) -> llvm::DISubroutineType*;
 
   // DebugInfo
-  void emitLocation(ExprAST* AST);
+  void emitLocation(ExprAST& AST);
   llvm::DIType* getDoubleTy();
 };

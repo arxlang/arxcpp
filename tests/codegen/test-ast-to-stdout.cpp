@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <memory>
 
 #include "../src/codegen/ast-to-stdout.h"
 #include "../src/io.h"
@@ -12,7 +13,6 @@ TEST(CodeGenTest, ObjectGeneration) {
   add(1);
   )"""");
 
-  auto ast = new TreeAST();
-
-  print_ast(ast);
+  auto ast = std::make_unique<TreeAST>(TreeAST());
+  print_ast(*ast);
 }

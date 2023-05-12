@@ -12,6 +12,7 @@
 #include <stdlib.h>        // for exit
 #include <CLI/CLI.hpp>
 #include <string>                    // for string, allocator
+#include "codegen/arx-llvm.h"        // for ArxLLVM
 #include "codegen/ast-to-llvm-ir.h"  // for compile_llvm_ir
 #include "codegen/ast-to-object.h"   // for compile_object, open_shell_object
 #include "codegen/ast-to-stdout.h"   // for print_ast
@@ -52,8 +53,8 @@ auto main_show_version(__attribute__((unused)) int count) -> void {
  */
 auto main_show_ast(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
-  TreeAST* ast = Parser::parse();
-  print_ast(ast);
+  auto ast = Parser::parse();
+  print_ast(*ast);
   exit(0);
 }
 
@@ -63,8 +64,8 @@ auto main_show_ast(__attribute__((unused)) int count) -> void {
  */
 auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
   load_input_to_buffer();
-  TreeAST* ast = Parser::parse();
-  compile_llvm_ir(ast);
+  auto ast = Parser::parse();
+  compile_llvm_ir(*ast);
   exit(0);
 }
 
@@ -74,8 +75,8 @@ auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
  */
 auto main_compile() -> void {
   load_input_to_buffer();
-  TreeAST* ast = Parser::parse();
-  compile_object(ast);
+  auto ast = Parser::parse();
+  compile_object(*ast);
   exit(0);
 }
 
