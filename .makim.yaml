@@ -78,7 +78,7 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Db_coverage=true -Doptimization=0"  # -Db_sanitize=address
+              extras: "-Db_coverage=true -Doptimization=0"  #  -Db_sanitize=address
               clean: {{ args.clean }}
               asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
               lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
@@ -94,7 +94,7 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"  #  -Db_sanitize=address
+              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"  # -Db_sanitize=address
               clean: {{ args.clean }}
               asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
               lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
@@ -204,7 +204,7 @@ groups:
           # another options: halt_on_error=true
           # it could be a useful flag: -fsanitize-recover
           export LSAN_OPTIONS=verbosity=2:log_threads=1
-          export ASAN_OPTIONS=verbosity=2:check_initialization_order=1:detect_leaks=1
+          export ASAN_OPTIONS=verbosity=2:check_initialization_order=1:detect_leaks=1:fast_unwind_on_malloc=0
 
           if [[ "{{ args.debug  }}" == "True" ]]; then
             GDB="gdb --args"
@@ -222,7 +222,8 @@ groups:
           LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:$LD_LIBRARY_PATH
           export LD_LIBRARY_PATH
 
-          CLANG_EXTRAS="$(llvm-config --cxxflags)"
+          CLANG_EXTRAS="-fno-omit-frame-pointer"
+          CLANG_EXTRAS="${CLANG_EXTRAS} $(llvm-config --cxxflags)"
           CLANG_EXTRAS="${CLANG_EXTRAS} $(llvm-config --ldflags --libs core executionengine interpreter analysis native bitwriter)"
           CLANG_EXTRAS="${CLANG_EXTRAS} $(pkg-config --cflags --libs arrow-glib)"
           CLANG_EXTRAS=$(echo "${CLANG_EXTRAS}" | sed s/-std=c++14/-std=c++20/g)
@@ -248,7 +249,6 @@ groups:
             echo ">>> RUN THE PROGRAM:"
             chmod +x ${MAIN_EXE}
             ${GDB} ${MAIN_EXE}
-            break
           done
 
       gen-ast:
