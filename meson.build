@@ -9,7 +9,7 @@ project('arx', 'cpp', 'c',
 
 add_global_arguments(
   '-Wpedantic',
-  '-Wno-c++98-compat-pedantic',
+  # '-Wno-c++98-compat-pedantic',
   '-Wno-padded',
   '-Wno-missing-prototypes',
   '-Wshadow',
@@ -33,10 +33,19 @@ PROJECT_PATH = meson.source_root()
 
 cxx = meson.get_compiler('cpp')
 
+llvm_modules = [
+  'core',
+  'executionengine',
+  'object',
+  'orcjit',
+  'support',
+  'native',
+]
+
 deps = [
   dependency('arrow'),
   dependency('arrow-glib'),
-  dependency('llvm', version : '>=14.0.0'),
+  dependency('llvm', version : '>=15.0.0', modules : llvm_modules),
   dependency('CLI11'),
   dependency('threads'),
   dependency('glog'),

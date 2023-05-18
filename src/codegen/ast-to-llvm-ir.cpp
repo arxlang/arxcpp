@@ -297,7 +297,7 @@ auto ASTToLLVMIRVisitor::Initialize() -> void {
  *
  * @param ast The AST tree object.
  */
-auto compile_llvm_ir(TreeAST& ast) -> void {
+auto compile_llvm_ir(TreeAST& ast) -> int {
   auto codegen = std::make_unique<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
 
   Lexer::getNextToken();
@@ -356,19 +356,19 @@ auto compile_llvm_ir(TreeAST& ast) -> void {
 
   // Print out all of the generated code.
   ArxLLVM::module->print(llvm::errs(), nullptr);
+
+  return 0;
 }
 
 /**
  * @brief Open the Arx shell.
  *
  */
-auto open_shell_llvm_ir() -> void {
+auto open_shell_llvm_ir() -> int {
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
   auto ast = std::make_unique<TreeAST>(TreeAST());
-  compile_llvm_ir(*ast);
-
-  exit(0);
+  return compile_llvm_ir(*ast);
 }

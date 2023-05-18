@@ -22,8 +22,8 @@ namespace llvm {
   class Value;
 }
 
-auto compile_object(TreeAST&) -> void;
-auto open_shell_object() -> void;
+auto compile_object(TreeAST&) -> int;
+auto open_shell_object() -> int;
 
 class ASTToObjectVisitor : public Visitor {
  public:

@@ -45,6 +45,8 @@ bin/*
 
 # arx
 arxc
+*.arxc
+*.arx.o
 
 # IDE
 .vscode

@@ -1,4 +1,17 @@
-#include "codegen/ast-to-object.h"      // for ASTToObjectVisitor, compile_o...
+#include <cassert>  // for assert
+#include <cstdio>   // for fprintf, stderr, fputc
+#include <cstdlib>  // for exit
+#include <fstream>  // for operator<<
+#include <iostream>
+#include <map>      // for map, operator==, _Rb_tree_ite...
+#include <memory>   // for unique_ptr, allocator, make_u...
+#include <numeric>  // for accumulate
+#include <sstream>
+#include <string>        // for string, operator<=>, operator+
+#include <system_error>  // for error_code
+#include <utility>       // for pair, move
+#include <vector>        // for vector
+
 #include <glog/logging.h>               // for COMPACT_GOOGLE_LOG_INFO, LOG
 #include <llvm/ADT/APFloat.h>           // for APFloat
 #include <llvm/ADT/iterator_range.h>    // for iterator_range
@@ -26,23 +39,30 @@
 #include <llvm/Support/TargetSelect.h>  // for InitializeAllAsmParsers, Init...
 #include <llvm/Target/TargetMachine.h>  // for TargetMachine
 #include <llvm/Target/TargetOptions.h>  // for TargetOptions
-#include <cassert>                      // for assert
-#include <cstdio>                       // for fprintf, stderr, fputc
-#include <cstdlib>                      // for exit
-#include <fstream>                      // for operator<<
-#include <map>                          // for map, operator==, _Rb_tree_ite...
-#include <memory>                       // for unique_ptr, allocator, make_u...
-#include <string>                       // for string, operator<=>, operator+
-#include <system_error>                 // for error_code
-#include <utility>                      // for pair, move
-#include <vector>                       // for vector
-#include "codegen/arx-llvm.h"           // for ArxLLVM
-#include "error.h"                      // for LogErrorV
-#include "lexer.h"                      // for Lexer
-#include "parser.h"                     // for PrototypeAST, ExprAST, ForExp...
+
+#include "codegen/arx-llvm.h"       // for ArxLLVM
+#include "codegen/ast-to-object.h"  // for ASTToObjectVisitor, compile_o...
+#include "error.h"                  // for LogErrorV
+#include "io.h"                     // for ArxFile
+#include "lexer.h"                  // for Lexer
+#include "parser.h"                 // for PrototypeAST, ExprAST, ForExp...
 
 namespace llvm {
   class Value;
+}
+
+std::string string_join(
+  const std::vector<std::string>& elements, const std::string& delimiter) {
+  if (elements.empty()) {
+    return "";
+  }
+
+  std::string str;
+  for (auto v : elements) {
+    str += v + delimiter;
+  }
+  str = str.substr(0, str.size() - delimiter.size());
+  return str;
 }
 
 extern std::string INPUT_FILE;
@@ -635,7 +655,7 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
  *
  * @param tree_ast The AST tree object.
  */
-auto compile_object(TreeAST& tree_ast) -> void {
+auto compile_object(TreeAST& tree_ast) -> int {
   auto codegen = std::make_unique<ASTToObjectVisitor>(ASTToObjectVisitor());
 
   Lexer::getNextToken();
@@ -669,7 +689,7 @@ auto compile_object(TreeAST& tree_ast) -> void {
   // TargetRegistry or we have a bogus target triple.
   if (!Target) {
     llvm::errs() << Error;
-    exit(1);
+    return 1;
   }
 
   auto CPU = "generic";
@@ -692,40 +712,95 @@ auto compile_object(TreeAST& tree_ast) -> void {
   std::error_code EC;
 
   if (OUTPUT_FILE == "") {
-    OUTPUT_FILE = "./output.o";
+    OUTPUT_FILE = INPUT_FILE + ".o";
   }
 
   llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
 
   if (EC) {
     llvm::errs() << "Could not open file: " << EC.message();
-    exit(1);
+    return 1;
   }
 
   llvm::legacy::PassManager pass;
+
   auto FileType = llvm::CGFT_ObjectFile;
 
   if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
     llvm::errs() << "TheTargetMachine can't emit a file of this type";
-    exit(1);
+    return 1;
   }
 
   pass.run(*ArxLLVM::module);
   dest.flush();
+
+  if (IS_BUILD_LIB) {
+    return 0;
+  }
+
+  // generate an executable file
+
+  std::string linker_path = "clang++";
+  std::string executable_path = INPUT_FILE + "c";
+  // note: it just have a purpose to demonstrate an initial implementation
+  //       it will be improved in a follow-up PR
+  std::string content =
+    "#include <iostream>\n"
+    "int main() {\n"
+    "  std::cout << \"ARX[WARNING]: "
+    "This is an empty executable file\" << std::endl;\n"
+    "}\n";
+
+  std::string main_cpp_path = ArxFile::create_tmp_file(content);
+
+  if (main_cpp_path == "") {
+    llvm::errs() << "ARX[FAIL]: Executable file was not created.";
+    return 1;
+  }
+
+  /* Example (running it from a shell prompt):
+     clang++ \
+       ${CLANG_EXTRAS} \
+       ${DEBUG_FLAGS} \
+       -fPIC \
+       -std=c++20 \
+       "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
+       ${OBJECT_FILE} \
+       -o "${TMP_DIR}/main"
+  */
+
+  std::vector<std::string> compiler_args{
+    "-fPIC", "-std=c++20", main_cpp_path, OUTPUT_FILE, "-o", executable_path};
+
+  // Add any additional compiler flags or include paths as needed
+  // compiler_args.push_back("-I/path/to/include");
+
+  std::string compiler_cmd =
+    linker_path + " " + string_join(compiler_args, " ");
+
+  std::cout << "ARX[INFO]: " << compiler_cmd << std::endl;
+  int compile_result = system(compiler_cmd.c_str());
+
+  // ArxFile::delete_file(main_cpp_path);
+
+  if (compile_result != 0) {
+    llvm::errs() << "failed to compile and link object file";
+    exit(1);
+  }
+
+  return 0;
 }
 
 /**
  * @brief Open the Arx shell.
  *
  */
-auto open_shell_object() -> void {
+auto open_shell_object() -> int {
   // Prime the first token.
   fprintf(stderr, "Arx %s \n", ARX_VERSION.c_str());
   fprintf(stderr, ">>> ");
 
   auto ast = std::make_unique<TreeAST>(TreeAST());
 
-  compile_object(*ast);
-
-  exit(0);
+  return compile_object(*ast);
 }

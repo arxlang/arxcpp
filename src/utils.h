@@ -21,4 +21,4 @@ class IOSource {
   static void update_buffer(char*);
 };
 
-void show_version();
+auto show_version() -> int;

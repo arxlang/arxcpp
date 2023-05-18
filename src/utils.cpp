@@ -22,6 +22,7 @@ auto indent(llvm::raw_ostream& O, int size) -> llvm::raw_ostream& {
  * @brief Show the Arx version.
  *
  */
-auto show_version() -> void {
+auto show_version() -> int {
   std::cout << "arx version: " << ARX_VERSION << std::endl;
+  return 0;
 }
