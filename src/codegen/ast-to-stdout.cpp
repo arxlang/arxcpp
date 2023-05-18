@@ -233,7 +233,7 @@ void ASTToOutputVisitor::visit(FunctionAST& expr) {
   std::cout << this->indentation() << ")" << std::endl;
 }
 
-auto print_ast(TreeAST& ast) -> void {
+auto print_ast(TreeAST& ast) -> int {
   auto visitor_print =
     std::make_unique<ASTToOutputVisitor>(ASTToOutputVisitor());
 
@@ -246,4 +246,5 @@ auto print_ast(TreeAST& ast) -> void {
   }
 
   std::cout << "]" << std::endl;
+  return 0;
 }

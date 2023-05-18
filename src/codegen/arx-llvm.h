@@ -25,3 +25,5 @@ class ArxLLVM {
   static llvm::Type* INT8_TYPE;
   static llvm::Type* INT32_TYPE;
 };
+
+extern bool IS_BUILD_LIB;

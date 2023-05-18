@@ -22,3 +22,5 @@ llvm::Type* ArxLLVM::DOUBLE_TYPE;
 llvm::Type* ArxLLVM::FLOAT_TYPE;
 llvm::Type* ArxLLVM::INT8_TYPE;
 llvm::Type* ArxLLVM::INT32_TYPE;
+
+extern bool IS_BUILD_LIB = false;  // default value

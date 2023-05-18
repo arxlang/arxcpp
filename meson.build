@@ -9,7 +9,7 @@ project('arx', 'cpp', 'c',
 
 add_global_arguments(
   '-Wpedantic',
-  '-Wno-c++98-compat-pedantic',
+  # '-Wno-c++98-compat-pedantic',
   '-Wno-padded',
   '-Wno-missing-prototypes',
   '-Wshadow',

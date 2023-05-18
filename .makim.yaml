@@ -94,7 +94,7 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"  # -Db_sanitize=address
+              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"  #  -Db_sanitize=address
               clean: {{ args.clean }}
               asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
               lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
@@ -216,7 +216,7 @@ groups:
           # load utils functions
           . "${TEST_DIR_PATH}/scripts/utils.sh"
 
-          ARX="${GDB} ./build/arx"
+          ARX="${GDB} ./build/arx --build-lib"
           MAIN_EXE="${TMP_DIR}/main"
 
           LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:$LD_LIBRARY_PATH

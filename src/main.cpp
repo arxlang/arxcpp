@@ -24,16 +24,16 @@ std::string ARX_VERSION = "1.6.0";  // semantic-release
 extern std::string INPUT_FILE;
 extern std::string OUTPUT_FILE;
 extern bool INPUT_FROM_STDIN;
+extern bool IS_BUILD_LIB;
 
 /**
  * @brief Open the Arx shell.
  * @param count An internal value from CLI11.
  *
  */
-auto main_open_shell(__attribute__((unused)) int count) -> void {
+auto main_open_shell() -> int {
   INPUT_FROM_STDIN = true;
-  open_shell_object();
-  exit(0);
+  return open_shell_object();
 }
 
 /**
@@ -41,43 +41,39 @@ auto main_open_shell(__attribute__((unused)) int count) -> void {
  * @param count An internal value from CLI11.
  *
  */
-auto main_show_version(__attribute__((unused)) int count) -> void {
+auto main_show_version() -> int {
   load_input_to_buffer();
-  show_version();
-  exit(0);
+  return show_version();
 }
 
 /**
  * @brief Show the AST for the given source.
  * @param count An internal value from CLI11.
  */
-auto main_show_ast(__attribute__((unused)) int count) -> void {
+auto main_show_ast() -> int {
   load_input_to_buffer();
   auto ast = Parser::parse();
-  print_ast(*ast);
-  exit(0);
+  return print_ast(*ast);
 }
 
 /**
  * @brief Show the LLVM IR for the given source.
  * @param count An internal value from CLI11.
  */
-auto main_show_llvm_ir(__attribute__((unused)) int count) -> void {
+auto main_show_llvm_ir() -> int {
   load_input_to_buffer();
   auto ast = Parser::parse();
-  compile_llvm_ir(*ast);
-  exit(0);
+  return compile_llvm_ir(*ast);
 }
 
 /**
  * @brief Compile the given source code.
  *
  */
-auto main_compile() -> void {
+auto main_compile() -> int {
   load_input_to_buffer();
   auto ast = Parser::parse();
-  compile_object(*ast);
-  exit(0);
+  return compile_object(*ast);
 }
 
 /**
@@ -88,23 +84,45 @@ auto main_compile() -> void {
  *
  */
 auto main(int argc, const char* argv[]) -> int {
+  bool is_open_shell = false;
+  bool is_show_ast = false;
+  bool is_show_llvm_ir = false;
+  bool is_show_version = false;
+
   google::InitGoogleLogging(argv[0]);
 
   Parser::setup();
 
   CLI::App app{"ArxLang"};
 
+  // note: it is possible to call a function directly through `add_flag`
+  //       but here we are doing it manually in order to have full control
+  //       over the workflow.
   app.add_option("--input", INPUT_FILE, "Input file.");
   app.add_option("--output", OUTPUT_FILE, "Output file.");
-  app.add_flag("--shell", main_open_shell, "Open Arx Shell.");
-  app.add_flag("--show-ast", main_show_ast, "Show AST from source.");
+  app.add_flag("--shell", is_open_shell, "Open Arx Shell.");
+  app.add_flag("--show-ast", is_show_ast, "Show AST from source.");
+  app.add_flag("--show-llvm-ir", is_show_llvm_ir, "Show LLVM IR from source.");
+  app.add_flag("--version", is_show_version, "Show ArxLang version.");
   app.add_flag(
-    "--show-llvm-ir", main_show_llvm_ir, "Show LLVM IR from source.");
-  app.add_flag("--version", main_show_version, "Show ArxLang version.");
+    "--build-lib",
+    IS_BUILD_LIB,
+    "Default False. When False it creates a program instead");
 
   CLI11_PARSE(app, argc, argv);
 
-  main_compile();
+  if (is_open_shell) {
+    return main_open_shell();
+  }
+  if (is_show_ast) {
+    return main_show_ast();
+  }
+  if (is_show_llvm_ir) {
+    return main_show_llvm_ir();
+  }
+  if (is_show_version) {
+    return main_show_version();
+  }
 
-  return 0;
+  return main_compile();
 }

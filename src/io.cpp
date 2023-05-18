@@ -1,5 +1,7 @@
 #include "io.h"
+#include <unistd.h>
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <fstream>  // IWYU pragma: keep
 #include <iostream>
@@ -66,4 +68,35 @@ auto load_input_to_buffer() -> void {
       string_to_buffer(file_content);
     }
   }
+}
+
+auto ArxFile::create_tmp_file(std::string content) -> std::string {
+  // template for our file.
+  char filename[] = "/tmp/arx_XXXXXX";
+
+  // Creates and opens a new temp file r/w.
+  // Xs are replaced with a unique number.
+  int fd = mkstemp(filename);
+
+  // Check we managed to open the file.
+  if (fd == -1) {
+    return std::string("");
+  }
+
+  // note 4 bytes total: abc terminating '\0'
+  write(fd, content.c_str(), std::strlen(content.c_str()));
+  close(fd);
+
+  std::string filename_str(filename);
+  std::string filename_ext = filename_str + std::string(".cpp");
+
+  if (rename(filename_str.c_str(), filename_ext.c_str()) != 0) {
+    return std::string("");
+  }
+
+  return filename_ext;
+}
+
+auto ArxFile::delete_file(std::string filename) -> int {
+  return unlink(filename.c_str());
 }

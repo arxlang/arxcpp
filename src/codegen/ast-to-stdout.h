@@ -2,4 +2,4 @@
 
 #include "parser.h"  // for TreeAST
 
-auto print_ast(TreeAST&) -> void;
+auto print_ast(TreeAST&) -> int;
