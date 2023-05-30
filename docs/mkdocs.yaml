@@ -1,16 +1,19 @@
 site_name: ArxLang
 
+docs_dir: ./
+site_dir: ../build/docs
+
 theme:
   name: null
-  custom_dir: 'docs/theme/'
-  logo: 'docs/images/arx.png'
-  favicon: 'docs/favicon.ico'
+  custom_dir: 'theme/'
+  logo: 'images/arx.png'
+  favicon: 'favicon.ico'
 
 extra:
   homepage: https://arxlang.org
 
 extra_css:
-  - docs/theme/style.css
+  - theme/style.css
 
 nav:
   - Home: 'index.md'

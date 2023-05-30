@@ -719,6 +719,7 @@ auto compile_object(TreeAST& tree_ast) -> int {
 
   if (EC) {
     llvm::errs() << "Could not open file: " << EC.message();
+    delete TheTargetMachine;
     return 1;
   }
 
@@ -728,11 +729,14 @@ auto compile_object(TreeAST& tree_ast) -> int {
 
   if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
     llvm::errs() << "TheTargetMachine can't emit a file of this type";
+    delete TheTargetMachine;
     return 1;
   }
 
   pass.run(*ArxLLVM::module);
   dest.flush();
+
+  delete TheTargetMachine;
 
   if (IS_BUILD_LIB) {
     return 0;

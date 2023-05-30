@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-CHANGELOG=build/api/md_CHANGELOG.html
+CHANGELOG=build/docs/api/md_CHANGELOG.html
 
 sed -ie 's/&lt;/</' $CHANGELOG
 sed -ie 's/&gt;/>/' $CHANGELOG
