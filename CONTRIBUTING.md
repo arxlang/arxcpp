@@ -152,18 +152,20 @@ commit messages, **semantic-release** automatically determines the next
 [semantic version](https://semver.org) number, generates a changelog and
 publishes the release.
 
-By default, **semantic-release** uses [Angular Commit Message
-Conventions](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
-The commit message format can be changed with the `preset` or `config`
-options\_ of the
-[@semantic-release/commit-analyzer](https://github.com/semantic-release/commit-analyzer#options)
-and
-[@semantic-release/release-notes-generator](https://github.com/semantic-release/release-notes-generator#options)
-plugins.
+The convention used for the PR title check follows
+[Conventional Commits](https://www.conventionalcommits.org).
 
-Tools such as [commitizen](https://github.com/commitizen/cz-cli) or
-[commitlint](https://github.com/conventional-changelog/commitlint) can
-be used to help contributors and enforce valid commit messages.
+So, the PR title should use the following prefixes:
+  * `build`: Changes that affect the build system or external dependencies (example scopes: cmake, meson, etc)
+  * `ci`: Changes to our CI configuration files and scripts (examples: CircleCi, SauceLabs)
+  * `docs`: Documentation only changes
+  * `perf`: A code change that improves performance
+  * `refactor`: A code change that neither fixes a bug nor adds a feature
+  * `test`: Adding missing tests or correcting existing tests
+  * `chore`: Can be used as a generic task for tasks such as CI, test, support tasks or any other task that is not user facing task.
+  * `feat`: is used for a new feature or when a existent one is improved.
+  * `fix`: is used when a bug is fixed.
+  * `fix!` or `feat!`: is used when there is a compatibility break.
 
 The table below shows which commit message gets you which release type
 when `semantic-release` runs (using the default configuration):
@@ -173,7 +175,7 @@ when `semantic-release` runs (using the default configuration):
 | `fix(pencil): stop graphite breaking when pressure is applied` | Fix Release      |
 | `feat(pencil): add 'graphiteWidth' option`                     | Feature Release  |
 | `perf(pencil): remove graphiteWidth option`                    | Chore            |
-| `BREAKING CHANGE: The graphiteWidth option has been removed`   | Breaking Release |
+| `fix(pencil)!: The graphiteWidth option has been removed`      | Breaking Release |
 
 source:
 <https://github.com/semantic-release/semantic-release/blob/master/README.md#commit-message-format>
