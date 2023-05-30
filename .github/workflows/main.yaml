@@ -59,6 +59,8 @@ jobs:
       id: llvm-cov-report
       run: makim tests.code-coverage
 
-    - name: Check if PR title is a correct semantic-release prefix
-      if: ${{ github.event_name == 'pull_request' && always() }}
-      run: bash scripts/ci/pr-title-check.sh "${{ github.event.pull_request.title }}"
+    - name: Semantic Release PR Title Check
+      uses: osl-incubator/semantic-release-pr-title-check@v1.4.1
+      if: ${{ github.event_name == 'pull_request' && (always() || failure()) }}
+      with:
+        convention-name: conventionalcommits
