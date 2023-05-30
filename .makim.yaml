@@ -1,31 +1,53 @@
 version: 1.0.0
+env:
+  CFLAGS_EXTRA: "\
+    -fsanitize\
+    "
+  # use it for ASAN and LSAN
+  SAN_OPTIONS_DEFAULT: "\
+    fast_unwind_on_malloc=0\
+    :verbosity=1\
+    :log_threads=1\
+    :debug=true\
+    :sleep_before_dying=10\
+    :print_stats=1\
+    :strict_string_checks=1\
+    :detect_stack_use_after_return=1\
+    :check_initialization_order=1\
+    :strict_init_order=1\
+    :atexit=1\
+    :print_legend=1\
+    :detect_leaks=1\
+    "
+  MESON_EXTRA: "-Db_coverage=true \
+    -Doptimization=0 \
+    -Db_sanitize=address \
+    "
 groups:
-  build:
+  clean:
     targets:
-      clean-gcda:
+      gcda:
         help: Remove temporary gcda files
         run: |
           touch tmp.gcda
           find . -name "*.gcda" -print0 | xargs -0 rm
 
-      clean:
+      all:
         help: Remove all unnecessary temporary files
         dependencies:
-          - target: build.clean-gcda
+          - target: clean.gcda
         run: |
           rm -rf build/*
           rm -f bin/*
           mkdir -p build
-
+  build:
+    targets:
       install:
         help: Install Arx locally
         run: meson install -C build
 
       release:
         help: Build Arx for release
-        env:
-          ASAN_OPTIONS: '{{ args.asan_options }}'
-          LSAN_OPTIONS: '{{ args.lsan_options }}'
         args:
           asan-options:
             help: |
@@ -49,21 +71,25 @@ groups:
             help: Clean temporary files before the building step
             type: bool
             action: store_true
-          extras:
+          meson-extra:
             help: Extra arguments for the build step
             type: string
             default: ''
         dependencies:
-          - target: build.clean
+          - target: clean.all
             if: {{ args.clean }}
+          - target: clean.gcda
         shell: bash
         run: |
+          export ASAN_OPTIONS='{{ args.asan_options or env.SAN_OPTIONS_DEFAULT }}'
+          export LSAN_OPTIONS='{{ args.lsan_options or env.SAN_OPTIONS_DEFAULT }}'
+
           meson setup \
             --prefix $CONDA_PREFIX \
             --libdir $CONDA_PREFIX/lib \
             --includedir $CONDA_PREFIX/include \
             --buildtype={{ args.build_type }} \
-            --native-file meson.native {{ args.extras }} \
+            --native-file meson.native {{ args.meson_extra }} \
             build .
           meson compile -C build
 
@@ -78,10 +104,10 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Db_coverage=true -Doptimization=0"  #  -Db_sanitize=address
+              meson-extra: {{ env.MESON_EXTRA }}
               clean: {{ args.clean }}
-              asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
-              lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
+              asan-options: {{ env.SAN_OPTIONS_DEFAULT }}
+              lsan-options: {{ env.SAN_OPTIONS_DEFAULT }}
 
       dev:
         help: Build for development (+tests +debug)
@@ -94,10 +120,10 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              extras: "-Ddev=enabled -Db_coverage=true -Doptimization=0"  #  -Db_sanitize=address
+              meson-extra: {{ env.MESON_EXTRA }} -Ddev=enabled
               clean: {{ args.clean }}
-              asan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
-              lsan-options: "fast_unwind_on_malloc=0:verbosity=2:log_threads=1"
+              asan-options: {{ env.SAN_OPTIONS_DEFAULT }}
+              lsan-options: {{ env.SAN_OPTIONS_DEFAULT }}
 
   env:
     targets:
@@ -134,18 +160,18 @@ groups:
     targets:
       ci:
         help: Run semantic-release on CI
-        run: {{ app }} --ci
+        run: {{ vars.app }} --ci
 
       dry:
         help: Run semantic-release on CI for tests in dry-run mode.
-        run: {{ app }} --dry-run
+        run: {{ vars.app }} --dry-run
 
   docs:
     targets:
       api:
         help: Build API docs
         run: |
-          mkdir -p build
+          mkdir -p build/docs
           doxygen Doxyfile
           ./scripts/format_releases.sh
 
@@ -155,12 +181,13 @@ groups:
           - target: docs.clean
           - target: docs.api
         run: |
-          mkdocs build --config-file docs/mkdocs.yaml --dirty --site-dir build
-          echo "arxlang.org" > ./build/CNAME
+          mkdocs build --config-file docs/mkdocs.yaml --dirty
+          echo "arxlang.org" > ./build/docs/CNAME
 
       clean:
         help: Clean temporary documentation files
-        run: rm -rf ./build
+        run: |
+          rm -rf ./build/docs
 
       preview:
         help: Preview documentation result locally
@@ -180,14 +207,14 @@ groups:
         help: Check code coverage by tests
         run: ninja coverage -C build
 
-      gen-object:
+      gen-object-examples:
         help: Run test for object generation
         args:
           debug:
             help: Debug Mode
             type: bool
             action: store_true
-          tests:
+          examples-name:
             help: Name of the tests to be executed
             type: string
             default: "constant fibonacci sum average print-star"
@@ -201,10 +228,6 @@ groups:
 
           GDB=""
           DEBUG_FLAGS=""
-          # another options: halt_on_error=true
-          # it could be a useful flag: -fsanitize-recover
-          export LSAN_OPTIONS=verbosity=2:log_threads=1
-          export ASAN_OPTIONS=verbosity=2:check_initialization_order=1:detect_leaks=1:fast_unwind_on_malloc=0
 
           if [[ "{{ args.debug  }}" == "True" ]]; then
             GDB="gdb --args"
@@ -222,15 +245,19 @@ groups:
           LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:$LD_LIBRARY_PATH
           export LD_LIBRARY_PATH
 
-          CLANG_EXTRAS="-fno-omit-frame-pointer"
-          CLANG_EXTRAS="${CLANG_EXTRAS} $(llvm-config --cxxflags)"
-          CLANG_EXTRAS="${CLANG_EXTRAS} $(llvm-config --ldflags --libs core executionengine interpreter analysis native bitwriter)"
-          CLANG_EXTRAS="${CLANG_EXTRAS} $(pkg-config --cflags --libs arrow-glib)"
-          CLANG_EXTRAS=$(echo "${CLANG_EXTRAS}" | sed s/-std=c++14/-std=c++20/g)
+          LLVM_MODULES="core executionengine interpreter analysis native bitwriter"
+
+          CLANG_EXTRA="${CLANG_EXTRA} -fno-omit-frame-pointer"
+          CLANG_EXTRA="${CLANG_EXTRA} $(llvm-config --cxxflags)"
+          CLANG_EXTRA="${CLANG_EXTRA} $(llvm-config --ldflags --libs ${LLVM_MODULES})"
+          CLANG_EXTRA="${CLANG_EXTRA} $(pkg-config --cflags --libs arrow-glib)"
+          CLANG_EXTRA=$(echo "${CLANG_EXTRA}" | sed s/-std=c++14/-std=c++20/g)
+
+          env
 
           rm --force "${TMP_DIR}/*.o"
 
-          for test_name in {{ args.tests }}; do
+          for test_name in {{ args.examples_name }}; do
             print_header "${test_name}"
             OBJECT_FILE="${TMP_DIR}/${test_name}.o"
 
@@ -238,7 +265,7 @@ groups:
 
             set -x
             clang++ \
-              ${CLANG_EXTRAS} \
+              ${CLANG_EXTRA} \
               ${DEBUG_FLAGS} \
               -fPIC \
               "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
@@ -251,13 +278,17 @@ groups:
             ${GDB} ${MAIN_EXE}
           done
 
-      gen-ast:
+      gen-ast-examples:
         help: Run test for AST generation
         args:
           debug:
             help: Debug Mode
             type: bool
             action: store_true
+          examples-name:
+            help: Name of the tests to be executed
+            type: string
+            default: "constant fibonacci sum average print-star"
         run: |
           set -e
 
@@ -277,13 +308,13 @@ groups:
           ARX="${GDB} ./build/arx"
           MAIN_EXE="${TMP_DIR}/main"
 
-          for test_name in "constant" "fibonacci" "sum" "average" "print-star"; do
+          for test_name in {{ args.examples_name }}; do
             print_header "${test_name}"
             ${ARX} --show-ast --input "examples/${test_name}.arx"
           done
 
 
-      gen-llvm-ir:
+      gen-llvm-ir-examples:
         help: Run test for LLVM IR
         args:
           debug:
@@ -312,12 +343,12 @@ groups:
             ${ARX} --show-llvm-ir --input "examples/${test_name}.arx"
           done
 
-      examples:
+      gen-all-examples:
         help: Test all code generation for the example arx files
         dependencies:
-          - target: tests.gen-object
-          - target: tests.gen-ast
-          - target: tests.gen-llvm-ir
+          - target: tests.gen-object-examples
+          - target: tests.gen-ast-examples
+          - target: tests.gen-llvm-ir-examples
 
       all:
         help: Run sanitizer tests and code generation for examples
@@ -334,7 +365,7 @@ groups:
       example:
         help: Debug arx via an example file
         args:
-          extras:
+          extra:
             help: Extra arguments for the build step
             type: string
             default: ''
@@ -350,4 +381,4 @@ groups:
           gdb \
             --args build/arx \
             --input `pwd`/examples/{{ args.test_name }}.arx \
-            --output "/tmp/{{ args.test_name }}" {{ args.extras }}
+            --output "/tmp/{{ args.test_name }}" {{ args.meson_extra }}

@@ -46,7 +46,7 @@ jobs:
       run: makim tests.sanitizer
 
     - name: run example tests
-      run: makim tests.examples
+      run: makim tests.gen-all-examples
 
     - name: lint
       if: success() || failure()
