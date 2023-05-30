@@ -9,17 +9,18 @@ Ensure that:
 - it includes tests.
 - the tests for your implementation are executed on CI.
 - it includes documentation
-- the PR's title is according to the [semantic-release pattern][semantic-release-message].
+- the PR's title is according to the [semantic-release pattern][semantic-release-message] and
+  [Conventional Commits](https://www.conventionalcommits.org).
   - `build`: Changes that affect the build system or external dependencies (example scopes: cmake, meson, etc)
   - `ci`: Changes to our CI configuration files and scripts (examples: CircleCi, SauceLabs)
   - `docs`: Documentation only changes
   - `perf`: A code change that improves performance
   - `refactor`: A code change that neither fixes a bug nor adds a feature
   - `test`: Adding missing tests or correcting existing tests
-  - `chore:` Can be used as a generic task for tasks such as CI, test, support tasks or any other task that is not user facing task.
-  - `feat:` is used for a new feature or when a existent one is improved.
-  - `fix:` is used when a bug is fixed.
-  - `BREAKING CHANGE:` is used when there is a compatibility break.
+  - `chore`: Can be used as a generic task for tasks such as CI, test, support tasks or any other task that is not user facing task.
+  - `feat`: is used for a new feature or when a existent one is improved.
+  - `fix`: is used when a bug is fixed.
+  - `fix!` or `feat!`: is used when there is a compatibility break.
 - pre-commit hooks were executed locally
 
 
