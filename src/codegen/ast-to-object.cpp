@@ -772,7 +772,7 @@ auto compile_object(TreeAST& tree_ast) -> int {
        ${DEBUG_FLAGS} \
        -fPIC \
        -std=c++20 \
-       "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
+       "${TEST_DIR_PATH}/integration/${test_name}.cpp" \
        ${OBJECT_FILE} \
        -o "${TMP_DIR}/main"
   */
