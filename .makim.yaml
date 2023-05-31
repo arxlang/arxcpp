@@ -268,7 +268,7 @@ groups:
               ${CLANG_EXTRA} \
               ${DEBUG_FLAGS} \
               -fPIC \
-              "${TEST_DIR_PATH}/main-objects/${test_name}.cpp" \
+              "${TEST_DIR_PATH}/integration/${test_name}.cpp" \
               ${OBJECT_FILE} \
               -o "${TMP_DIR}/main"
             set +x
@@ -346,15 +346,15 @@ groups:
       gen-all-examples:
         help: Test all code generation for the example arx files
         dependencies:
-          - target: tests.gen-object-examples
           - target: tests.gen-ast-examples
+          - target: tests.gen-object-examples
           - target: tests.gen-llvm-ir-examples
 
       all:
         help: Run sanitizer tests and code generation for examples
         dependencies:
           - target: tests.sanitizer
-          - target: tests.examples
+          - target: tests.gen-all-examples
 
       lint:
         help: Run linter tools
