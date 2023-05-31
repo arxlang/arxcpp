@@ -128,8 +128,8 @@ namespace llvm {
         return CompileLayer.add(RT, std::move(TSM));
       }
 
-      Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
-        return ES->lookup({&MainJD}, Mangle(Name.str()));
+      Expected<JITEvaluatedSymbol> lookup(StringRef name) {
+        return ES->lookup({&MainJD}, Mangle(name.str()));
       }
     };
 

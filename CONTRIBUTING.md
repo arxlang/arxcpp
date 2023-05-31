@@ -139,6 +139,12 @@ makim build.dev --clean
 $ pre-commit install
 ```
 
+## Conventional naming
+
+In order to keep a similar conventional name used by arxlang, for c++ code
+we are using snake case naming conventing for variables and functions
+and camel case for classes.
+
 ## Release
 
 This project uses semantic-release in order to cut a new release

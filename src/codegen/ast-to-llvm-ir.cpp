@@ -173,12 +173,12 @@ auto ASTToLLVMIRVisitor::visit(PrototypeAST& expr) -> void {
  * but keep a reference to it for use below.
  */
 auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
-  auto& P = *(expr.Proto);
-  ArxLLVM::function_protos[expr.Proto->getName()] = std::move(expr.Proto);
+  auto& P = *(expr.proto);
+  ArxLLVM::function_protos[expr.proto->getName()] = std::move(expr.proto);
   this->getFunction(P.getName());
-  llvm::Function* TheFunction = this->result_func;
+  llvm::Function* the_function = this->result_func;
 
-  if (!TheFunction) {
+  if (!the_function) {
     this->result_func = nullptr;
     return;
   }
@@ -186,7 +186,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* BB =
-    llvm::BasicBlock::Create(*ArxLLVM::context, "entry", TheFunction);
+    llvm::BasicBlock::Create(*ArxLLVM::context, "entry", the_function);
   ArxLLVM::ir_builder->SetInsertPoint(BB);
 
   /* debugging-code:start*/
@@ -202,11 +202,11 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
     llvm::StringRef(),
     Unit,
     LineNo,
-    CreateFunctionType(TheFunction->arg_size()),
+    CreateFunctionType(the_function->arg_size()),
     ScopeLine,
     llvm::DINode::FlagPrototyped,
     llvm::DISubprogram::SPFlagDefinition);
-  TheFunction->setSubprogram(SP);
+  the_function->setSubprogram(SP);
 
   // Push the current scope.
   this->LexicalBlocks.emplace_back(SP);
@@ -224,18 +224,18 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   ArxLLVM::named_values.clear();
 
   unsigned ArgIdx = 0;
-  for (auto& Arg : TheFunction->args()) {
+  for (auto& arg : the_function->args()) {
     // Create an alloca for this variable.
-    llvm::AllocaInst* Alloca =
-      CreateEntryBlockAlloca(TheFunction, Arg.getName());
+    llvm::AllocaInst* alloca =
+      CreateEntryBlockAlloca(the_function, arg.getName());
 
     /* debugging-code: start */
     // Create a debug descriptor for the variable.
     llvm::DILocalVariable* D = ArxLLVM::di_builder->createParameterVariable(
-      SP, Arg.getName(), ++ArgIdx, Unit, LineNo, this->getDoubleTy(), true);
+      SP, arg.getName(), ++ArgIdx, Unit, LineNo, this->getDoubleTy(), true);
 
     ArxLLVM::di_builder->insertDeclare(
-      Alloca,
+      alloca,
       D,
       ArxLLVM::di_builder->createExpression(),
       llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
@@ -244,15 +244,15 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
     /* debugging-code-end */
 
     // Store the initial value into the alloca.
-    ArxLLVM::ir_builder->CreateStore(&Arg, Alloca);
+    ArxLLVM::ir_builder->CreateStore(&arg, alloca);
 
     // Add arguments to variable symbol table.
-    ArxLLVM::named_values[std::string(Arg.getName())] = Alloca;
+    ArxLLVM::named_values[std::string(arg.getName())] = alloca;
   }
 
-  this->emitLocation(*expr.Body.get());
+  this->emitLocation(*expr.body.get());
 
-  expr.Body->accept(*this);
+  expr.body->accept(*this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
@@ -263,14 +263,14 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
     this->LexicalBlocks.pop_back();
 
     // Validate the generated code, checking for consistency.
-    verifyFunction(*TheFunction);
+    verifyFunction(*the_function);
 
-    this->result_func = TheFunction;
+    this->result_func = the_function;
     return;
   }
 
   // Error reading body, remove function.
-  TheFunction->eraseFromParent();
+  the_function->eraseFromParent();
 
   this->result_func = nullptr;
 
@@ -280,11 +280,11 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
 }
 
 /**
- * @brief Initialize LLVM Module And PassManager.
+ * @brief initialize LLVM Module And PassManager.
  *
  */
-auto ASTToLLVMIRVisitor::Initialize() -> void {
-  ASTToObjectVisitor::Initialize();
+auto ASTToLLVMIRVisitor::initialize() -> void {
+  ASTToObjectVisitor::initialize();
 
   ArxLLVM::jit = this->ExitOnErr(llvm::orc::ArxJIT::Create());
   ArxLLVM::module->setDataLayout(ArxLLVM::jit->getDataLayout());
@@ -300,17 +300,17 @@ auto ASTToLLVMIRVisitor::Initialize() -> void {
 auto compile_llvm_ir(TreeAST& ast) -> int {
   auto codegen = std::make_unique<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
 
-  Lexer::getNextToken();
+  Lexer::get_next_token();
 
-  // Initialize the target registry etc.
+  // initialize the target registry etc.
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
 
-  codegen->Initialize();
+  codegen->initialize();
 
   // Run the main "interpreter loop" now.
-  LOG(INFO) << "Starting MainLoop";
+  LOG(INFO) << "Starting main_loop";
 
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
@@ -323,7 +323,7 @@ auto compile_llvm_ir(TreeAST& ast) -> int {
     "",
     0);
 
-  LOG(INFO) << "Initialize Target";
+  LOG(INFO) << "initialize Target";
 
   // Add the current debug info version into the module.
   ArxLLVM::module->addModuleFlag(
@@ -349,7 +349,7 @@ auto compile_llvm_ir(TreeAST& ast) -> int {
     0);
 
   // Run the main "interpreter loop" now.
-  codegen->MainLoop(ast);
+  codegen->main_loop(ast);
 
   // Finalize the debug info.
   ArxLLVM::di_builder->finalize();

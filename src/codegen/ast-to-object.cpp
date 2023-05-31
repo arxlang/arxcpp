@@ -71,19 +71,19 @@ extern std::string ARX_VERSION;
 
 /**
  * @brief Put the function defined by the given name to result_func.
- * @param Name Function name
+ * @param name Function name
  *
  * First, see if the function has already been added to the current
  * module. If not, check whether we can codegen the declaration from some
  * existing prototype. If no existing prototype exists, return null.
  */
-auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
-  if (auto* F = ArxLLVM::module->getFunction(Name)) {
-    this->result_func = F;
+auto ASTToObjectVisitor::getFunction(std::string name) -> void {
+  if (auto* fn = ArxLLVM::module->getFunction(name)) {
+    this->result_func = fn;
     return;
   }
 
-  auto FI = ArxLLVM::function_protos.find(Name);
+  auto FI = ArxLLVM::function_protos.find(name);
   if (FI != ArxLLVM::function_protos.end()) {
     FI->second->accept(*this);
   };
@@ -92,16 +92,16 @@ auto ASTToObjectVisitor::getFunction(std::string Name) -> void {
 /**
  * @brief Create the Entry Block Allocation.
  * @param fn The llvm function
- * @param VarName The variable name
+ * @param var_name The variable name
  * @return An llvm allocation instance.
  *
  * CreateEntryBlockAlloca - Create an alloca instruction in the entry
  * block of the function.  This is used for mutable variables etc.
  */
 auto ASTToObjectVisitor::CreateEntryBlockAlloca(
-  llvm::Function* fn, llvm::StringRef VarName) -> llvm::AllocaInst* {
+  llvm::Function* fn, llvm::StringRef var_name) -> llvm::AllocaInst* {
   llvm::IRBuilder<> TmpB(&fn->getEntryBlock(), fn->getEntryBlock().begin());
-  return TmpB.CreateAlloca(ArxLLVM::DOUBLE_TYPE, nullptr, VarName);
+  return TmpB.CreateAlloca(ArxLLVM::DOUBLE_TYPE, nullptr, var_name);
 }
 
 /**
@@ -119,7 +119,7 @@ auto ASTToObjectVisitor::clean() -> void {
  */
 auto ASTToObjectVisitor::visit(FloatExprAST& expr) -> void {
   this->result_val =
-    llvm::ConstantFP::get(*ArxLLVM::context, llvm::APFloat(expr.Val));
+    llvm::ConstantFP::get(*ArxLLVM::context, llvm::APFloat(expr.val));
 }
 
 /**
@@ -127,16 +127,16 @@ auto ASTToObjectVisitor::visit(FloatExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(VariableExprAST& expr) -> void {
-  llvm::Value* V = ArxLLVM::named_values[expr.Name];
+  llvm::Value* V = ArxLLVM::named_values[expr.name];
 
   if (!V) {
-    auto msg = std::string("Unknown variable name: ") + expr.Name;
+    auto msg = std::string("Unknown variable name: ") + expr.name;
     this->result_val = LogErrorV(msg.c_str());
     return;
   }
 
   this->result_val = ArxLLVM::ir_builder->CreateLoad(
-    ArxLLVM::DOUBLE_TYPE, V, expr.Name.c_str());
+    ArxLLVM::DOUBLE_TYPE, V, expr.name.c_str());
 }
 
 /**
@@ -144,7 +144,7 @@ auto ASTToObjectVisitor::visit(VariableExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(UnaryExprAST& expr) -> void {
-  expr.Operand.get()->accept(*this);
+  expr.operand.get()->accept(*this);
   llvm::Value* OperandV = this->result_val;
 
   if (!OperandV) {
@@ -152,14 +152,14 @@ auto ASTToObjectVisitor::visit(UnaryExprAST& expr) -> void {
     return;
   }
 
-  this->getFunction(std::string("unary") + expr.Opcode);
-  llvm::Function* F = this->result_func;
-  if (!F) {
+  this->getFunction(std::string("unary") + expr.op_code);
+  llvm::Function* fn = this->result_func;
+  if (!fn) {
     this->result_val = LogErrorV("Unknown unary operator");
     return;
   }
 
-  this->result_val = ArxLLVM::ir_builder->CreateCall(F, OperandV, "unop");
+  this->result_val = ArxLLVM::ir_builder->CreateCall(fn, OperandV, "unop");
 }
 
 /**
@@ -167,24 +167,24 @@ auto ASTToObjectVisitor::visit(UnaryExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
-  //  Special case '=' because we don't want to emit the LHS as an
+  //  Special case '=' because we don't want to emit the lhs as an
   // expression.*/
-  if (expr.Op == '=') {
-    // Assignment requires the LHS to be an identifier.
+  if (expr.op == '=') {
+    // Assignment requires the lhs to be an identifier.
     // This assume we're building without RTTI because LLVM builds that
     // way by default.  If you build LLVM with RTTI this can be changed
     // to a dynamic_cast for automatic error checking.
-    VariableExprAST* LHSE = static_cast<VariableExprAST*>(expr.LHS.get());
+    VariableExprAST* LHSE = static_cast<VariableExprAST*>(expr.lhs.get());
     if (!LHSE) {
       this->result_val = LogErrorV("destination of '=' must be a variable");
       return;
     }
 
-    // Codegen the RHS.//
-    expr.RHS.get()->accept(*this);
-    llvm::Value* Val = this->result_val;
+    // Codegen the rhs.//
+    expr.rhs.get()->accept(*this);
+    llvm::Value* val = this->result_val;
 
-    if (!Val) {
+    if (!val) {
       this->result_val = nullptr;
       return;
     };
@@ -196,13 +196,13 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
       return;
     }
 
-    ArxLLVM::ir_builder->CreateStore(Val, Variable);
-    this->result_val = Val;
+    ArxLLVM::ir_builder->CreateStore(val, Variable);
+    this->result_val = val;
   }
 
-  expr.LHS.get()->accept(*this);
+  expr.lhs.get()->accept(*this);
   llvm::Value* L = this->result_val;
-  expr.RHS.get()->accept(*this);
+  expr.rhs.get()->accept(*this);
   llvm::Value* R = this->result_val;
 
   if (!L || !R) {
@@ -210,7 +210,7 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
     return;
   }
 
-  switch (expr.Op) {
+  switch (expr.op) {
     case '+':
       this->result_val = ArxLLVM::ir_builder->CreateFAdd(L, R, "addtmp");
       return;
@@ -230,12 +230,12 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
 
   // If it wasn't a builtin binary operator, it must be a user defined
   // one. Emit a call to it.
-  this->getFunction(std::string("binary") + expr.Op);
-  llvm::Function* F = this->result_func;
-  assert(F && "binary operator not found!");
+  this->getFunction(std::string("binary") + expr.op);
+  llvm::Function* fn = this->result_func;
+  assert(fn && "binary operator not found!");
 
   llvm::Value* Ops[] = {L, R};
-  this->result_val = ArxLLVM::ir_builder->CreateCall(F, Ops, "binop");
+  this->result_val = ArxLLVM::ir_builder->CreateCall(fn, Ops, "binop");
 }
 
 /**
@@ -243,21 +243,21 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(CallExprAST& expr) -> void {
-  this->getFunction(expr.Callee);
+  this->getFunction(expr.callee);
   llvm::Function* CalleeF = this->result_func;
   if (!CalleeF) {
     this->result_val = LogErrorV("Unknown function referenced");
     return;
   }
 
-  if (CalleeF->arg_size() != expr.Args.size()) {
+  if (CalleeF->arg_size() != expr.args.size()) {
     this->result_val = LogErrorV("Incorrect # arguments passed");
     return;
   }
 
   std::vector<llvm::Value*> ArgsV;
-  for (unsigned i = 0, e = expr.Args.size(); i != e; ++i) {
-    expr.Args[i].get()->accept(*this);
+  for (unsigned i = 0, e = expr.args.size(); i != e; ++i) {
+    expr.args[i].get()->accept(*this);
     llvm::Value* ArgsV_item = this->result_val;
     ArgsV.push_back(ArgsV_item);
     if (!ArgsV.back()) {
@@ -274,7 +274,7 @@ auto ASTToObjectVisitor::visit(CallExprAST& expr) -> void {
  * @brief Code generation for IfExprAST.
  */
 auto ASTToObjectVisitor::visit(IfExprAST& expr) -> void {
-  expr.Cond.get()->accept(*this);
+  expr.cond.get()->accept(*this);
   llvm::Value* CondV = this->result_val;
 
   if (!CondV) {
@@ -320,7 +320,7 @@ auto ASTToObjectVisitor::visit(IfExprAST& expr) -> void {
   fn->getBasicBlockList().push_back(ElseBB);
   ArxLLVM::ir_builder->SetInsertPoint(ElseBB);
 
-  expr.Else.get()->accept(*this);
+  expr.else_.get()->accept(*this);
   llvm::Value* ElseV = this->result_val;
   if (!ElseV) {
     this->result_val = nullptr;
@@ -328,7 +328,7 @@ auto ASTToObjectVisitor::visit(IfExprAST& expr) -> void {
   }
 
   ArxLLVM::ir_builder->CreateBr(MergeBB);
-  // Codegen of 'Else' can change the current block, update ElseBB for
+  // Codegen of 'else_' can change the current block, update ElseBB for
   // the PHI.
   ElseBB = ArxLLVM::ir_builder->GetInsertBlock();
 
@@ -354,10 +354,10 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   llvm::Function* fn = ArxLLVM::ir_builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
-  llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, expr.VarName);
+  llvm::AllocaInst* alloca = this->CreateEntryBlockAlloca(fn, expr.var_name);
 
   // Emit the start code first, without 'variable' in scope.
-  expr.Start.get()->accept(*this);
+  expr.start.get()->accept(*this);
   llvm::Value* StartVal = this->result_val;
   if (!StartVal) {
     this->result_val = nullptr;
@@ -365,7 +365,7 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   }
 
   // Store the value into the alloca.
-  ArxLLVM::ir_builder->CreateStore(StartVal, Alloca);
+  ArxLLVM::ir_builder->CreateStore(StartVal, alloca);
 
   // Make the new basic block for the loop header, inserting after
   // current block.
@@ -376,19 +376,19 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   // LoopBB.
   ArxLLVM::ir_builder->CreateBr(LoopBB);
 
-  // Start insertion in LoopBB.
+  // start insertion in LoopBB.
   ArxLLVM::ir_builder->SetInsertPoint(LoopBB);
 
   // Within the loop, the variable is defined equal to the PHI node.  If
   // it shadows an existing variable, we have to restore it, so save it
   // now.
-  llvm::AllocaInst* OldVal = ArxLLVM::named_values[expr.VarName];
-  ArxLLVM::named_values[expr.VarName] = Alloca;
+  llvm::AllocaInst* OldVal = ArxLLVM::named_values[expr.var_name];
+  ArxLLVM::named_values[expr.var_name] = alloca;
 
   // Emit the body of the loop.  This, like any other expr, can change
   // the current BB.  Note that we ignore the value computed by the body,
   // but don't allow an error.
-  expr.Body.get()->accept(*this);
+  expr.body.get()->accept(*this);
   llvm::Value* BodyVal = this->result_val;
 
   if (!BodyVal) {
@@ -398,8 +398,8 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
 
   // Emit the step value.
   llvm::Value* StepVal = nullptr;
-  if (expr.Step) {
-    expr.Step.get()->accept(*this);
+  if (expr.step) {
+    expr.step.get()->accept(*this);
     StepVal = this->result_val;
     if (!StepVal) {
       this->result_val = nullptr;
@@ -411,7 +411,7 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   }
 
   // Compute the end condition.
-  expr.End.get()->accept(*this);
+  expr.end.get()->accept(*this);
   llvm::Value* EndCond = this->result_val;
   if (!EndCond) {
     this->result_val = nullptr;
@@ -421,10 +421,10 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
   llvm::Value* CurVar = ArxLLVM::ir_builder->CreateLoad(
-    ArxLLVM::DOUBLE_TYPE, Alloca, expr.VarName.c_str());
+    ArxLLVM::DOUBLE_TYPE, alloca, expr.var_name.c_str());
   llvm::Value* NextVar =
     ArxLLVM::ir_builder->CreateFAdd(CurVar, StepVal, "nextvar");
-  ArxLLVM::ir_builder->CreateStore(NextVar, Alloca);
+  ArxLLVM::ir_builder->CreateStore(NextVar, alloca);
 
   // Convert condition to a bool by comparing non-equal to 0.0.
   EndCond = ArxLLVM::ir_builder->CreateFCmpONE(
@@ -444,9 +444,9 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
 
   // Restore the unshadowed variable.
   if (OldVal) {
-    ArxLLVM::named_values[expr.VarName] = OldVal;
+    ArxLLVM::named_values[expr.var_name] = OldVal;
   } else {
-    ArxLLVM::named_values.erase(expr.VarName);
+    ArxLLVM::named_values.erase(expr.var_name);
   }
 
   // for expr always returns 0.0.
@@ -463,8 +463,8 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
   llvm::Function* fn = ArxLLVM::ir_builder->GetInsertBlock()->getParent();
 
   // Register all variables and emit their initializer.
-  for (auto& i : expr.VarNames) {
-    const std::string& VarName = i.first;
+  for (auto& i : expr.var_names) {
+    const std::string& var_name = i.first;
     ExprAST* Init = i.second.get();
 
     // Emit the initializer before adding the variable to scope, this
@@ -485,19 +485,19 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
       InitVal = llvm::ConstantFP::get(*ArxLLVM::context, llvm::APFloat(0.0));
     }
 
-    llvm::AllocaInst* Alloca = CreateEntryBlockAlloca(fn, VarName);
-    ArxLLVM::ir_builder->CreateStore(InitVal, Alloca);
+    llvm::AllocaInst* alloca = CreateEntryBlockAlloca(fn, var_name);
+    ArxLLVM::ir_builder->CreateStore(InitVal, alloca);
 
     // Remember the old variable binding so that we can restore the
     // binding when we unrecurse.
-    OldBindings.push_back(ArxLLVM::named_values[VarName]);
+    OldBindings.push_back(ArxLLVM::named_values[var_name]);
 
     // Remember this binding.
-    ArxLLVM::named_values[VarName] = Alloca;
+    ArxLLVM::named_values[var_name] = alloca;
   }
 
   // Codegen the body, now that all vars are in scope.
-  expr.Body.get()->accept(*this);
+  expr.body.get()->accept(*this);
   llvm::Value* BodyVal = this->result_val;
   if (!BodyVal) {
     this->result_val = nullptr;
@@ -505,8 +505,8 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
   }
 
   // Pop all our variables from scope.
-  for (unsigned i = 0, e = expr.VarNames.size(); i != e; ++i) {
-    ArxLLVM::named_values[expr.VarNames[i].first] = OldBindings[i];
+  for (unsigned i = 0, e = expr.var_names.size(); i != e; ++i) {
+    ArxLLVM::named_values[expr.var_names[i].first] = OldBindings[i];
   }
 
   // Return the body computation.
@@ -519,20 +519,23 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
  */
 auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
   // Make the function type:  double(double,double) etc.
-  std::vector<llvm::Type*> Doubles(expr.Args.size(), ArxLLVM::DOUBLE_TYPE);
-  llvm::FunctionType* FT =
+  std::vector<llvm::Type*> Doubles(expr.args.size(), ArxLLVM::DOUBLE_TYPE);
+  llvm::FunctionType* fn_type =
     llvm::FunctionType::get(ArxLLVM::DOUBLE_TYPE, Doubles, false);
 
-  llvm::Function* F = llvm::Function::Create(
-    FT, llvm::Function::ExternalLinkage, expr.Name, ArxLLVM::module.get());
+  llvm::Function* fn = llvm::Function::Create(
+    fn_type,
+    llvm::Function::ExternalLinkage,
+    expr.name,
+    ArxLLVM::module.get());
 
   // Set names for all arguments.
-  unsigned Idx = 0;
-  for (auto& Arg : F->args()) {
-    Arg.setName(expr.Args[Idx++]->Name);
+  unsigned idx = 0;
+  for (auto& arg : fn->args()) {
+    arg.setName(expr.args[idx++]->name);
   }
 
-  this->result_func = F;
+  this->result_func = fn;
 }
 
 /**
@@ -542,8 +545,8 @@ auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
  * but keep a reference to it for use below.
  */
 auto ASTToObjectVisitor::visit(FunctionAST& expr) -> void {
-  auto& P = *(expr.Proto);
-  ArxLLVM::function_protos[expr.Proto->getName()] = std::move(expr.Proto);
+  auto& P = *(expr.proto);
+  ArxLLVM::function_protos[expr.proto->getName()] = std::move(expr.proto);
   this->getFunction(P.getName());
   llvm::Function* fn = this->result_func;
 
@@ -562,18 +565,18 @@ auto ASTToObjectVisitor::visit(FunctionAST& expr) -> void {
   // std::cout << "Record the function arguments in the named_values map.";
   ArxLLVM::named_values.clear();
 
-  for (auto& Arg : fn->args()) {
+  for (auto& arg : fn->args()) {
     // Create an alloca for this variable.
-    llvm::AllocaInst* Alloca = this->CreateEntryBlockAlloca(fn, Arg.getName());
+    llvm::AllocaInst* alloca = this->CreateEntryBlockAlloca(fn, arg.getName());
 
     // Store the initial value into the alloca.
-    ArxLLVM::ir_builder->CreateStore(&Arg, Alloca);
+    ArxLLVM::ir_builder->CreateStore(&arg, alloca);
 
     // Add arguments to variable symbol table.
-    ArxLLVM::named_values[std::string(Arg.getName())] = Alloca;
+    ArxLLVM::named_values[std::string(arg.getName())] = alloca;
   }
 
-  expr.Body->accept(*this);
+  expr.body->accept(*this);
   llvm::Value* RetVal = this->result_val;
 
   if (RetVal) {
@@ -594,10 +597,10 @@ auto ASTToObjectVisitor::visit(FunctionAST& expr) -> void {
 }
 
 /**
- * @brief Initialize LLVM Module And PassManager.
+ * @brief initialize LLVM Module And PassManager.
  *
  */
-auto ASTToObjectVisitor::Initialize() -> void {
+auto ASTToObjectVisitor::initialize() -> void {
   ArxLLVM::context = std::make_unique<llvm::LLVMContext>();
   ArxLLVM::module =
     std::make_unique<llvm::Module>("arx jit", *ArxLLVM::context);
@@ -616,7 +619,7 @@ auto ASTToObjectVisitor::Initialize() -> void {
  * @brief The main loop that walks the AST.
  * top ::= definition | external | expression | ';'
  */
-auto ASTToObjectVisitor::MainLoop(TreeAST& ast) -> void {
+auto ASTToObjectVisitor::main_loop(TreeAST& ast) -> void {
   for (auto& node : ast.nodes) {
     node->accept(*this);
   }
@@ -658,31 +661,31 @@ extern "C" DLLEXPORT auto printd(double X) -> double {
 auto compile_object(TreeAST& tree_ast) -> int {
   auto codegen = std::make_unique<ASTToObjectVisitor>(ASTToObjectVisitor());
 
-  Lexer::getNextToken();
+  Lexer::get_next_token();
 
-  codegen->Initialize();
+  codegen->initialize();
 
   // Run the main "interpreter loop" now.
-  LOG(INFO) << "Starting MainLoop";
+  LOG(INFO) << "Starting main_loop";
 
-  codegen->MainLoop(tree_ast);
+  codegen->main_loop(tree_ast);
 
-  LOG(INFO) << "Initialize Target";
+  LOG(INFO) << "initialize Target";
 
-  // Initialize the target registry etc.
+  // initialize the target registry etc.
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
 
-  LOG(INFO) << "TargetTriple";
+  LOG(INFO) << "target_triple";
 
-  auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-  ArxLLVM::module->setTargetTriple(TargetTriple);
+  auto target_triple = llvm::sys::getDefaultTargetTriple();
+  ArxLLVM::module->setTargetTriple(target_triple);
 
   std::string Error;
-  auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+  auto Target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
 
   // Print an error and exit if we couldn't find the requested target.
   // This generally occurs if we've forgotten to initialise the
@@ -698,45 +701,46 @@ auto compile_object(TreeAST& tree_ast) -> int {
   LOG(INFO) << "Target Options";
 
   llvm::TargetOptions opt;
-  auto RM = llvm::Optional<llvm::Reloc::Model>();
+  auto reloc_model = llvm::Optional<llvm::Reloc::Model>();
 
-  LOG(INFO) << "Target Matchine";
-  auto TheTargetMachine =
-    Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+  LOG(INFO) << "Target Machine";
+  auto the_target_machine = Target->createTargetMachine(
+    target_triple, CPU, Features, opt, reloc_model);
 
   LOG(INFO) << "Set Data Layout";
 
-  ArxLLVM::module->setDataLayout(TheTargetMachine->createDataLayout());
+  ArxLLVM::module->setDataLayout(the_target_machine->createDataLayout());
 
   LOG(INFO) << "dest output";
-  std::error_code EC;
+  std::error_code error_code;
 
   if (OUTPUT_FILE == "") {
     OUTPUT_FILE = INPUT_FILE + ".o";
   }
 
-  llvm::raw_fd_ostream dest(OUTPUT_FILE, EC, llvm::sys::fs::OF_None);
+  llvm::raw_fd_ostream dest(OUTPUT_FILE, error_code, llvm::sys::fs::OF_None);
 
-  if (EC) {
-    llvm::errs() << "Could not open file: " << EC.message();
-    delete TheTargetMachine;
+  if (error_code) {
+    llvm::errs() << "Could not open file: " << error_code.message();
+    delete the_target_machine;
     return 1;
   }
 
   llvm::legacy::PassManager pass;
 
-  auto FileType = llvm::CGFT_ObjectFile;
+  auto file_type = llvm::CGFT_ObjectFile;
 
-  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
-    llvm::errs() << "TheTargetMachine can't emit a file of this type";
-    delete TheTargetMachine;
+  if (the_target_machine->addPassesToEmitFile(
+        pass, dest, nullptr, file_type)) {
+    llvm::errs() << "the_target_machine can't emit a file of this type";
+    delete the_target_machine;
     return 1;
   }
 
   pass.run(*ArxLLVM::module);
   dest.flush();
 
-  delete TheTargetMachine;
+  delete the_target_machine;
 
   if (IS_BUILD_LIB) {
     return 0;

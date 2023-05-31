@@ -7,14 +7,14 @@
 #include "../src/utils.h"
 
 TEST(LexerTest, TokenNameTest) {
-  /* Test some results from getTokName */
-  EXPECT_EQ(Lexer::getTokName(tok_eof), "eof");
-  EXPECT_EQ(Lexer::getTokName(tok_function), "function");
-  EXPECT_EQ(Lexer::getTokName(tok_return), "return");
-  EXPECT_EQ(Lexer::getTokName(tok_identifier), "identifier");
-  EXPECT_EQ(Lexer::getTokName(tok_if), "if");
-  EXPECT_EQ(Lexer::getTokName(tok_for), "for");
-  EXPECT_EQ(Lexer::getTokName('+'), "+");
+  /* Test some results from get_tok_name */
+  EXPECT_EQ(Lexer::get_tok_name(tok_eof), "eof");
+  EXPECT_EQ(Lexer::get_tok_name(tok_function), "function");
+  EXPECT_EQ(Lexer::get_tok_name(tok_return), "return");
+  EXPECT_EQ(Lexer::get_tok_name(tok_identifier), "identifier");
+  EXPECT_EQ(Lexer::get_tok_name(tok_if), "if");
+  EXPECT_EQ(Lexer::get_tok_name(tok_for), "for");
+  EXPECT_EQ(Lexer::get_tok_name('+'), "+");
 }
 
 TEST(LexerTest, AdvanceTest) {
@@ -30,30 +30,30 @@ TEST(LexerTest, AdvanceTest) {
 
 TEST(LexerTest, GetTokSimpleTest) {
   string_to_buffer((char*) "11");
-  EXPECT_EQ(Lexer::gettok(), tok_number);
-  EXPECT_EQ(Lexer::NumVal, 11);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
+  EXPECT_EQ(Lexer::num_float, 11);
 
   string_to_buffer((char*) "21");
-  EXPECT_EQ(Lexer::gettok(), tok_number);
-  EXPECT_EQ(Lexer::NumVal, 21);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
+  EXPECT_EQ(Lexer::num_float, 21);
 
   string_to_buffer((char*) "31");
-  EXPECT_EQ(Lexer::gettok(), tok_number);
-  EXPECT_EQ(Lexer::NumVal, 31);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
+  EXPECT_EQ(Lexer::num_float, 31);
 }
 
 TEST(LexerTest, GetNextTokenSimpleTest) {
   string_to_buffer((char*) "11");
-  EXPECT_EQ(Lexer::getNextToken(), tok_number);
-  EXPECT_EQ(Lexer::NumVal, 11);
+  EXPECT_EQ(Lexer::get_next_token(), tok_float_literal);
+  EXPECT_EQ(Lexer::num_float, 11);
 
   string_to_buffer((char*) "21");
-  EXPECT_EQ(Lexer::getNextToken(), tok_number);
-  EXPECT_EQ(Lexer::NumVal, 21);
+  EXPECT_EQ(Lexer::get_next_token(), tok_float_literal);
+  EXPECT_EQ(Lexer::num_float, 21);
 
   string_to_buffer((char*) "31");
-  EXPECT_EQ(Lexer::getNextToken(), tok_number);
-  EXPECT_EQ(Lexer::NumVal, 31);
+  EXPECT_EQ(Lexer::get_next_token(), tok_float_literal);
+  EXPECT_EQ(Lexer::num_float, 31);
 }
 
 TEST(LexerTest, GetTokTest) {
@@ -77,19 +77,19 @@ TEST(LexerTest, GetTokTest) {
   EXPECT_EQ(Lexer::gettok(), tok_if);
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '>');
-  EXPECT_EQ(Lexer::gettok(), tok_number);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
   EXPECT_EQ(Lexer::gettok(), (int) ':');
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '+');
-  EXPECT_EQ(Lexer::gettok(), tok_number);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
   EXPECT_EQ(Lexer::gettok(), tok_else);
   EXPECT_EQ(Lexer::gettok(), (int) ':');
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '*');
-  EXPECT_EQ(Lexer::gettok(), tok_number);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
   EXPECT_EQ(Lexer::gettok(), tok_identifier);
   EXPECT_EQ(Lexer::gettok(), (int) '(');
-  EXPECT_EQ(Lexer::gettok(), tok_number);
+  EXPECT_EQ(Lexer::gettok(), tok_float_literal);
   EXPECT_EQ(Lexer::gettok(), (int) ')');
   EXPECT_EQ(Lexer::gettok(), (int) ';');
 }

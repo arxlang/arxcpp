@@ -56,7 +56,7 @@ class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
   virtual void visit(PrototypeAST&) override;
   virtual void visit(FunctionAST&) override;
 
-  auto Initialize() -> void;
+  auto initialize() -> void;
   auto CreateFunctionType(unsigned NumArgs) -> llvm::DISubroutineType*;
 
   // DebugInfo
