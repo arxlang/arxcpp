@@ -18,7 +18,7 @@ enum Token {
 
   // primary
   tok_identifier = -10,
-  tok_number = -11,
+  tok_float_literal = -11,
 
   // control
   tok_if = -20,
@@ -39,20 +39,20 @@ enum Token {
 };
 
 struct SourceLocation {
-  int Line;
+  int line;
   int Col;
 };
 
 class Lexer {
  public:
-  static SourceLocation CurLoc;
-  static std::string IdentifierStr;  // Filled in if tok_identifier
-  static double NumVal;              // Filled in if tok_number
-  static int CurTok;
-  static SourceLocation LexLoc;
+  static SourceLocation cur_loc;
+  static std::string identifier_str;  // Filled in if tok_identifier
+  static double num_float;            // Filled in if tok_float_literal
+  static int cur_tok;
+  static SourceLocation lex_loc;
 
-  static std::string getTokName(int);
+  static std::string get_tok_name(int);
   static int gettok();
   static int advance();
-  static int getNextToken();
+  static int get_next_token();
 };

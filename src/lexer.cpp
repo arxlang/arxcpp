@@ -5,12 +5,12 @@
 #include <string>   // for operator==, allocator, string, basic_string
 #include "io.h"     // for get_char
 
-SourceLocation Lexer::CurLoc;
-std::string Lexer::IdentifierStr =
-  "<NOT DEFINED>";     // Filled in if tok_identifier
-double Lexer::NumVal;  // Filled in if tok_number
-SourceLocation Lexer::LexLoc;
-int Lexer::CurTok = tok_not_initialized;
+SourceLocation Lexer::cur_loc;
+std::string Lexer::identifier_str =
+  "<NOT DEFINED>";        // Filled in if tok_identifier
+double Lexer::num_float;  // Filled in if tok_float_literal
+SourceLocation Lexer::lex_loc;
+int Lexer::cur_tok = tok_not_initialized;
 
 /**
  * @brief Get the Token name.
@@ -18,7 +18,7 @@ int Lexer::CurTok = tok_not_initialized;
  * @return Token name
  *
  */
-auto Lexer::getTokName(int Tok) -> std::string {
+auto Lexer::get_tok_name(int Tok) -> std::string {
   switch (Tok) {
     case tok_eof:
       return "eof";
@@ -30,8 +30,8 @@ auto Lexer::getTokName(int Tok) -> std::string {
       return "extern";
     case tok_identifier:
       return "identifier";
-    case tok_number:
-      return "number";
+    case tok_float_literal:
+      return "float";
     case tok_if:
       return "if";
     case tok_then:
@@ -83,10 +83,10 @@ auto Lexer::advance() -> int {
   int LastChar = get_char();
 
   if (LastChar == '\n' || LastChar == '\r') {
-    Lexer::LexLoc.Line++;
-    Lexer::LexLoc.Col = 0;
+    Lexer::lex_loc.line++;
+    Lexer::lex_loc.Col = 0;
   } else {
-    Lexer::LexLoc.Col++;
+    Lexer::lex_loc.Col++;
   }
   return LastChar;
 }
@@ -104,43 +104,43 @@ auto Lexer::gettok() -> int {
     LastChar = static_cast<char>(Lexer::advance());
   }
 
-  Lexer::CurLoc = Lexer::LexLoc;
+  Lexer::cur_loc = Lexer::lex_loc;
 
   if (is_identifier_first_char(LastChar)) {
-    Lexer::IdentifierStr = static_cast<char>(LastChar);
+    Lexer::identifier_str = static_cast<char>(LastChar);
     while (
       is_identifier_char((LastChar = static_cast<char>(Lexer::advance())))) {
-      Lexer::IdentifierStr += LastChar;
+      Lexer::identifier_str += LastChar;
     }
 
-    if (Lexer::IdentifierStr == "function") {
+    if (Lexer::identifier_str == "function") {
       return tok_function;
     }
-    if (Lexer::IdentifierStr == "return") {
+    if (Lexer::identifier_str == "return") {
       return tok_return;
     }
-    if (Lexer::IdentifierStr == "extern") {
+    if (Lexer::identifier_str == "extern") {
       return tok_extern;
     }
-    if (Lexer::IdentifierStr == "if") {
+    if (Lexer::identifier_str == "if") {
       return tok_if;
     }
-    if (Lexer::IdentifierStr == "else") {
+    if (Lexer::identifier_str == "else") {
       return tok_else;
     }
-    if (Lexer::IdentifierStr == "for") {
+    if (Lexer::identifier_str == "for") {
       return tok_for;
     }
-    if (Lexer::IdentifierStr == "in") {
+    if (Lexer::identifier_str == "in") {
       return tok_in;
     }
-    if (Lexer::IdentifierStr == "binary") {
+    if (Lexer::identifier_str == "binary") {
       return tok_binary;
     }
-    if (Lexer::IdentifierStr == "unary") {
+    if (Lexer::identifier_str == "unary") {
       return tok_unary;
     }
-    if (Lexer::IdentifierStr == "var") {
+    if (Lexer::identifier_str == "var") {
       return tok_var;
     }
     return tok_identifier;
@@ -154,8 +154,8 @@ auto Lexer::gettok() -> int {
       LastChar = static_cast<char>(Lexer::advance());
     } while (isdigit(LastChar) || LastChar == '.');
 
-    Lexer::NumVal = strtod(NumStr.c_str(), nullptr);
-    return tok_number;
+    Lexer::num_float = strtod(NumStr.c_str(), nullptr);
+    return tok_float_literal;
   }
 
   // Comment until end of line.
@@ -183,10 +183,10 @@ auto Lexer::gettok() -> int {
 /**
  * @brief Provide a simple token buffer.
  * @return
- * CurTok is the current token the parser is looking at.
- * getNextToken reads another token from the lexer and updates
- * CurTok with its results.
+ * cur_tok is the current token the parser is looking at.
+ * get_next_token reads another token from the lexer and updates
+ * cur_tok with its results.
  */
-auto Lexer::getNextToken() -> int {
-  return Lexer::CurTok = Lexer::gettok();
+auto Lexer::get_next_token() -> int {
+  return Lexer::cur_tok = Lexer::gettok();
 }
