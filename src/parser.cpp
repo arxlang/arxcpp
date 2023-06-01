@@ -16,7 +16,7 @@
  * is defined.
  */
 
-std::map<char, int> Parser::BinopPrecedence;
+std::map<char, int> Parser::bin_op_precedence;
 
 void ExprAST::accept(Visitor& visitor) {
   switch (this->kind) {
@@ -84,11 +84,11 @@ auto Parser::get_tok_precedence() -> int {
   }
 
   // Make sure it's a declared binop.
-  int TokPrec = Parser::BinopPrecedence[Lexer::cur_tok];
-  if (TokPrec <= 0) {
+  int tok_prec = Parser::bin_op_precedence[Lexer::cur_tok];
+  if (tok_prec <= 0) {
     return -1;
   }
-  return TokPrec;
+  return tok_prec;
 }
 
 /**
@@ -97,9 +97,9 @@ auto Parser::get_tok_precedence() -> int {
  * numberexpr ::= number
  */
 std::unique_ptr<FloatExprAST> Parser::parse_float_expr() {
-  auto Result = std::make_unique<FloatExprAST>(Lexer::num_float);
+  auto result = std::make_unique<FloatExprAST>(Lexer::num_float);
   Lexer::get_next_token();  // consume the number
-  return Result;
+  return result;
 }
 
 /**
@@ -109,8 +109,8 @@ std::unique_ptr<FloatExprAST> Parser::parse_float_expr() {
  */
 std::unique_ptr<ExprAST> Parser::parse_paren_expr() {
   Lexer::get_next_token();  // eat (.
-  auto V = Parser::parse_expression();
-  if (!V) {
+  auto expr = Parser::parse_expression();
+  if (!expr) {
     return nullptr;
   }
 
@@ -118,7 +118,7 @@ std::unique_ptr<ExprAST> Parser::parse_paren_expr() {
     return LogError<ExprAST>("Parser: Expected ')'");
   }
   Lexer::get_next_token();  // eat ).
-  return V;
+  return expr;
 }
 
 /**
@@ -174,7 +174,7 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
  * ifexpr ::= 'if' expression 'then' expression 'else' expression
  */
 std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
-  SourceLocation IfLoc = Lexer::cur_loc;
+  SourceLocation if_loc = Lexer::cur_loc;
   char msg[80];
 
   Lexer::get_next_token();  // eat the if.
@@ -193,8 +193,8 @@ std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
   }
   Lexer::get_next_token();  // eat the ':'
 
-  auto Then = Parser::parse_expression();
-  if (!Then) {
+  auto then = Parser::parse_expression();
+  if (!then) {
     return nullptr;
   };
 
@@ -217,7 +217,7 @@ std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
   };
 
   return std::make_unique<IfExprAST>(
-    IfLoc, std::move(cond), std::move(Then), std::move(else_));
+    if_loc, std::move(cond), std::move(then), std::move(else_));
 }
 
 /**
@@ -406,21 +406,21 @@ std::unique_ptr<ExprAST> Parser::parse_unary() {
 
 /**
  * @brief Parse a binary expression.
- * @param ExprPrec Expression Pression (deprecated)
+ * @param expr_prec Expression Pression (deprecated)
  * @param lhs Left hand side Expression
  * @return
  * binoprhs
  *   ::= ('+' unary)*
  */
 std::unique_ptr<ExprAST> Parser::parse_bin_op_rhs(
-  int ExprPrec, std::unique_ptr<ExprAST> lhs) {
+  int expr_prec, std::unique_ptr<ExprAST> lhs) {
   // If this is a binop, find its precedence. //
   while (true) {
-    int TokPrec = get_tok_precedence();
+    int tok_prec = get_tok_precedence();
 
     // If this is a binop that binds at least as tightly as the current binop,
     // consume it, otherwise we are done.
-    if (TokPrec < ExprPrec) {
+    if (tok_prec < expr_prec) {
       return lhs;
     }
 
@@ -437,9 +437,9 @@ std::unique_ptr<ExprAST> Parser::parse_bin_op_rhs(
 
     // If BinOp binds less tightly with rhs than the operator after rhs, let
     // the pending operator take rhs as its lhs.
-    int NextPrec = get_tok_precedence();
-    if (TokPrec < NextPrec) {
-      rhs = Parser::parse_bin_op_rhs(TokPrec + 1, std::move(rhs));
+    int next_prec = get_tok_precedence();
+    if (tok_prec < next_prec) {
+      rhs = Parser::parse_bin_op_rhs(tok_prec + 1, std::move(rhs));
       if (!rhs) {
         return nullptr;
       }

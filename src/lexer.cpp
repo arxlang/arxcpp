@@ -6,20 +6,21 @@
 #include "io.h"     // for get_char
 
 SourceLocation Lexer::cur_loc;
-std::string Lexer::identifier_str =
-  "<NOT DEFINED>";        // Filled in if tok_identifier
-double Lexer::num_float;  // Filled in if tok_float_literal
+// Filled in if tok_identifier
+std::string Lexer::identifier_str = "<NOT DEFINED>";
+// Filled in if tok_float_literal
+double Lexer::num_float;
 SourceLocation Lexer::lex_loc;
 int Lexer::cur_tok = tok_not_initialized;
 
 /**
  * @brief Get the Token name.
- * @param Tok The token
+ * @param tok The token
  * @return Token name
  *
  */
-auto Lexer::get_tok_name(int Tok) -> std::string {
-  switch (Tok) {
+auto Lexer::get_tok_name(int tok) -> std::string {
+  switch (tok) {
     case tok_eof:
       return "eof";
     case tok_function:
@@ -51,7 +52,7 @@ auto Lexer::get_tok_name(int Tok) -> std::string {
     case tok_const:
       return "const";
   }
-  return std::string(1, static_cast<char>(Tok));
+  return std::string(1, static_cast<char>(tok));
 }
 
 /**
@@ -80,15 +81,15 @@ static auto is_identifier_char(char c) -> bool {
  *
  */
 auto Lexer::advance() -> int {
-  int LastChar = get_char();
+  int last_char = get_char();
 
-  if (LastChar == '\n' || LastChar == '\r') {
+  if (last_char == '\n' || last_char == '\r') {
     Lexer::lex_loc.line++;
-    Lexer::lex_loc.Col = 0;
+    Lexer::lex_loc.col = 0;
   } else {
-    Lexer::lex_loc.Col++;
+    Lexer::lex_loc.col++;
   }
-  return LastChar;
+  return last_char;
 }
 
 /**
@@ -97,20 +98,20 @@ auto Lexer::advance() -> int {
  *
  */
 auto Lexer::gettok() -> int {
-  static char LastChar = ' ';
+  static char last_char = ' ';
 
   // Skip any whitespace.
-  while (isspace(LastChar)) {
-    LastChar = static_cast<char>(Lexer::advance());
+  while (isspace(last_char)) {
+    last_char = static_cast<char>(Lexer::advance());
   }
 
   Lexer::cur_loc = Lexer::lex_loc;
 
-  if (is_identifier_first_char(LastChar)) {
-    Lexer::identifier_str = static_cast<char>(LastChar);
+  if (is_identifier_first_char(last_char)) {
+    Lexer::identifier_str = static_cast<char>(last_char);
     while (
-      is_identifier_char((LastChar = static_cast<char>(Lexer::advance())))) {
-      Lexer::identifier_str += LastChar;
+      is_identifier_char((last_char = static_cast<char>(Lexer::advance())))) {
+      Lexer::identifier_str += last_char;
     }
 
     if (Lexer::identifier_str == "function") {
@@ -147,37 +148,37 @@ auto Lexer::gettok() -> int {
   }
 
   // Number: [0-9.]+
-  if (isdigit(LastChar) || LastChar == '.') {
-    std::string NumStr;
+  if (isdigit(last_char) || last_char == '.') {
+    std::string num_str;
     do {
-      NumStr += static_cast<char>(LastChar);
-      LastChar = static_cast<char>(Lexer::advance());
-    } while (isdigit(LastChar) || LastChar == '.');
+      num_str += static_cast<char>(last_char);
+      last_char = static_cast<char>(Lexer::advance());
+    } while (isdigit(last_char) || last_char == '.');
 
-    Lexer::num_float = strtod(NumStr.c_str(), nullptr);
+    Lexer::num_float = strtod(num_str.c_str(), nullptr);
     return tok_float_literal;
   }
 
   // Comment until end of line.
-  if (LastChar == '#') {
+  if (last_char == '#') {
     do {
-      LastChar = static_cast<char>(Lexer::advance());
-    } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
+      last_char = static_cast<char>(Lexer::advance());
+    } while (last_char != EOF && last_char != '\n' && last_char != '\r');
 
-    if (LastChar != EOF) {
+    if (last_char != EOF) {
       return Lexer::gettok();
     }
   }
 
   // Check for end of file.  Don't eat the EOF.
-  if (LastChar == EOF) {
+  if (last_char == EOF) {
     return tok_eof;
   }
 
   // Otherwise, just return the character as its ascii value.
-  int ThisChar = LastChar;
-  LastChar = static_cast<char>(Lexer::advance());
-  return ThisChar;
+  int this_char = last_char;
+  last_char = static_cast<char>(Lexer::advance());
+  return this_char;
 }
 
 /**

@@ -23,4 +23,32 @@ llvm::Type* ArxLLVM::FLOAT_TYPE;
 llvm::Type* ArxLLVM::INT8_TYPE;
 llvm::Type* ArxLLVM::INT32_TYPE;
 
+/* Debug Information Data types */
+llvm::DIType* ArxLLVM::DI_DOUBLE_TYPE;
+llvm::DIType* ArxLLVM::DI_FLOAT_TYPE;
+llvm::DIType* ArxLLVM::DI_INT8_TYPE;
+llvm::DIType* ArxLLVM::DI_INT32_TYPE;
+llvm::DIType* ArxLLVM::DI_VOID_TYPE;
+
 extern bool IS_BUILD_LIB = false;  // default value
+
+llvm::Type* ArxLLVM::VOID_TYPE;
+
+auto ArxLLVM::get_data_type(std::string type_name) -> llvm::Type* {
+  if (type_name == "float") {
+    return ArxLLVM::FLOAT_TYPE;
+  } else if (type_name == "double") {
+    return ArxLLVM::DOUBLE_TYPE;
+  } else if (type_name == "int8") {
+    return ArxLLVM::INT8_TYPE;
+  } else if (type_name == "int32") {
+    return ArxLLVM::INT32_TYPE;
+  } else if (type_name == "char") {
+    return ArxLLVM::INT8_TYPE;
+  } else if (type_name == "void") {
+    return ArxLLVM::VOID_TYPE;
+  }
+
+  llvm::errs() << "[EE] type_name not valid.\n";
+  return nullptr;
+}

@@ -1,7 +1,7 @@
 version: 1.0.0
 env:
   CFLAGS_EXTRA: "\
-    -fsanitize\
+    -fsanitize=address\
     "
   # use it for ASAN and LSAN
   SAN_OPTIONS_DEFAULT: "\
@@ -375,10 +375,12 @@ groups:
             default: ''
             required: true
         env:
-          LSAN_OPTIONS: "verbosity=1:log_threads=1"
+          ASAN_OPTIONS: { env.SAN_OPTIONS_DEFAULT }
+          LSAN_OPTIONS: { env.SAN_OPTIONS_DEFAULT }
         shell: bash
         run: |
           gdb \
             --args build/arx \
             --input `pwd`/examples/{{ args.test_name }}.arx \
-            --output "/tmp/{{ args.test_name }}" {{ args.meson_extra }}
+            --output "/tmp/{{ args.test_name }}" {{ args.meson_extra }} \
+            --build-lib

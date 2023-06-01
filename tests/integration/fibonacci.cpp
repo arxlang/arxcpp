@@ -7,5 +7,5 @@ double fib(double);
 
 int main() {
   double fib_10 = fib(10.);
-  std::cout << "fib(40.): " << fib_10 << std::endl;
+  std::cout << "fib(10.): " << fib_10 << std::endl;
 }

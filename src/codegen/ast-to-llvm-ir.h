@@ -37,11 +37,11 @@ auto open_shell_llvm_ir() -> int;
 class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
  public:
   // DebugInfo
-  llvm::DICompileUnit* TheCU;
+  llvm::DICompileUnit* llvm_di_compile_unit;
   llvm::DIType* DblTy;
-  std::vector<llvm::DIScope*> LexicalBlocks;
+  std::vector<llvm::DIScope*> llvm_di_lexical_blocks;
 
-  llvm::ExitOnError ExitOnErr;
+  llvm::ExitOnError exit_on_err;
 
   ASTToLLVMIRVisitor() = default;
 

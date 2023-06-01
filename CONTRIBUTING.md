@@ -188,3 +188,14 @@ source:
 
 As this project uses the `squash and merge` strategy, ensure to apply
 the commit message format to the PR's title.
+
+
+## Development Tips and Resources
+
+### Memory Leak
+
+If you are facing any memory leak issue, please consider to check the following
+pages:
+
+- https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
+- https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer

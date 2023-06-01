@@ -40,7 +40,7 @@ dependencies:
 - lcov
 - mkdocs
 - mkdocs-jupyter
-- nodejs
+- nodejs >=18
 - pre-commit
 - pip
 - pip:

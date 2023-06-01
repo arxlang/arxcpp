@@ -121,7 +121,7 @@ void ASTToOutputVisitor::visit(IfExprAST& expr) {
   std::cout << ',' << std::endl;
   this->set_annotation("<THEN>");
 
-  expr.Then->accept(*this);
+  expr.then->accept(*this);
 
   if (expr.else_) {
     std::cout << ',' << std::endl;

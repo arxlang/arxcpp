@@ -40,7 +40,7 @@ enum Token {
 
 struct SourceLocation {
   int line;
-  int Col;
+  int col;
 };
 
 class Lexer {
