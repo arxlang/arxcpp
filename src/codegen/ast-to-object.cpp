@@ -1,12 +1,9 @@
 #include <cassert>  // for assert
 #include <cstdio>   // for fprintf, stderr, fputc
 #include <cstdlib>  // for exit
-#include <fstream>  // for operator<<
 #include <iostream>
-#include <map>      // for map, operator==, _Rb_tree_ite...
-#include <memory>   // for unique_ptr, allocator, make_u...
-#include <numeric>  // for accumulate
-#include <sstream>
+#include <map>           // for map, operator==, _Rb_tree_ite...
+#include <memory>        // for unique_ptr, allocator, make_u...
 #include <string>        // for string, operator<=>, operator+
 #include <system_error>  // for error_code
 #include <utility>       // for pair, move
@@ -617,7 +614,7 @@ auto ASTToObjectVisitor::initialize() -> void {
 
   /* Data Types */
   ArxLLVM::FLOAT_TYPE = llvm::Type::getFloatTy(*ArxLLVM::context);
-  ArxLLVM::FLOAT_TYPE = llvm::Type::getDoubleTy(*ArxLLVM::context);
+  ArxLLVM::DOUBLE_TYPE = llvm::Type::getDoubleTy(*ArxLLVM::context);
   ArxLLVM::INT8_TYPE = llvm::Type::getInt8Ty(*ArxLLVM::context);
   ArxLLVM::INT32_TYPE = llvm::Type::getInt32Ty(*ArxLLVM::context);
   ArxLLVM::VOID_TYPE = llvm::Type::getVoidTy(*ArxLLVM::context);
