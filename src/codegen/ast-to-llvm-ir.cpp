@@ -66,7 +66,7 @@ auto ASTToLLVMIRVisitor::getDoubleTy() -> llvm::DIType* {
   }
 
   DblTy = ArxLLVM::di_builder->createBasicType(
-    "double", 64, llvm::dwarf::DW_ATE_float);
+    "float", 64, llvm::dwarf::DW_ATE_float);
   return DblTy;
 }
 

@@ -98,9 +98,9 @@ class ExprAST {
  */
 class FloatExprAST : public ExprAST {
  public:
-  double val;
+  float val;
 
-  FloatExprAST(double _val) : val(_val) {
+  FloatExprAST(float _val) : val(_val) {
     this->kind = ExprKind::FloatDTKind;
   }
 

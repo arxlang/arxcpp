@@ -47,7 +47,7 @@ class Lexer {
  public:
   static SourceLocation cur_loc;
   static std::string identifier_str;  // Filled in if tok_identifier
-  static double num_float;            // Filled in if tok_float_literal
+  static float num_float;             // Filled in if tok_float_literal
   static int cur_tok;
   static SourceLocation lex_loc;
 
