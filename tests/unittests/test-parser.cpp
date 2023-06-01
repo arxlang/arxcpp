@@ -73,11 +73,11 @@ TEST(ParserTest, GetNextTokenTest) {
 TEST(ParserTest, BinopPrecedenceTest) {
   Parser::setup();
 
-  EXPECT_EQ(Parser::BinopPrecedence['='], 2);
-  EXPECT_EQ(Parser::BinopPrecedence['<'], 10);
-  EXPECT_EQ(Parser::BinopPrecedence['+'], 20);
-  EXPECT_EQ(Parser::BinopPrecedence['-'], 20);
-  EXPECT_EQ(Parser::BinopPrecedence['*'], 40);
+  EXPECT_EQ(Parser::bin_op_precedence['='], 2);
+  EXPECT_EQ(Parser::bin_op_precedence['<'], 10);
+  EXPECT_EQ(Parser::bin_op_precedence['+'], 20);
+  EXPECT_EQ(Parser::bin_op_precedence['-'], 20);
+  EXPECT_EQ(Parser::bin_op_precedence['*'], 40);
 }
 
 TEST(ParserTest, ParseFloatExprTest) {

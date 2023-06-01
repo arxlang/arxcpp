@@ -76,14 +76,14 @@ auto ASTToLLVMIRVisitor::emitLocation(ExprAST& ast) -> void {
   }
 
   llvm::DIScope* Scope;
-  if (this->LexicalBlocks.empty()) {
-    Scope = TheCU;
+  if (this->llvm_di_lexical_blocks.empty()) {
+    Scope = llvm_di_compile_unit;
   } else {
-    Scope = this->LexicalBlocks.back();
+    Scope = this->llvm_di_lexical_blocks.back();
   }
 
   ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DILocation::get(
-    Scope->getContext(), ast.getLine(), ast.getCol(), Scope));
+    Scope->getContext(), ast.get_line(), ast.getCol(), Scope));
 }
 
 /**
@@ -173,9 +173,9 @@ auto ASTToLLVMIRVisitor::visit(PrototypeAST& expr) -> void {
  * but keep a reference to it for use below.
  */
 auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
-  auto& P = *(expr.proto);
-  ArxLLVM::function_protos[expr.proto->getName()] = std::move(expr.proto);
-  this->getFunction(P.getName());
+  auto& proto = *(expr.proto);
+  ArxLLVM::function_protos[expr.proto->get_name()] = std::move(expr.proto);
+  this->getFunction(proto.get_name());
   llvm::Function* the_function = this->result_func;
 
   if (!the_function) {
@@ -185,20 +185,21 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
 
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
-  llvm::BasicBlock* BB =
+  llvm::BasicBlock* basic_block =
     llvm::BasicBlock::Create(*ArxLLVM::context, "entry", the_function);
-  ArxLLVM::ir_builder->SetInsertPoint(BB);
+  ArxLLVM::ir_builder->SetInsertPoint(basic_block);
 
   /* debugging-code:start*/
   // Create a subprogram DIE for this function.
   llvm::DIFile* Unit = ArxLLVM::di_builder->createFile(
-    this->TheCU->getFilename(), this->TheCU->getDirectory());
+    this->llvm_di_compile_unit->getFilename(),
+    this->llvm_di_compile_unit->getDirectory());
   llvm::DIScope* FContext = Unit;
-  unsigned LineNo = P.getLine();
+  unsigned LineNo = proto.get_line();
   unsigned ScopeLine = LineNo;
   llvm::DISubprogram* SP = ArxLLVM::di_builder->createFunction(
     FContext,
-    P.getName(),
+    proto.get_name(),
     llvm::StringRef(),
     Unit,
     LineNo,
@@ -209,7 +210,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   the_function->setSubprogram(SP);
 
   // Push the current scope.
-  this->LexicalBlocks.emplace_back(SP);
+  this->llvm_di_lexical_blocks.emplace_back(SP);
 
   // Unset the location for the prologue emission (leading instructions with no
   // location in a function are considered part of the prologue and the
@@ -224,15 +225,21 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   ArxLLVM::named_values.clear();
 
   unsigned ArgIdx = 0;
-  for (auto& arg : the_function->args()) {
+  for (auto& llvm_arg : the_function->args()) {
     // Create an alloca for this variable.
     llvm::AllocaInst* alloca =
-      CreateEntryBlockAlloca(the_function, arg.getName());
+      CreateEntryBlockAlloca(the_function, llvm_arg.getName());
 
     /* debugging-code: start */
     // Create a debug descriptor for the variable.
     llvm::DILocalVariable* D = ArxLLVM::di_builder->createParameterVariable(
-      SP, arg.getName(), ++ArgIdx, Unit, LineNo, this->getDoubleTy(), true);
+      SP,
+      llvm_arg.getName(),
+      ++ArgIdx,
+      Unit,
+      LineNo,
+      this->getDoubleTy(),
+      true);
 
     ArxLLVM::di_builder->insertDeclare(
       alloca,
@@ -244,26 +251,26 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
     /* debugging-code-end */
 
     // Store the initial value into the alloca.
-    ArxLLVM::ir_builder->CreateStore(&arg, alloca);
+    ArxLLVM::ir_builder->CreateStore(&llvm_arg, alloca);
 
     // Add arguments to variable symbol table.
-    ArxLLVM::named_values[std::string(arg.getName())] = alloca;
+    ArxLLVM::named_values[std::string(llvm_arg.getName())] = alloca;
   }
 
   this->emitLocation(*expr.body.get());
 
   expr.body->accept(*this);
-  llvm::Value* RetVal = this->result_val;
+  llvm::Value* llvm_return_val = this->result_val;
 
-  if (RetVal) {
+  if (llvm_return_val) {
     // Finish off the function.
-    ArxLLVM::ir_builder->CreateRet(RetVal);
+    ArxLLVM::ir_builder->CreateRet(llvm_return_val);
 
     // Pop off the lexical block for the function.
-    this->LexicalBlocks.pop_back();
+    this->llvm_di_lexical_blocks.pop_back();
 
     // Validate the generated code, checking for consistency.
-    verifyFunction(*the_function);
+    llvm::verifyFunction(*the_function);
 
     this->result_func = the_function;
     return;
@@ -276,7 +283,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
 
   // Pop off the lexical block for the function since we added it
   // unconditionally.
-  this->LexicalBlocks.pop_back();
+  this->llvm_di_lexical_blocks.pop_back();
 }
 
 /**
@@ -286,7 +293,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
 auto ASTToLLVMIRVisitor::initialize() -> void {
   ASTToObjectVisitor::initialize();
 
-  ArxLLVM::jit = this->ExitOnErr(llvm::orc::ArxJIT::Create());
+  ArxLLVM::jit = this->exit_on_err(llvm::orc::ArxJIT::Create());
   ArxLLVM::module->setDataLayout(ArxLLVM::jit->getDataLayout());
   /** Create a new builder for the module. */
   ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
@@ -315,7 +322,7 @@ auto compile_llvm_ir(TreeAST& ast) -> int {
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
   // but we'd like actual source locations.
-  codegen->TheCU = ArxLLVM::di_builder->createCompileUnit(
+  codegen->llvm_di_compile_unit = ArxLLVM::di_builder->createCompileUnit(
     llvm::dwarf::DW_LANG_C,
     ArxLLVM::di_builder->createFile("fib.ks", "."),
     "Arx Compiler",
@@ -340,7 +347,7 @@ auto compile_llvm_ir(TreeAST& ast) -> int {
   // Create the compile unit for the module.
   // Currently down as "fib.ks" as a filename since we're redirecting stdin
   // but we'd like actual source locations.
-  codegen->TheCU = ArxLLVM::di_builder->createCompileUnit(
+  codegen->llvm_di_compile_unit = ArxLLVM::di_builder->createCompileUnit(
     llvm::dwarf::DW_LANG_C,
     ArxLLVM::di_builder->createFile("fib.arxks", "."),
     "Arx Compiler",

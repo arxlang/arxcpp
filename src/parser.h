@@ -65,29 +65,29 @@ class Visitor;
 class ExprAST {
  public:
   ExprKind kind;
-  SourceLocation Loc;
+  SourceLocation loc;
 
   /**
-   * @param Loc The token location
+   * @param loc The token location
    */
-  ExprAST(SourceLocation Loc = Lexer::cur_loc) : Loc(Loc) {
+  ExprAST(SourceLocation _loc = Lexer::cur_loc) : loc(_loc) {
     this->kind = ExprKind::GenericKind;
   }
 
   virtual ~ExprAST() = default;
 
-  int getLine() const {
-    return Loc.line;
+  int get_line() const {
+    return loc.line;
   }
 
   int getCol() const {
-    return Loc.Col;
+    return loc.col;
   }
 
   void accept(Visitor& visitor);
 
   virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    return out << ':' << this->getLine() << ':' << this->getCol() << "\n";
+    return out << ':' << this->get_line() << ':' << this->getCol() << "\n";
   }
 };
 
@@ -100,7 +100,7 @@ class FloatExprAST : public ExprAST {
  public:
   double val;
 
-  FloatExprAST(double val) : val(val) {
+  FloatExprAST(double _val) : val(_val) {
     this->kind = ExprKind::FloatDTKind;
   }
 
@@ -118,15 +118,15 @@ class VariableExprAST : public ExprAST {
   std::string name;
 
   /**
-   * @param Loc The token location
-   * @param name The variable name
+   * @param _loc The token location
+   * @param _name The variable name
    */
-  VariableExprAST(SourceLocation Loc, std::string name)
-      : ExprAST(Loc), name(std::move(name)) {
+  VariableExprAST(SourceLocation _loc, std::string _name)
+      : ExprAST(_loc), name(std::move(_name)) {
     this->kind = ExprKind::VariableKind;
   }
 
-  const std::string& getName() const {
+  const std::string& get_name() const {
     return name;
   }
 
@@ -145,11 +145,11 @@ class UnaryExprAST : public ExprAST {
   std::unique_ptr<ExprAST> operand;
 
   /**
-   * @param op_code The operator code
-   * @param operand The operand expression
+   * @param _op_code The operator code
+   * @param _operand The operand expression
    */
-  UnaryExprAST(char op_code, std::unique_ptr<ExprAST> operand)
-      : op_code(op_code), operand(std::move(operand)) {
+  UnaryExprAST(char _op_code, std::unique_ptr<ExprAST> _operand)
+      : op_code(_op_code), operand(std::move(_operand)) {
     this->kind = ExprKind::UnaryOpKind;
   }
 
@@ -170,17 +170,17 @@ class BinaryExprAST : public ExprAST {
   std::unique_ptr<ExprAST> lhs, rhs;
 
   /**
-   * @param Loc The token location
-   * @param op The operator
-   * @param lhs The left hand side expression
-   * @param rhs The right hand side expression
+   * @param _loc The token location
+   * @param _op The operator
+   * @param _lhs The left hand side expression
+   * @param _rhs The right hand side expression
    */
   BinaryExprAST(
-    SourceLocation Loc,
-    char op,
-    std::unique_ptr<ExprAST> lhs,
-    std::unique_ptr<ExprAST> rhs)
-      : ExprAST(Loc), op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {
+    SourceLocation _loc,
+    char _op,
+    std::unique_ptr<ExprAST> _lhs,
+    std::unique_ptr<ExprAST> _rhs)
+      : ExprAST(_loc), op(_op), lhs(std::move(_lhs)), rhs(std::move(_rhs)) {
     this->kind = ExprKind::BinaryOpKind;
   }
 
@@ -202,20 +202,20 @@ class CallExprAST : public ExprAST {
   std::vector<std::unique_ptr<ExprAST>> args;
 
   /**
-   * @param Loc The token location
-   * @param callee The function name
-   * @param args The function arguments
+   * @param _loc The token location
+   * @param _callee The function name
+   * @param _args The function arguments
    */
   CallExprAST(
-    SourceLocation Loc,
-    std::string callee,
-    std::vector<std::unique_ptr<ExprAST>> args)
-      : ExprAST(Loc), callee(std::move(callee)), args(std::move(args)) {
+    SourceLocation _loc,
+    std::string _callee,
+    std::vector<std::unique_ptr<ExprAST>> _args)
+      : ExprAST(_loc), callee(std::move(_callee)), args(std::move(_args)) {
     this->kind = ExprKind::CallKind;
   }
 
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
-    ExprAST::dump(out << "call " << callee, ind);
+    ExprAST::dump(out << "call " << this->callee, ind);
     for (auto node = this->args.begin(); node != this->args.end(); ++node) {
       node->get()->dump(indent(out, ind + 1), ind + 1);
     }
@@ -229,30 +229,30 @@ class CallExprAST : public ExprAST {
  */
 class IfExprAST : public ExprAST {
  public:
-  std::unique_ptr<ExprAST> cond, Then, else_;
+  std::unique_ptr<ExprAST> cond, then, else_;
 
   /**
-   * @param Loc The token location
-   * @param cond The conditional expression
-   * @param Then The `then` branch expression
-   * @param else_ The `else` branch expression
+   * @param _loc The token location
+   * @param _cond The conditional expression
+   * @param _then The `then` branch expression
+   * @param _else_ The `else` branch expression
    */
   IfExprAST(
-    SourceLocation Loc,
-    std::unique_ptr<ExprAST> cond,
-    std::unique_ptr<ExprAST> Then,
-    std::unique_ptr<ExprAST> else_)
-      : ExprAST(Loc),
-        cond(std::move(cond)),
-        Then(std::move(Then)),
-        else_(std::move(else_)) {
+    SourceLocation _loc,
+    std::unique_ptr<ExprAST> _cond,
+    std::unique_ptr<ExprAST> _then,
+    std::unique_ptr<ExprAST> _else_)
+      : ExprAST(_loc),
+        cond(std::move(_cond)),
+        then(std::move(_then)),
+        else_(std::move(_else_)) {
     this->kind = ExprKind::IfKind;
   }
 
   llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) override {
     ExprAST::dump(out << "if", ind);
     this->cond->dump(indent(out, ind) << "cond:", ind + 1);
-    this->Then->dump(indent(out, ind) << "Then:", ind + 1);
+    this->then->dump(indent(out, ind) << "then:", ind + 1);
     this->else_->dump(indent(out, ind) << "else_:", ind + 1);
     return out;
   }
@@ -269,23 +269,23 @@ class ForExprAST : public ExprAST {
   std::unique_ptr<ExprAST> start, end, step, body;
 
   /**
-   * @param var_name The variable name
-   * @param start The `start` parameter for the loop
-   * @param end The `end` parameter for the loop
-   * @param step The incremental value for the loop
-   * @param body The body of the for the loop.
+   * @param _var_name The variable name
+   * @param _start The `start` parameter for the loop
+   * @param _end The `end` parameter for the loop
+   * @param _step The incremental value for the loop
+   * @param _body The body of the for the loop.
    */
   ForExprAST(
-    std::string var_name,
-    std::unique_ptr<ExprAST> start,
-    std::unique_ptr<ExprAST> end,
-    std::unique_ptr<ExprAST> step,
-    std::unique_ptr<ExprAST> body)
-      : var_name(std::move(var_name)),
-        start(std::move(start)),
-        end(std::move(end)),
-        step(std::move(step)),
-        body(std::move(body)) {
+    std::string _var_name,
+    std::unique_ptr<ExprAST> _start,
+    std::unique_ptr<ExprAST> _end,
+    std::unique_ptr<ExprAST> _step,
+    std::unique_ptr<ExprAST> _body)
+      : var_name(std::move(_var_name)),
+        start(std::move(_start)),
+        end(std::move(_end)),
+        step(std::move(_step)),
+        body(std::move(_body)) {
     this->kind = ExprKind::ForKind;
   }
 
@@ -314,9 +314,9 @@ class VarExprAST : public ExprAST {
    * @param body body of the variables
    */
   VarExprAST(
-    std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> var_names,
-    std::unique_ptr<ExprAST> body)
-      : var_names(std::move(var_names)), body(std::move(body)) {
+    std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> _var_names,
+    std::unique_ptr<ExprAST> _body)
+      : var_names(std::move(_var_names)), body(std::move(_body)) {
     this->kind = ExprKind::VarKind;
   }
 
@@ -325,9 +325,9 @@ class VarExprAST : public ExprAST {
     for (auto node = this->var_names.begin(); node != this->var_names.end();
          ++node) {
       node->second->dump(indent(out, ind) << node->first << ':', ind + 1);
-      this->body->dump(indent(out, ind) << "body:", ind + 1);
-      return out;
     }
+    this->body->dump(indent(out, ind) << "body:", ind + 1);
+    return out;
   }
 };
 
@@ -344,23 +344,23 @@ class PrototypeAST : public ExprAST {
   int line;
 
   /**
-   * @param Loc The token location
-   * @param name The prototype name
-   * @param args The prototype arguments
+   * @param _loc The token location
+   * @param _name The prototype name
+   * @param _args The prototype arguments
    */
   PrototypeAST(
-    SourceLocation Loc,
-    std::string name,
-    std::vector<std::unique_ptr<VariableExprAST>>&& args)
-      : name(std::move(name)), args(std::move(args)), line(Loc.line) {
+    SourceLocation _loc,
+    std::string _name,
+    std::vector<std::unique_ptr<VariableExprAST>>&& _args)
+      : name(std::move(_name)), args(std::move(_args)), line(_loc.line) {
     this->kind = ExprKind::PrototypeKind;
   }
 
-  const std::string& getName() const {
+  const std::string& get_name() const {
     return name;
   }
 
-  int getLine() const {
+  int get_line() const {
     return line;
   }
 };
@@ -376,12 +376,12 @@ class FunctionAST : public ExprAST {
   std::unique_ptr<ExprAST> body;
 
   /**
-   * @param proto The function prototype
-   * @param body The function body
+   * @param _proto The function prototype
+   * @param _body The function body
    */
   FunctionAST(
-    std::unique_ptr<PrototypeAST> proto, std::unique_ptr<ExprAST> body)
-      : proto(std::move(proto)), body(std::move(body)) {
+    std::unique_ptr<PrototypeAST> _proto, std::unique_ptr<ExprAST> _body)
+      : proto(std::move(_proto)), body(std::move(_body)) {
     this->kind = ExprKind::FunctionKind;
   }
 
@@ -416,14 +416,14 @@ class Visitor {
 
 class Parser {
  public:
-  static std::map<char, int> BinopPrecedence;
+  static std::map<char, int> bin_op_precedence;
 
   static void setup() {
-    Parser::BinopPrecedence['='] = 2;
-    Parser::BinopPrecedence['<'] = 10;
-    Parser::BinopPrecedence['+'] = 20;
-    Parser::BinopPrecedence['-'] = 20;
-    Parser::BinopPrecedence['*'] = 40;
+    Parser::bin_op_precedence['='] = 2;
+    Parser::bin_op_precedence['<'] = 10;
+    Parser::bin_op_precedence['+'] = 20;
+    Parser::bin_op_precedence['-'] = 20;
+    Parser::bin_op_precedence['*'] = 40;
   }
 
   static auto parse() -> std::unique_ptr<TreeAST>;
@@ -443,7 +443,7 @@ class Parser {
   static std::unique_ptr<VarExprAST> parse_var_expr();
   static std::unique_ptr<ExprAST> parse_unary();
   static std::unique_ptr<ExprAST> parse_bin_op_rhs(
-    int ExprPrec, std::unique_ptr<ExprAST> lhs);
+    int expr_prec, std::unique_ptr<ExprAST> lhs);
   static std::unique_ptr<PrototypeAST> parse_prototype();
   static std::unique_ptr<PrototypeAST> parse_extern_prototype();
 };
