@@ -46,90 +46,101 @@ namespace llvm {
      */
     class ArxJIT {
      private:
-      std::unique_ptr<ExecutionSession> ES;
+      std::unique_ptr<ExecutionSession> execution_session;
 
-      DataLayout DL;
-      MangleAndInterner Mangle;
+      DataLayout data_layout;
+      MangleAndInterner mangle;
 
-      RTDyldObjectLinkingLayer ObjectLayer;
+      RTDyldObjectLinkingLayer object_layer;
       IRCompileLayer CompileLayer;
 
-      JITDylib& MainJD;
+      JITDylib& main_jit_dylib;
 
      public:
       /**
-       * @param ES ExecutionSession
-       * @param JTMB JITTargetMachineBuilder
-       * @param DL DataLayout
+       * @param execution_session ExecutionSession
+       * @param jit_target_machine_builder JITTargetMachineBuilder
+       * @param data_layout DataLayout
        */
       ArxJIT(
-        std::unique_ptr<ExecutionSession> ES,
-        JITTargetMachineBuilder JTMB,
-        DataLayout DL)
-          : ES(std::move(ES)),
-            DL(DL),
-            Mangle(*this->ES, this->DL),
-            ObjectLayer(
-              *this->ES,
+        std::unique_ptr<ExecutionSession> _execution_session,
+        JITTargetMachineBuilder jit_target_machine_builder,
+        DataLayout _data_layout)
+          : execution_session(std::move(_execution_session)),
+            data_layout(_data_layout),
+            mangle(*this->execution_session, this->data_layout),
+            object_layer(
+              *this->execution_session,
               []() { return std::make_unique<SectionMemoryManager>(); }),
             CompileLayer(
-              *this->ES,
-              ObjectLayer,
-              std::make_unique<ConcurrentIRCompiler>(std::move(JTMB))),
-            MainJD(this->ES->createBareJITDylib("<main>")) {
-        MainJD.addGenerator(
+              *this->execution_session,
+              this->object_layer,
+              std::make_unique<ConcurrentIRCompiler>(
+                std::move(jit_target_machine_builder))),
+            main_jit_dylib(
+              this->execution_session->createBareJITDylib("<main>")) {
+        this->main_jit_dylib.addGenerator(
           cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(
-            DL.getGlobalPrefix())));
+            this->data_layout.getGlobalPrefix())));
 
-        if (JTMB.getTargetTriple().isOSBinFormatCOFF()) {
-          ObjectLayer.setOverrideObjectFlagsWithResponsibilityFlags(true);
-          ObjectLayer.setAutoClaimResponsibilityForObjectSymbols(true);
+        if (jit_target_machine_builder.getTargetTriple().isOSBinFormatCOFF()) {
+          this->object_layer.setOverrideObjectFlagsWithResponsibilityFlags(
+            true);
+          this->object_layer.setAutoClaimResponsibilityForObjectSymbols(true);
         }
       }
 
       ~ArxJIT() {
-        if (auto Err = ES->endSession()) {
-          ES->reportError(std::move(Err));
+        if (auto err = this->execution_session->endSession()) {
+          this->execution_session->reportError(std::move(err));
         }
       }
 
       static Expected<std::unique_ptr<ArxJIT>> Create() {
-        auto EPC = SelfExecutorProcessControl::Create();
-        if (!EPC) {
-          return EPC.takeError();
+        auto executor_process_control = SelfExecutorProcessControl::Create();
+        if (!executor_process_control) {
+          return executor_process_control.takeError();
         }
 
-        auto ES = std::make_unique<ExecutionSession>(std::move(*EPC));
+        auto _execution_session = std::make_unique<ExecutionSession>(
+          std::move(*executor_process_control));
 
-        JITTargetMachineBuilder JTMB(
-          ES->getExecutorProcessControl().getTargetTriple());
+        JITTargetMachineBuilder jit_target_machine_builder(
+          _execution_session->getExecutorProcessControl().getTargetTriple());
 
-        auto DL = JTMB.getDefaultDataLayoutForTarget();
-        if (!DL) {
-          return DL.takeError();
+        auto _data_layout =
+          jit_target_machine_builder.getDefaultDataLayoutForTarget();
+        if (!_data_layout) {
+          return _data_layout.takeError();
         }
 
         return std::make_unique<ArxJIT>(
-          std::move(ES), std::move(JTMB), std::move(*DL));
+          std::move(_execution_session),
+          std::move(jit_target_machine_builder),
+          std::move(*_data_layout));
       }
 
-      const DataLayout& getDataLayout() const {
-        return DL;
+      const DataLayout& get_data_layout() const {
+        return this->data_layout;
       }
 
-      JITDylib& getMainJITDylib() {
-        return MainJD;
+      JITDylib& get_main_jit_dylib() {
+        return this->main_jit_dylib;
       }
 
-      Error addModule(ThreadSafeModule TSM, ResourceTrackerSP RT = nullptr) {
-        if (!RT) {
-          RT = MainJD.getDefaultResourceTracker();
+      Error addModule(
+        ThreadSafeModule thread_safe_module,
+        ResourceTrackerSP resource_tracker_sp = nullptr) {
+        if (!resource_tracker_sp) {
+          resource_tracker_sp = main_jit_dylib.getDefaultResourceTracker();
         }
-        return CompileLayer.add(RT, std::move(TSM));
+        return CompileLayer.add(
+          resource_tracker_sp, std::move(thread_safe_module));
       }
 
-      Expected<JITEvaluatedSymbol> lookup(StringRef Name) {
-        return ES->lookup({&MainJD}, Mangle(Name.str()));
+      Expected<JITEvaluatedSymbol> lookup(StringRef name) {
+        return this->execution_session->lookup(
+          {&main_jit_dylib}, mangle(name.str()));
       }
     };
 

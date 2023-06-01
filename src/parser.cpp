@@ -174,7 +174,7 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
  * ifexpr ::= 'if' expression 'then' expression 'else' expression
  */
 std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
-  SourceLocation IfLoc = Lexer::cur_loc;
+  SourceLocation if_loc = Lexer::cur_loc;
   char msg[80];
 
   Lexer::get_next_token();  // eat the if.
@@ -217,7 +217,7 @@ std::unique_ptr<IfExprAST> Parser::parse_if_expr() {
   };
 
   return std::make_unique<IfExprAST>(
-    IfLoc, std::move(cond), std::move(then), std::move(else_));
+    if_loc, std::move(cond), std::move(then), std::move(else_));
 }
 
 /**
@@ -437,8 +437,8 @@ std::unique_ptr<ExprAST> Parser::parse_bin_op_rhs(
 
     // If BinOp binds less tightly with rhs than the operator after rhs, let
     // the pending operator take rhs as its lhs.
-    int NextPrec = get_tok_precedence();
-    if (tok_prec < NextPrec) {
+    int next_prec = get_tok_precedence();
+    if (tok_prec < next_prec) {
       rhs = Parser::parse_bin_op_rhs(tok_prec + 1, std::move(rhs));
       if (!rhs) {
         return nullptr;

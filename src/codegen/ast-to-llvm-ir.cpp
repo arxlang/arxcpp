@@ -294,7 +294,7 @@ auto ASTToLLVMIRVisitor::initialize() -> void {
   ASTToObjectVisitor::initialize();
 
   ArxLLVM::jit = this->exit_on_err(llvm::orc::ArxJIT::Create());
-  ArxLLVM::module->setDataLayout(ArxLLVM::jit->getDataLayout());
+  ArxLLVM::module->setDataLayout(ArxLLVM::jit->get_data_layout());
   /** Create a new builder for the module. */
   ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
 }
