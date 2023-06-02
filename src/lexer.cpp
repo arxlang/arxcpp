@@ -54,7 +54,7 @@ auto Lexer::get_tok_name(int tok) -> std::string {
     case tok_arrow_right:
       return "->";
   }
-  return std::string(1, static_cast<char>(Tok));
+  return std::string(1, static_cast<char>(tok));
 }
 
 /**
@@ -63,8 +63,8 @@ auto Lexer::get_tok_name(int tok) -> std::string {
  * @return Token name
  *
  */
-auto Lexer::get_tok_name_display(int Tok) -> std::string {
-  switch (Tok) {
+auto Lexer::get_tok_name_display(int tok) -> std::string {
+  switch (tok) {
     case tok_eof:
       return "<eof>";
     case tok_function:
