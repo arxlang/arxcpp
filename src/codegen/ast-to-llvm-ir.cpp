@@ -45,13 +45,12 @@ extern std::string ARX_VERSION;
 auto ASTToLLVMIRVisitor::CreateFunctionType(unsigned NumArgs)
   -> llvm::DISubroutineType* {
   llvm::SmallVector<llvm::Metadata*, 8> EltTys;
-  llvm::DIType* DblTy = this->getDoubleTy();
 
   // Add the result type.
-  EltTys.emplace_back(DblTy);
+  EltTys.emplace_back(ArxLLVM::DI_FLOAT_TYPE);
 
   for (unsigned i = 0, e = NumArgs; i != e; ++i) {
-    EltTys.emplace_back(DblTy);
+    EltTys.emplace_back(ArxLLVM::DI_FLOAT_TYPE);
   }
 
   return ArxLLVM::di_builder->createSubroutineType(
@@ -60,30 +59,20 @@ auto ASTToLLVMIRVisitor::CreateFunctionType(unsigned NumArgs)
 
 // DebugInfo
 
-auto ASTToLLVMIRVisitor::getDoubleTy() -> llvm::DIType* {
-  if (this->DblTy) {
-    return this->DblTy;
-  }
-
-  DblTy = ArxLLVM::di_builder->createBasicType(
-    "double", 64, llvm::dwarf::DW_ATE_float);
-  return DblTy;
-}
-
 auto ASTToLLVMIRVisitor::emitLocation(ExprAST& ast) -> void {
   if (!std::addressof(ast)) {
     return ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DebugLoc());
   }
 
-  llvm::DIScope* Scope;
+  llvm::DIScope* di_scope;
   if (this->llvm_di_lexical_blocks.empty()) {
-    Scope = llvm_di_compile_unit;
+    di_scope = llvm_di_compile_unit;
   } else {
-    Scope = this->llvm_di_lexical_blocks.back();
+    di_scope = this->llvm_di_lexical_blocks.back();
   }
 
   ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DILocation::get(
-    Scope->getContext(), ast.get_line(), ast.getCol(), Scope));
+    di_scope->getContext(), ast.get_line(), ast.getCol(), di_scope));
 }
 
 /**
@@ -191,26 +180,26 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
 
   /* debugging-code:start*/
   // Create a subprogram DIE for this function.
-  llvm::DIFile* Unit = ArxLLVM::di_builder->createFile(
+  llvm::DIFile* di_unit = ArxLLVM::di_builder->createFile(
     this->llvm_di_compile_unit->getFilename(),
     this->llvm_di_compile_unit->getDirectory());
-  llvm::DIScope* FContext = Unit;
-  unsigned LineNo = proto.get_line();
-  unsigned ScopeLine = LineNo;
-  llvm::DISubprogram* SP = ArxLLVM::di_builder->createFunction(
-    FContext,
+  llvm::DIScope* file_context = di_unit;
+  unsigned line_no = proto.get_line();
+  unsigned ScopeLine = line_no;
+  llvm::DISubprogram* di_subprogram = ArxLLVM::di_builder->createFunction(
+    file_context,
     proto.get_name(),
     llvm::StringRef(),
-    Unit,
-    LineNo,
+    di_unit,
+    line_no,
     CreateFunctionType(the_function->arg_size()),
     ScopeLine,
     llvm::DINode::FlagPrototyped,
     llvm::DISubprogram::SPFlagDefinition);
-  the_function->setSubprogram(SP);
+  the_function->setSubprogram(di_subprogram);
 
   // Push the current scope.
-  this->llvm_di_lexical_blocks.emplace_back(SP);
+  this->llvm_di_lexical_blocks.emplace_back(di_subprogram);
 
   // Unset the location for the prologue emission (leading instructions with no
   // location in a function are considered part of the prologue and the
@@ -224,7 +213,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   // std::cout << "Record the function arguments in the named_values map.";
   ArxLLVM::named_values.clear();
 
-  unsigned ArgIdx = 0;
+  unsigned arg_idx = 0;
   for (auto& llvm_arg : the_function->args()) {
     // Create an alloca for this variable.
     llvm::AllocaInst* alloca =
@@ -232,20 +221,22 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
 
     /* debugging-code: start */
     // Create a debug descriptor for the variable.
-    llvm::DILocalVariable* D = ArxLLVM::di_builder->createParameterVariable(
-      SP,
-      llvm_arg.getName(),
-      ++ArgIdx,
-      Unit,
-      LineNo,
-      this->getDoubleTy(),
-      true);
+    llvm::DILocalVariable* di_local_variable =
+      ArxLLVM::di_builder->createParameterVariable(
+        di_subprogram,
+        llvm_arg.getName(),
+        ++arg_idx,
+        di_unit,
+        line_no,
+        ArxLLVM::DI_FLOAT_TYPE,
+        true);
 
     ArxLLVM::di_builder->insertDeclare(
       alloca,
-      D,
+      di_local_variable,
       ArxLLVM::di_builder->createExpression(),
-      llvm::DILocation::get(SP->getContext(), LineNo, 0, SP),
+      llvm::DILocation::get(
+        di_subprogram->getContext(), line_no, 0, di_subprogram),
       ArxLLVM::ir_builder->GetInsertBlock());
 
     /* debugging-code-end */
@@ -297,6 +288,16 @@ auto ASTToLLVMIRVisitor::initialize() -> void {
   ArxLLVM::module->setDataLayout(ArxLLVM::jit->get_data_layout());
   /** Create a new builder for the module. */
   ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
+
+  /* di data types */
+  ArxLLVM::DI_FLOAT_TYPE = ArxLLVM::di_builder->createBasicType(
+    "float", 32, llvm::dwarf::DW_ATE_float);
+  ArxLLVM::DI_DOUBLE_TYPE = ArxLLVM::di_builder->createBasicType(
+    "double", 64, llvm::dwarf::DW_ATE_float);
+  ArxLLVM::DI_INT8_TYPE = ArxLLVM::di_builder->createBasicType(
+    "int8", 8, llvm::dwarf::DW_ATE_signed);
+  ArxLLVM::DI_INT32_TYPE = ArxLLVM::di_builder->createBasicType(
+    "int32", 32, llvm::dwarf::DW_ATE_signed);
 }
 
 /**

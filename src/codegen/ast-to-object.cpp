@@ -1,12 +1,9 @@
 #include <cassert>  // for assert
 #include <cstdio>   // for fprintf, stderr, fputc
 #include <cstdlib>  // for exit
-#include <fstream>  // for operator<<
 #include <iostream>
-#include <map>      // for map, operator==, _Rb_tree_ite...
-#include <memory>   // for unique_ptr, allocator, make_u...
-#include <numeric>  // for accumulate
-#include <sstream>
+#include <map>           // for map, operator==, _Rb_tree_ite...
+#include <memory>        // for unique_ptr, allocator, make_u...
 #include <string>        // for string, operator<=>, operator+
 #include <system_error>  // for error_code
 #include <utility>       // for pair, move
@@ -101,7 +98,7 @@ auto ASTToObjectVisitor::getFunction(std::string name) -> void {
 auto ASTToObjectVisitor::CreateEntryBlockAlloca(
   llvm::Function* fn, llvm::StringRef var_name) -> llvm::AllocaInst* {
   llvm::IRBuilder<> TmpB(&fn->getEntryBlock(), fn->getEntryBlock().begin());
-  return TmpB.CreateAlloca(ArxLLVM::DOUBLE_TYPE, nullptr, var_name);
+  return TmpB.CreateAlloca(ArxLLVM::FLOAT_TYPE, nullptr, var_name);
 }
 
 /**
@@ -136,7 +133,7 @@ auto ASTToObjectVisitor::visit(VariableExprAST& expr) -> void {
   }
 
   this->result_val = ArxLLVM::ir_builder->CreateLoad(
-    ArxLLVM::DOUBLE_TYPE, expr_var, expr.name.c_str());
+    ArxLLVM::FLOAT_TYPE, expr_var, expr.name.c_str());
 }
 
 /**
@@ -227,9 +224,9 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
     case '<':
       llvm_val_lhs = ArxLLVM::ir_builder->CreateFCmpULT(
         llvm_val_lhs, llvm_val_rhs, "cmptmp");
-      // Convert bool 0/1 to double 0.0 or 1.0 //
+      // Convert bool 0/1 to float 0.0 or 1.0 //
       this->result_val = ArxLLVM::ir_builder->CreateUIToFP(
-        llvm_val_lhs, ArxLLVM::DOUBLE_TYPE, "booltmp");
+        llvm_val_lhs, ArxLLVM::FLOAT_TYPE, "booltmp");
       return;
   }
 
@@ -341,7 +338,7 @@ auto ASTToObjectVisitor::visit(IfExprAST& expr) -> void {
   fn->getBasicBlockList().push_back(MergeBB);
   ArxLLVM::ir_builder->SetInsertPoint(MergeBB);
   llvm::PHINode* PN =
-    ArxLLVM::ir_builder->CreatePHI(ArxLLVM::DOUBLE_TYPE, 2, "iftmp");
+    ArxLLVM::ir_builder->CreatePHI(ArxLLVM::FLOAT_TYPE, 2, "iftmp");
 
   PN->addIncoming(ThenV, ThenBB);
   PN->addIncoming(ElseV, ElseBB);
@@ -426,7 +423,7 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   // Reload, increment, and restore the alloca.  This handles the case
   // where the body of the loop mutates the variable.
   llvm::Value* CurVar = ArxLLVM::ir_builder->CreateLoad(
-    ArxLLVM::DOUBLE_TYPE, alloca, expr.var_name.c_str());
+    ArxLLVM::FLOAT_TYPE, alloca, expr.var_name.c_str());
   llvm::Value* NextVar =
     ArxLLVM::ir_builder->CreateFAdd(CurVar, StepVal, "nextvar");
   ArxLLVM::ir_builder->CreateStore(NextVar, alloca);
@@ -455,7 +452,7 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   }
 
   // for expr always returns 0.0.
-  this->result_val = llvm::Constant::getNullValue(ArxLLVM::DOUBLE_TYPE);
+  this->result_val = llvm::Constant::getNullValue(ArxLLVM::FLOAT_TYPE);
 }
 
 /**
@@ -523,8 +520,8 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
-  std::vector<llvm::Type*> args_type(expr.args.size(), ArxLLVM::DOUBLE_TYPE);
-  llvm::Type* return_type = ArxLLVM::get_data_type("double");
+  std::vector<llvm::Type*> args_type(expr.args.size(), ArxLLVM::FLOAT_TYPE);
+  llvm::Type* return_type = ArxLLVM::get_data_type("float");
 
   llvm::FunctionType* fn_type =
     llvm::FunctionType::get(return_type, args_type, false /* isVarArg */);
@@ -616,7 +613,7 @@ auto ASTToObjectVisitor::initialize() -> void {
   ArxLLVM::ir_builder = std::make_unique<llvm::IRBuilder<>>(*ArxLLVM::context);
 
   /* Data Types */
-  ArxLLVM::DOUBLE_TYPE = llvm::Type::getFloatTy(*ArxLLVM::context);
+  ArxLLVM::FLOAT_TYPE = llvm::Type::getFloatTy(*ArxLLVM::context);
   ArxLLVM::DOUBLE_TYPE = llvm::Type::getDoubleTy(*ArxLLVM::context);
   ArxLLVM::INT8_TYPE = llvm::Type::getInt8Ty(*ArxLLVM::context);
   ArxLLVM::INT32_TYPE = llvm::Type::getInt32Ty(*ArxLLVM::context);
@@ -644,19 +641,19 @@ auto ASTToObjectVisitor::main_loop(TreeAST& ast) -> void {
 #endif
 
 /**
- * @brief putchar that takes a double and returns 0.
+ * @brief putchar that takes a float and returns 0.
  *
  */
-extern "C" DLLEXPORT auto putchard(double X) -> double {
+extern "C" DLLEXPORT auto putchard(float X) -> float {
   fputc(static_cast<char>(X), stderr);
   return 0;
 }
 
 /**
- * @brief printf that takes a double prints it as "%f\n", returning 0.
+ * @brief printf that takes a float prints it as "%f\n", returning 0.
  *
  */
-extern "C" DLLEXPORT auto printd(double X) -> double {
+extern "C" DLLEXPORT auto printd(float X) -> float {
   fprintf(stderr, "%f\n", X);
   return 0;
 }

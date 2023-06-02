@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>  // for vector
+
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/Optional.h>
 #include <llvm/ADT/STLExtras.h>
@@ -20,6 +22,7 @@
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/MC/TargetRegistry.h>
+#include <llvm/Support/Error.h>  // for ExitOnError
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
@@ -38,7 +41,6 @@ class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
  public:
   // DebugInfo
   llvm::DICompileUnit* llvm_di_compile_unit;
-  llvm::DIType* DblTy;
   std::vector<llvm::DIScope*> llvm_di_lexical_blocks;
 
   llvm::ExitOnError exit_on_err;
@@ -61,5 +63,4 @@ class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
 
   // DebugInfo
   void emitLocation(ExprAST& AST);
-  llvm::DIType* getDoubleTy();
 };

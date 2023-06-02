@@ -2,10 +2,10 @@
 #include <iostream>
 
 extern "C" {
-double print_star(double);
+float print_star(float);
 }
 
-extern "C" auto putchard(double X) -> double {
+extern "C" auto putchard(float X) -> float {
   fputc(static_cast<char>(X), stderr);
   return 0;
 }

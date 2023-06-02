@@ -9,7 +9,7 @@ SourceLocation Lexer::cur_loc;
 // Filled in if tok_identifier
 std::string Lexer::identifier_str = "<NOT DEFINED>";
 // Filled in if tok_float_literal
-double Lexer::num_float;
+float Lexer::num_float;
 SourceLocation Lexer::lex_loc;
 int Lexer::cur_tok = tok_not_initialized;
 

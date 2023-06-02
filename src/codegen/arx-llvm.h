@@ -34,6 +34,7 @@ class ArxLLVM {
   static llvm::DIType* DI_VOID_TYPE;
 
   static auto get_data_type(std::string type_name) -> llvm::Type*;
+  static auto get_di_data_type(std::string type_name) -> llvm::DIType*;
 };
 
 extern bool IS_BUILD_LIB;
