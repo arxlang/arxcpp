@@ -254,15 +254,13 @@ groups:
           CLANG_EXTRA="${CLANG_EXTRA} $(pkg-config --cflags --libs arrow-glib)"
           CLANG_EXTRA=$(echo "${CLANG_EXTRA}" | sed s/-std=c++14/-std=c++20/g)
 
-          env
-
           rm --force "${TMP_DIR}/*.o"
 
           for test_name in {{ args.examples_name }}; do
             print_header "${test_name}"
             OBJECT_FILE="${TMP_DIR}/${test_name}.o"
 
-            ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx --build-lib"
+            ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
 
             set -x
             clang++ \

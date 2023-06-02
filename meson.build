@@ -3,7 +3,7 @@ project('arx', 'cpp', 'c',
   version : '1.6.0',  # semantic-release
   default_options : [
     #'warning_level=everything',
-    'warning_level=1',
+    'warning_level=0',
     'cpp_std=c++20',
   ]
 )
