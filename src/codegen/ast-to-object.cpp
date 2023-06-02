@@ -189,7 +189,7 @@ auto ASTToObjectVisitor::visit(BinaryExprAST& expr) -> void {
     };
 
     // Look up the name.//
-    llvm::Value* variable = ArxLLVM::named_values[LHSE->getName()];
+    llvm::Value* variable = ArxLLVM::named_values[var_lhs->get_name()];
     if (!variable) {
       this->result_val = LogErrorV("Unknown variable name");
       return;

@@ -122,8 +122,11 @@ class VariableExprAST : public ExprAST {
    * @param _loc The token location
    * @param _name The variable name
    */
-  VariableExprAST(SourceLocation _loc, std::string _name, std::string _type_name)
-      : ExprAST(_loc), name(std::move(_name), type_name(std::move(_type_name)) {
+  VariableExprAST(
+    SourceLocation _loc, std::string _name, std::string _type_name)
+      : ExprAST(_loc),
+        name(std::move(_name)),
+        type_name(std::move(_type_name)) {
     this->kind = ExprKind::VariableKind;
   }
 
@@ -355,7 +358,10 @@ class PrototypeAST : public ExprAST {
     std::string _name,
     std::string _type_name,
     std::vector<std::unique_ptr<VariableExprAST>>&& _args)
-      : name(std::move(_name)), type_name(std::move(_type_name)), args(std::move(_args)), line(_loc.line) {
+      : name(std::move(_name)),
+        type_name(std::move(_type_name)),
+        args(std::move(_args)),
+        line(_loc.line) {
     this->kind = ExprKind::PrototypeKind;
   }
 
