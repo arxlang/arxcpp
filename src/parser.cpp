@@ -166,8 +166,10 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
 
   Lexer::get_next_token();  // eat identifier.
 
-  if (Lexer::cur_tok != '(') {  // Simple variable ref.
-    return std::make_unique<VariableExprAST>(LitLoc, IdName, "REF");
+  if (Lexer::cur_tok != '(') {
+    // Simple variable ref, not a function call
+    // todo: we need to get the variable type from a specific scope
+    return std::make_unique<VariableExprAST>(LitLoc, IdName, "float");
   }
 
   // Call. //
@@ -697,10 +699,11 @@ std::unique_ptr<FunctionAST> Parser::parse_top_level_expr() {
   SourceLocation fn_loc = Lexer::cur_loc;
   if (auto E = Parser::parse_expression()) {
     // Make an anonymous proto.
+    // TODO: it should use a specific type name for prototype
     auto proto = std::make_unique<PrototypeAST>(
       fn_loc,
       "__anon_expr",
-      "void",  // ANONYMOUS
+      "float",  // ANONYMOUS
       std::move(std::vector<std::unique_ptr<VariableExprAST>>()));
     return std::make_unique<FunctionAST>(std::move(proto), std::move(E));
   }

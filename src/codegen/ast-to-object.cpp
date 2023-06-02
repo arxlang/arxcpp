@@ -92,14 +92,16 @@ auto ASTToObjectVisitor::getFunction(std::string name) -> void {
  * @param var_name The variable name
  * @return An llvm allocation instance.
  *
- * CreateEntryBlockAlloca - Create an alloca instruction in the entry
+ * create_entry_block_alloca - Create an alloca instruction in the entry
  * block of the function.  This is used for mutable variables etc.
  */
-auto ASTToObjectVisitor::CreateEntryBlockAlloca(
-  llvm::Function* fn, llvm::StringRef var_name) -> llvm::AllocaInst* {
+auto ASTToObjectVisitor::create_entry_block_alloca(
+  llvm::Function* fn, llvm::StringRef var_name, std::string type_name)
+  -> llvm::AllocaInst* {
   llvm::IRBuilder<> tmp_builder(
     &fn->getEntryBlock(), fn->getEntryBlock().begin());
-  return tmp_builder.CreateAlloca(ArxLLVM::FLOAT_TYPE, nullptr, var_name);
+  return tmp_builder.CreateAlloca(
+    ArxLLVM::get_data_type(type_name), nullptr, var_name);
 }
 
 /**
@@ -357,7 +359,9 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   llvm::Function* fn = ArxLLVM::ir_builder->GetInsertBlock()->getParent();
 
   // Create an alloca for the variable in the entry block.
-  llvm::AllocaInst* alloca = this->CreateEntryBlockAlloca(fn, expr.var_name);
+  // TODO: maybe it would be safe to change it to void
+  llvm::AllocaInst* alloca =
+    this->create_entry_block_alloca(fn, expr.var_name, "float");
 
   // Emit the start code first, without 'variable' in scope.
   expr.start.get()->accept(*this);
@@ -392,9 +396,9 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
   // the current basic_block.  Note that we ignore the value computed by the
   // body, but don't allow an error.
   expr.body.get()->accept(*this);
-  llvm::Value* BodyVal = this->result_val;
+  llvm::Value* body_val = this->result_val;
 
-  if (!BodyVal) {
+  if (!body_val) {
     this->result_val = nullptr;
     return;
   }
@@ -461,7 +465,7 @@ auto ASTToObjectVisitor::visit(ForExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
-  std::vector<llvm::AllocaInst*> OldBindings;
+  std::vector<llvm::AllocaInst*> old_bindings;
 
   llvm::Function* fn = ArxLLVM::ir_builder->GetInsertBlock()->getParent();
 
@@ -488,12 +492,14 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
       InitVal = llvm::ConstantFP::get(*ArxLLVM::context, llvm::APFloat(0.0));
     }
 
-    llvm::AllocaInst* alloca = CreateEntryBlockAlloca(fn, var_name);
+    // todo: implement type_name in VarExprAST and update the hard coded float
+    llvm::AllocaInst* alloca =
+      this->create_entry_block_alloca(fn, var_name, "float");
     ArxLLVM::ir_builder->CreateStore(InitVal, alloca);
 
     // Remember the old variable binding so that we can restore the
     // binding when we unrecurse.
-    OldBindings.push_back(ArxLLVM::named_values[var_name]);
+    old_bindings.push_back(ArxLLVM::named_values[var_name]);
 
     // Remember this binding.
     ArxLLVM::named_values[var_name] = alloca;
@@ -501,19 +507,19 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
 
   // Codegen the body, now that all vars are in scope.
   expr.body.get()->accept(*this);
-  llvm::Value* BodyVal = this->result_val;
-  if (!BodyVal) {
+  llvm::Value* body_val = this->result_val;
+  if (!body_val) {
     this->result_val = nullptr;
     return;
   }
 
   // Pop all our variables from scope.
   for (unsigned i = 0, e = expr.var_names.size(); i != e; ++i) {
-    ArxLLVM::named_values[expr.var_names[i].first] = OldBindings[i];
+    ArxLLVM::named_values[expr.var_names[i].first] = old_bindings[i];
   }
 
   // Return the body computation.
-  this->result_val = BodyVal;
+  this->result_val = body_val;
 }
 
 /**
@@ -521,11 +527,11 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
-  std::vector<llvm::Type*> args;
+  std::vector<llvm::Type*> args_type;
 
   for (auto& arg : expr.args) {
     if (ArxLLVM::get_data_type(arg->type_name) != nullptr) {
-      args.emplace_back(ArxLLVM::get_data_type(arg->type_name));
+      args_type.emplace_back(ArxLLVM::get_data_type(arg->type_name));
     } else {
       llvm::errs() << "ARX::GEN-OBJECT[ERROR]: PrototypeAST: "
                    << "Argument data type " << arg->type_name
@@ -542,7 +548,7 @@ auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
   }
 
   llvm::FunctionType* fn_type = llvm::FunctionType::get(
-    return_type, args, false /* isVarArg */
+    return_type, args_type, false /* isVarArg */
   );
 
   llvm::Function* fn = llvm::Function::Create(
@@ -589,8 +595,9 @@ auto ASTToObjectVisitor::visit(FunctionAST& expr) -> void {
 
   for (auto& llvm_arg : fn->args()) {
     // Create an alloca for this variable.
+    // TODO: replace "float" for the actual type_name from the argument
     llvm::AllocaInst* alloca =
-      this->CreateEntryBlockAlloca(fn, llvm_arg.getName());
+      this->create_entry_block_alloca(fn, llvm_arg.getName(), "float");
 
     // Store the initial value into the alloca.
     ArxLLVM::ir_builder->CreateStore(&llvm_arg, alloca);

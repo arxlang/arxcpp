@@ -313,6 +313,8 @@ class VarExprAST : public ExprAST {
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> var_names;
   std::unique_ptr<ExprAST> body;
 
+  // todo: implement type_name
+
   /**
    * @param var_names Variable names
    * @param body body of the variables

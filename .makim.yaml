@@ -226,7 +226,7 @@ groups:
             default: "constant fibonacci sum average print-star"
         shell: bash
         run: |
-          set +e
+          set -e
 
           TMP_DIR=/tmp/arx
           rm -f ${TMP_DIR}/*
@@ -267,8 +267,6 @@ groups:
 
             echo "Arx build ..."
             ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
-
-            echo "error code $?"
 
             echo "clang build ..."
             set -x
