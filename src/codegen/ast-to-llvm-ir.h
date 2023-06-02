@@ -43,8 +43,6 @@ class ASTToLLVMIRVisitor : public ASTToObjectVisitor {
   llvm::DICompileUnit* llvm_di_compile_unit;
   std::vector<llvm::DIScope*> llvm_di_lexical_blocks;
 
-  llvm::ExitOnError exit_on_err;
-
   ASTToLLVMIRVisitor() = default;
 
   virtual void visit(FloatExprAST&) override;

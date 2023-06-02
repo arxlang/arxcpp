@@ -16,7 +16,6 @@
 #include <llvm/IR/Metadata.h>           // for LLVMConstants, Metadata (ptr ...
 #include <llvm/IR/Module.h>             // for Module
 #include <llvm/IR/Verifier.h>           // for verifyFunction
-#include <llvm/Support/Error.h>         // for ExitOnError
 #include <llvm/Support/Host.h>          // for getProcessTriple
 #include <llvm/Support/raw_ostream.h>   // for errs, raw_fd_ostream
 #include <llvm/Support/TargetSelect.h>  // for InitializeNativeTarget, Initi...
@@ -282,22 +281,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
  *
  */
 auto ASTToLLVMIRVisitor::initialize() -> void {
-  ASTToObjectVisitor::initialize();
-
-  ArxLLVM::jit = this->exit_on_err(llvm::orc::ArxJIT::Create());
-  ArxLLVM::module->setDataLayout(ArxLLVM::jit->get_data_layout());
-  /** Create a new builder for the module. */
-  ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
-
-  /* di data types */
-  ArxLLVM::DI_FLOAT_TYPE = ArxLLVM::di_builder->createBasicType(
-    "float", 32, llvm::dwarf::DW_ATE_float);
-  ArxLLVM::DI_DOUBLE_TYPE = ArxLLVM::di_builder->createBasicType(
-    "double", 64, llvm::dwarf::DW_ATE_float);
-  ArxLLVM::DI_INT8_TYPE = ArxLLVM::di_builder->createBasicType(
-    "int8", 8, llvm::dwarf::DW_ATE_signed);
-  ArxLLVM::DI_INT32_TYPE = ArxLLVM::di_builder->createBasicType(
-    "int32", 32, llvm::dwarf::DW_ATE_signed);
+  ArxLLVM::initialize();
 }
 
 /**
@@ -309,11 +293,6 @@ auto compile_llvm_ir(TreeAST& ast) -> int {
   auto codegen = std::make_unique<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
 
   Lexer::get_next_token();
-
-  // initialize the target registry etc.
-  llvm::InitializeNativeTarget();
-  llvm::InitializeNativeTargetAsmPrinter();
-  llvm::InitializeNativeTargetAsmParser();
 
   codegen->initialize();
 

@@ -521,14 +521,11 @@ auto ASTToObjectVisitor::visit(VarExprAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::visit(PrototypeAST& expr) -> void {
-  // Make the function type:  double(double,double) etc.
   std::vector<llvm::Type*> args;
-  llvm::Type* arg_type;
 
   for (auto& arg : expr.args) {
-    arg_type = ArxLLVM::get_data_type(arg->type_name);
-    if (arg_type != nullptr) {
-      args.emplace_back(arg_type);
+    if (ArxLLVM::get_data_type(arg->type_name) != nullptr) {
+      args.emplace_back(ArxLLVM::get_data_type(arg->type_name));
     } else {
       llvm::errs() << "ARX::GEN-OBJECT[ERROR]: PrototypeAST: "
                    << "Argument data type " << arg->type_name
@@ -627,19 +624,7 @@ auto ASTToObjectVisitor::visit(FunctionAST& expr) -> void {
  *
  */
 auto ASTToObjectVisitor::initialize() -> void {
-  ArxLLVM::context = std::make_unique<llvm::LLVMContext>();
-  ArxLLVM::module =
-    std::make_unique<llvm::Module>("arx jit", *ArxLLVM::context);
-
-  /** Create a new builder for the module. */
-  ArxLLVM::ir_builder = std::make_unique<llvm::IRBuilder<>>(*ArxLLVM::context);
-
-  /* Data Types */
-  ArxLLVM::FLOAT_TYPE = llvm::Type::getFloatTy(*ArxLLVM::context);
-  ArxLLVM::DOUBLE_TYPE = llvm::Type::getDoubleTy(*ArxLLVM::context);
-  ArxLLVM::INT8_TYPE = llvm::Type::getInt8Ty(*ArxLLVM::context);
-  ArxLLVM::INT32_TYPE = llvm::Type::getInt32Ty(*ArxLLVM::context);
-  ArxLLVM::VOID_TYPE = llvm::Type::getVoidTy(*ArxLLVM::context);
+  ArxLLVM::initialize();
 }
 
 /**
@@ -696,15 +681,6 @@ auto compile_object(TreeAST& tree_ast) -> int {
   LOG(INFO) << "Starting main_loop";
 
   codegen->main_loop(tree_ast);
-
-  LOG(INFO) << "initialize Target";
-
-  // initialize the target registry etc.
-  llvm::InitializeAllTargetInfos();
-  llvm::InitializeAllTargets();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmParsers();
-  llvm::InitializeAllAsmPrinters();
 
   LOG(INFO) << "target_triple";
 
