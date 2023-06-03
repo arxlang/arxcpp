@@ -1,2 +1,2 @@
-function average(x y):
+function average(x, y):
   (x + y) * 0.5;

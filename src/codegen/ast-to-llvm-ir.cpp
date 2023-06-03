@@ -72,7 +72,7 @@ auto ASTToLLVMIRVisitor::emitLocation(ExprAST& ast) -> void {
   }
 
   ArxLLVM::ir_builder->SetCurrentDebugLocation(llvm::DILocation::get(
-    di_scope->getContext(), ast.get_line(), ast.getCol(), di_scope));
+    di_scope->getContext(), ast.get_line(), ast.get_col(), di_scope));
 }
 
 /**
@@ -165,9 +165,9 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   auto& proto = *(expr.proto);
   ArxLLVM::function_protos[expr.proto->get_name()] = std::move(expr.proto);
   this->getFunction(proto.get_name());
-  llvm::Function* the_function = this->result_func;
+  llvm::Function* fn = this->result_func;
 
-  if (!the_function) {
+  if (!fn) {
     this->result_func = nullptr;
     return;
   }
@@ -175,7 +175,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   // Create a new basic block to start insertion into.
   // std::cout << "Create a new basic block to start insertion into";
   llvm::BasicBlock* basic_block =
-    llvm::BasicBlock::Create(*ArxLLVM::context, "entry", the_function);
+    llvm::BasicBlock::Create(*ArxLLVM::context, "entry", fn);
   ArxLLVM::ir_builder->SetInsertPoint(basic_block);
 
   /* debugging-code:start*/
@@ -192,11 +192,11 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
     llvm::StringRef(),
     di_unit,
     line_no,
-    CreateFunctionType(the_function->arg_size()),
+    CreateFunctionType(fn->arg_size()),
     ScopeLine,
     llvm::DINode::FlagPrototyped,
     llvm::DISubprogram::SPFlagDefinition);
-  the_function->setSubprogram(di_subprogram);
+  fn->setSubprogram(di_subprogram);
 
   // Push the current scope.
   this->llvm_di_lexical_blocks.emplace_back(di_subprogram);
@@ -214,10 +214,11 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
   ArxLLVM::named_values.clear();
 
   unsigned arg_idx = 0;
-  for (auto& llvm_arg : the_function->args()) {
+  for (auto& llvm_arg : fn->args()) {
     // Create an alloca for this variable.
+    // TODO: get type_name from the actual variable
     llvm::AllocaInst* alloca =
-      CreateEntryBlockAlloca(the_function, llvm_arg.getName());
+      this->create_entry_block_alloca(fn, llvm_arg.getName(), "float");
 
     /* debugging-code: start */
     // Create a debug descriptor for the variable.
@@ -261,14 +262,14 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
     this->llvm_di_lexical_blocks.pop_back();
 
     // Validate the generated code, checking for consistency.
-    llvm::verifyFunction(*the_function);
+    llvm::verifyFunction(*fn);
 
-    this->result_func = the_function;
+    this->result_func = fn;
     return;
   }
 
   // Error reading body, remove function.
-  the_function->eraseFromParent();
+  fn->eraseFromParent();
 
   this->result_func = nullptr;
 
@@ -282,22 +283,7 @@ auto ASTToLLVMIRVisitor::visit(FunctionAST& expr) -> void {
  *
  */
 auto ASTToLLVMIRVisitor::initialize() -> void {
-  ASTToObjectVisitor::initialize();
-
-  ArxLLVM::jit = this->exit_on_err(llvm::orc::ArxJIT::Create());
-  ArxLLVM::module->setDataLayout(ArxLLVM::jit->get_data_layout());
-  /** Create a new builder for the module. */
-  ArxLLVM::di_builder = std::make_unique<llvm::DIBuilder>(*ArxLLVM::module);
-
-  /* di data types */
-  ArxLLVM::DI_FLOAT_TYPE = ArxLLVM::di_builder->createBasicType(
-    "float", 32, llvm::dwarf::DW_ATE_float);
-  ArxLLVM::DI_DOUBLE_TYPE = ArxLLVM::di_builder->createBasicType(
-    "double", 64, llvm::dwarf::DW_ATE_float);
-  ArxLLVM::DI_INT8_TYPE = ArxLLVM::di_builder->createBasicType(
-    "int8", 8, llvm::dwarf::DW_ATE_signed);
-  ArxLLVM::DI_INT32_TYPE = ArxLLVM::di_builder->createBasicType(
-    "int32", 32, llvm::dwarf::DW_ATE_signed);
+  ArxLLVM::initialize();
 }
 
 /**
@@ -309,11 +295,6 @@ auto compile_llvm_ir(TreeAST& ast) -> int {
   auto codegen = std::make_unique<ASTToLLVMIRVisitor>(ASTToLLVMIRVisitor());
 
   Lexer::get_next_token();
-
-  // initialize the target registry etc.
-  llvm::InitializeNativeTarget();
-  llvm::InitializeNativeTargetAsmPrinter();
-  llvm::InitializeNativeTargetAsmParser();
 
   codegen->initialize();
 

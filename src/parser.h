@@ -80,14 +80,14 @@ class ExprAST {
     return loc.line;
   }
 
-  int getCol() const {
+  int get_col() const {
     return loc.col;
   }
 
   void accept(Visitor& visitor);
 
   virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    return out << ':' << this->get_line() << ':' << this->getCol() << "\n";
+    return out << ':' << this->get_line() << ':' << this->get_col() << "\n";
   }
 };
 
@@ -124,10 +124,10 @@ class VariableExprAST : public ExprAST {
    * @param _type_name The variable type name
    */
   VariableExprAST(
-    SourceLocation _loc, std::string _name, std::string _type_name
-  ) :
-    ExprAST(_loc), name(std::move(_name)), type_name(std::move(_type_name))
-  {
+    SourceLocation _loc, std::string _name, std::string _type_name)
+      : ExprAST(_loc),
+        name(std::move(_name)),
+        type_name(std::move(_type_name)) {
     this->kind = ExprKind::VariableKind;
   }
 

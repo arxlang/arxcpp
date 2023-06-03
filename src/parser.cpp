@@ -149,7 +149,7 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
   if (Lexer::cur_tok != '(') {
     // Simple variable ref, not a function call
     // todo: we need to get the variable type from a specific scope
-    return std::make_unique<VariableExprAST>(id_loc, id_name);
+    return std::make_unique<VariableExprAST>(id_loc, id_name, "float");
   }
 
   // Call. //
@@ -351,7 +351,8 @@ std::unique_ptr<VarExprAST> Parser::parse_var_expr() {
     return nullptr;
   }
 
-  return std::make_unique<VarExprAST>(std::move(var_names), std::move(body));
+  return std::make_unique<VarExprAST>(
+    std::move(var_names), "float", std::move(body));
 }
 
 /**
@@ -490,6 +491,11 @@ std::unique_ptr<ExprAST> Parser::parse_expression() {
  */
 std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
   std::string fn_name;
+  std::string var_type_annotation;
+  std::string ret_type_annotation;
+  std::string identifier_name;
+
+  SourceLocation cur_loc;
   SourceLocation fn_loc = Lexer::cur_loc;
 
   switch (Lexer::cur_tok) {
@@ -510,10 +516,20 @@ std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
 
   std::vector<std::unique_ptr<VariableExprAST>> args;
   while (Lexer::get_next_token() == tok_identifier) {
-    auto arg = std::make_unique<VariableExprAST>(
-      VariableExprAST(Lexer::cur_loc, Lexer::identifier_str));
-    args.emplace_back(std::move(arg));
+    // note: this is a workaround
+    identifier_name = Lexer::identifier_str;
+    cur_loc = Lexer::cur_loc;
+
+    var_type_annotation = "float";
+
+    args.push_back(std::make_unique<VariableExprAST>(
+      cur_loc, identifier_name, var_type_annotation));
+
+    if (Lexer::get_next_token() != ',') {
+      break;
+    }
   }
+
   if (Lexer::cur_tok != ')') {
     return LogError<PrototypeAST>(
       "Parser: Expected ')' in the function definition.");
@@ -522,7 +538,10 @@ std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
   // success. //
   Lexer::get_next_token();  // eat ')'.
 
-  return std::make_unique<PrototypeAST>(fn_loc, fn_name, std::move(args));
+  ret_type_annotation = "float";
+
+  return std::make_unique<PrototypeAST>(
+    fn_loc, fn_name, ret_type_annotation, std::move(args));
 }
 
 /**
@@ -535,6 +554,11 @@ std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
  */
 std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
   std::string fn_name;
+  std::string var_type_annotation;
+  std::string ret_type_annotation;
+  std::string identifier_name;
+
+  SourceLocation cur_loc;
   SourceLocation fn_loc = Lexer::cur_loc;
 
   switch (Lexer::cur_tok) {
@@ -555,10 +579,20 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
 
   std::vector<std::unique_ptr<VariableExprAST>> args;
   while (Lexer::get_next_token() == tok_identifier) {
-    args.emplace_back(std::make_unique<VariableExprAST>(
-      VariableExprAST(Lexer::cur_loc, Lexer::identifier_str, "float"))
-    );
+    // note: this is a workaround
+    identifier_name = Lexer::identifier_str;
+    cur_loc = Lexer::cur_loc;
+
+    var_type_annotation = "float";
+
+    args.push_back(std::make_unique<VariableExprAST>(
+      cur_loc, identifier_name, var_type_annotation));
+
+    if (Lexer::get_next_token() != ',') {
+      break;
+    }
   }
+
   if (Lexer::cur_tok != ')') {
     return LogError<PrototypeAST>(
       "Parser: Expected ')' in the function definition.");
@@ -567,6 +601,8 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
   // success. //
   Lexer::get_next_token();  // eat ')'.
 
+  ret_type_annotation = "float";
+
   if (Lexer::cur_tok != ':') {
     return LogError<PrototypeAST>(
       "Parser: Expected ':' in the function definition");
@@ -574,7 +610,8 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
 
   Lexer::get_next_token();  // eat ':'.
 
-  return std::make_unique<PrototypeAST>(fn_loc, fn_name, std::move(args));
+  return std::make_unique<PrototypeAST>(
+    fn_loc, fn_name, ret_type_annotation, std::move(args));
 }
 
 /**
@@ -602,13 +639,14 @@ std::unique_ptr<FunctionAST> Parser::parse_definition() {
  */
 std::unique_ptr<FunctionAST> Parser::parse_top_level_expr() {
   SourceLocation fn_loc = Lexer::cur_loc;
-  if (auto E = Parser::parse_expression()) {
+  if (auto expr = Parser::parse_expression()) {
     // Make an anonymous proto.
     auto proto = std::make_unique<PrototypeAST>(
       fn_loc,
       "__anon_expr",
+      "float",
       std::move(std::vector<std::unique_ptr<VariableExprAST>>()));
-    return std::make_unique<FunctionAST>(std::move(proto), std::move(E));
+    return std::make_unique<FunctionAST>(std::move(proto), std::move(expr));
   }
   return nullptr;
 }
