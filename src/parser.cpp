@@ -15,8 +15,19 @@
  * @brief This holds the precedence for each binary operator that
  * is defined.
  */
-
 std::map<char, int> Parser::bin_op_precedence;
+
+static auto get_token_value(int tok) -> std::string {
+  switch (tok) {
+    case tok_identifier:
+      return std::string("(") + Lexer::identifier_str + std::string(")");
+    case tok_float_literal:
+      return std::string("(") + std::to_string(Lexer::num_float) +
+        std::string(")");
+    default:
+      return std::string("");
+  }
+}
 
 void ExprAST::accept(Visitor& visitor) {
   switch (this->kind) {
@@ -129,14 +140,16 @@ std::unique_ptr<ExprAST> Parser::parse_paren_expr() {
  *   ::= identifier '(' expression* ')'
  */
 std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
-  std::string IdName = Lexer::identifier_str;
+  std::string id_name = Lexer::identifier_str;
 
-  SourceLocation LitLoc = Lexer::cur_loc;
+  SourceLocation id_loc = Lexer::cur_loc;
 
   Lexer::get_next_token();  // eat identifier.
 
-  if (Lexer::cur_tok != '(') {  // Simple variable ref.
-    return std::make_unique<VariableExprAST>(LitLoc, IdName);
+  if (Lexer::cur_tok != '(') {
+    // Simple variable ref, not a function call
+    // todo: we need to get the variable type from a specific scope
+    return std::make_unique<VariableExprAST>(id_loc, id_name);
   }
 
   // Call. //
@@ -165,7 +178,7 @@ std::unique_ptr<ExprAST> Parser::parse_identifier_expr() {
   // Eat the ')'.
   Lexer::get_next_token();
 
-  return std::make_unique<CallExprAST>(LitLoc, IdName, std::move(args));
+  return std::make_unique<CallExprAST>(id_loc, id_name, std::move(args));
 }
 
 /**
@@ -232,7 +245,7 @@ std::unique_ptr<ForExprAST> Parser::parse_for_expr() {
     return LogError<ForExprAST>("Parser: Expected identifier after for");
   }
 
-  std::string IdName = Lexer::identifier_str;
+  std::string id_name = Lexer::identifier_str;
   Lexer::get_next_token();  // eat identifier.
 
   if (Lexer::cur_tok != '=') {
@@ -275,7 +288,7 @@ std::unique_ptr<ForExprAST> Parser::parse_for_expr() {
   }
 
   return std::make_unique<ForExprAST>(
-    IdName,
+    id_name,
     std::move(start),
     std::move(end),
     std::move(step),
@@ -396,10 +409,10 @@ std::unique_ptr<ExprAST> Parser::parse_unary() {
   }
 
   // If this is a unary operator, read it.
-  int Opc = Lexer::cur_tok;
+  int op_code = Lexer::cur_tok;
   Lexer::get_next_token();
   if (auto operand = Parser::parse_unary()) {
-    return std::make_unique<UnaryExprAST>(Opc, std::move(operand));
+    return std::make_unique<UnaryExprAST>(op_code, std::move(operand));
   }
   return nullptr;
 }
@@ -437,7 +450,7 @@ std::unique_ptr<ExprAST> Parser::parse_bin_op_rhs(
 
     // If BinOp binds less tightly with rhs than the operator after rhs, let
     // the pending operator take rhs as its lhs.
-    int next_prec = get_tok_precedence();
+    int next_prec = Parser::get_tok_precedence();
     if (tok_prec < next_prec) {
       rhs = Parser::parse_bin_op_rhs(tok_prec + 1, std::move(rhs));
       if (!rhs) {
@@ -542,9 +555,9 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
 
   std::vector<std::unique_ptr<VariableExprAST>> args;
   while (Lexer::get_next_token() == tok_identifier) {
-    auto arg = std::make_unique<VariableExprAST>(
-      VariableExprAST(Lexer::cur_loc, Lexer::identifier_str));
-    args.emplace_back(std::move(arg));
+    args.emplace_back(std::make_unique<VariableExprAST>(
+      VariableExprAST(Lexer::cur_loc, Lexer::identifier_str, "float"))
+    );
   }
   if (Lexer::cur_tok != ')') {
     return LogError<PrototypeAST>(
