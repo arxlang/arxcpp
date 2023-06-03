@@ -3,24 +3,27 @@ env:
   CFLAGS_EXTRA: "\
     -fsanitize=address\
     "
-  # use it for ASAN and LSAN
-  SAN_OPTIONS_DEFAULT: "\
+  ASAN_OPTIONS_DEFAULT: "\
     fast_unwind_on_malloc=0\
     :verbosity=1\
-    :log_threads=1\
-    :debug=true\
-    :sleep_before_dying=10\
-    :print_stats=1\
     :strict_string_checks=1\
-    :detect_stack_use_after_return=1\
     :check_initialization_order=1\
     :strict_init_order=1\
     :atexit=1\
     :print_legend=1\
     :detect_leaks=1\
     "
-  MESON_EXTRA: "-Db_coverage=true \
+  LSAN_OPTIONS_DEFAULT: "\
+    fast_unwind_on_malloc=0\
+    :verbosity=1\
+    :log_threads=1\
+    :log_pointers=1\
+    :strict_string_checks=1\
+    :detect_leaks=1\
+    "
+  MESON_EXTRA_DEBUG: "-Db_coverage=true \
     -Doptimization=0 \
+    --debug \
     -Db_sanitize=address \
     "
 groups:
@@ -81,8 +84,8 @@ groups:
           - target: clean.gcda
         shell: bash
         run: |
-          export ASAN_OPTIONS='{{ args.asan_options or env.SAN_OPTIONS_DEFAULT }}'
-          export LSAN_OPTIONS='{{ args.lsan_options or env.SAN_OPTIONS_DEFAULT }}'
+          export ASAN_OPTIONS='{{ args.asan_options or env.ASAN_OPTIONS_DEFAULT }}'
+          export LSAN_OPTIONS='{{ args.lsan_options or env.LSAN_OPTIONS_DEFAULT }}'
 
           meson setup \
             --prefix $CONDA_PREFIX \
@@ -104,10 +107,10 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              meson-extra: {{ env.MESON_EXTRA }}
+              meson-extra: {{ env.MESON_EXTRA_DEBUG }}
               clean: {{ args.clean }}
-              asan-options: {{ env.SAN_OPTIONS_DEFAULT }}
-              lsan-options: {{ env.SAN_OPTIONS_DEFAULT }}
+              asan-options: {{ env.ASAN_OPTIONS_DEFAULT }}
+              lsan-options: {{ env.LSAN_OPTIONS_DEFAULT }}
 
       dev:
         help: Build for development (+tests +debug)
@@ -120,10 +123,10 @@ groups:
           - target: build.release
             args:
               build-type: "debug"
-              meson-extra: {{ env.MESON_EXTRA }} -Ddev=enabled
+              meson-extra: {{ env.MESON_EXTRA_DEBUG }} -Ddev=enabled
               clean: {{ args.clean }}
-              asan-options: {{ env.SAN_OPTIONS_DEFAULT }}
-              lsan-options: {{ env.SAN_OPTIONS_DEFAULT }}
+              asan-options: {{ env.ASAN_OPTIONS_DEFAULT }}
+              lsan-options: {{ env.LSAN_OPTIONS_DEFAULT }}
 
   env:
     targets:
@@ -198,6 +201,9 @@ groups:
 
   tests:
     shell: bash
+    # env:
+    #     ASAN_OPTIONS: {{ env.ASAN_OPTIONS_DEFAULT }}
+    #     LSAN_OPTIONS: {{ env.LSAN_OPTIONS_DEFAULT }}
     targets:
       sanitizer:
         help: Run sanitizer tests
@@ -230,8 +236,8 @@ groups:
           DEBUG_FLAGS=""
 
           if [[ "{{ args.debug  }}" == "True" ]]; then
-            GDB="gdb --args"
-            DEBUG_FLAGS="-g"
+            GDB="gdb core --args"
+            DEBUG_FLAGS="-g -O0"
           fi
 
           TEST_DIR_PATH="./tests"
@@ -253,16 +259,16 @@ groups:
           CLANG_EXTRA="${CLANG_EXTRA} $(pkg-config --cflags --libs arrow-glib)"
           CLANG_EXTRA=$(echo "${CLANG_EXTRA}" | sed s/-std=c++14/-std=c++20/g)
 
-          env
-
           rm --force "${TMP_DIR}/*.o"
 
           for test_name in {{ args.examples_name }}; do
             print_header "${test_name}"
             OBJECT_FILE="${TMP_DIR}/${test_name}.o"
 
+            echo "Arx build ..."
             ${ARX} --output "${OBJECT_FILE}" --input "examples/${test_name}.arx"
 
+            echo "clang build ..."
             set -x
             clang++ \
               ${CLANG_EXTRA} \
@@ -362,25 +368,70 @@ groups:
 
   debug:
     targets:
-      example:
+      source-build:
         help: Debug arx via an example file
         args:
-          extra:
-            help: Extra arguments for the build step
-            type: string
-            default: ''
-          test-name:
+          example-name:
             help: Name of the tests that should be executed
             type: string
-            default: ''
             required: true
-        env:
-          ASAN_OPTIONS: { env.SAN_OPTIONS_DEFAULT }
-          LSAN_OPTIONS: { env.SAN_OPTIONS_DEFAULT }
+          debug:
+            help: Use gdb
+            type: bool
+            action: store_true
+          memory-leak-info:
+            help: Show ASAN/LSAN information
+            type: bool
+            action: store_true
         shell: bash
         run: |
-          gdb \
-            --args build/arx \
-            --input `pwd`/examples/{{ args.test_name }}.arx \
-            --output "/tmp/{{ args.test_name }}" {{ args.meson_extra }} \
+          {% if args.memory_leak_info %}
+          export ASAN_OPTIONS={{ env.ASAN_OPTIONS_DEFAULT }}
+          export LSAN_OPTIONS={{ env.LSAN_OPTIONS_DEFAULT }}
+          {% endif %}
+          {{ "gdb --args" if args.debug else "" }} build/arx \
+            --input `pwd`/examples/{{ args.example_name }}.arx \
+            --output "{{ env.OUTPUT_DIR }}/{{ args.example_name }}.o" \
             --build-lib
+
+      readelf:
+        help: Read ELF from an object file
+        args:
+          example-name:
+            help: Name of the tests that should be executed
+            type: string
+            required: true
+          memory-leak-info:
+            help: Show ASAN/LSAN information
+            type: bool
+            action: store_true
+        dependencies:
+          - target: debug.source-build
+            args:
+              example-name: {{ args.example_name }}
+              memory-leak-info: {{ args.memory_leak_info }}
+        run: |
+          readelf --all "{{ env.OUTPUT_DIR }}/{{ args.example_name }}.o"
+
+      objdump:
+        help: Debug object files using objdump
+        args:
+          example-name:
+            help: Name of the tests that should be executed
+            type: string
+            required: true
+          memory-leak-info:
+            help: Show ASAN/LSAN information
+            type: bool
+            action: store_true
+          options:
+            help: Options to be given to objdump
+            type: string
+            default: "-d -Mintel"
+        dependencies:
+          - target: debug.source-build
+            args:
+              example-name: {{ args.example_name }}
+              memory-leak-info: {{ args.memory_leak_info }}
+        run: |
+          objdump {{ args.options }} "{{ env.OUTPUT_DIR }}/{{ args.example_name }}.o"
