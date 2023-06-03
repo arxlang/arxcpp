@@ -51,6 +51,55 @@ auto Lexer::get_tok_name(int tok) -> std::string {
       return "var";
     case tok_const:
       return "const";
+    case tok_arrow_right:
+      return "->";
+  }
+  return std::string(1, static_cast<char>(tok));
+}
+
+/**
+ * @brief Get the Token name to be used in a message.
+ * @param Tok The token
+ * @return Token name
+ *
+ */
+auto Lexer::get_tok_name_display(int tok) -> std::string {
+  switch (tok) {
+    case tok_eof:
+      return "<eof>";
+    case tok_function:
+      return "<function>";
+    case tok_return:
+      return "<return>";
+    case tok_extern:
+      return "<extern>";
+    case tok_identifier:
+      return "<identifier>";
+    case tok_float_literal:
+      return "<float>";
+    case tok_if:
+      return "<if>";
+    case tok_then:
+      return "<then>";
+    case tok_else:
+      return "<else>";
+    case tok_for:
+      return "<for>";
+    case tok_in:
+      return "<in>";
+    case tok_binary:
+      return "<binary>";
+    case tok_unary:
+      return "<unary>";
+    case tok_var:
+      return "<var>";
+    case tok_const:
+      return "<const>";
+    case tok_arrow_right:
+      return "->";
+    case tok_expression:
+      // just used for error message
+      return "<expression>";
   }
   return std::string(1, static_cast<char>(tok));
 }
@@ -114,7 +163,7 @@ auto Lexer::gettok() -> int {
       Lexer::identifier_str += last_char;
     }
 
-    if (Lexer::identifier_str == "function") {
+    if (Lexer::identifier_str == "fn") {
       return tok_function;
     }
     if (Lexer::identifier_str == "return") {
@@ -178,6 +227,12 @@ auto Lexer::gettok() -> int {
   // Otherwise, just return the character as its ascii value.
   int this_char = last_char;
   last_char = static_cast<char>(Lexer::advance());
+
+  if (this_char == (int) '-' && last_char == (int) '>') {
+    last_char = static_cast<char>(Lexer::advance());
+    return tok_arrow_right;
+  }
+
   return this_char;
 }
 

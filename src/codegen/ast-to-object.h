@@ -45,8 +45,8 @@ class ASTToObjectVisitor : public Visitor {
   virtual void clean() override;
 
   auto getFunction(std::string name) -> void;
-  auto CreateEntryBlockAlloca(
-    llvm::Function* the_function, llvm::StringRef var_name)
+  auto create_entry_block_alloca(
+    llvm::Function* fn, llvm::StringRef var_name, std::string type_name)
     -> llvm::AllocaInst*;
   auto main_loop(TreeAST&) -> void;
   auto initialize() -> void;

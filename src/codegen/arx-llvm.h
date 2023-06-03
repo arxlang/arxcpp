@@ -19,6 +19,8 @@ class ArxLLVM {
   static std::map<std::string, llvm::AllocaInst*> named_values;
   static std::map<std::string, std::unique_ptr<PrototypeAST>> function_protos;
 
+  static llvm::ExitOnError exit_on_err;
+
   /* Data types */
   static llvm::Type* DOUBLE_TYPE;
   static llvm::Type* FLOAT_TYPE;
@@ -35,6 +37,7 @@ class ArxLLVM {
 
   static auto get_data_type(std::string type_name) -> llvm::Type*;
   static auto get_di_data_type(std::string type_name) -> llvm::DIType*;
+  static auto initialize() -> void;
 };
 
 extern bool IS_BUILD_LIB;

@@ -9,8 +9,9 @@
 // #include <arrow/table.h>
 
 #include <glog/logging.h>  // for InitGoogleLogging
-#include <stdlib.h>        // for exit
 #include <CLI/CLI.hpp>
+#include <cstdlib>  // for exit
+#include <iostream>
 #include <string>                    // for string, allocator
 #include "codegen/arx-llvm.h"        // for ArxLLVM
 #include "codegen/ast-to-llvm-ir.h"  // for compile_llvm_ir

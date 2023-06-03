@@ -8,9 +8,7 @@
 
 int INDENT_SIZE = 2;
 
-class ASTToOutputVisitor
-    : public std::enable_shared_from_this<ASTToOutputVisitor>,
-      public Visitor {
+class ASTToOutputVisitor : public Visitor {
  public:
   int indent = 0;
   std::string annotation = "";
@@ -53,12 +51,21 @@ void ASTToOutputVisitor::visit(FloatExprAST& expr) {
 
 void ASTToOutputVisitor::visit(VariableExprAST& expr) {
   std::cout << this->indentation() << this->get_annotation()
-            << "(VariableExprAST " << expr.name << ")";
+            << "(VariableExprAST " << expr.name << ":" << expr.type_name
+            << ")";
 }
 
 void ASTToOutputVisitor::visit(UnaryExprAST& expr) {
-  std::cout << "(UnaryExprAST"
-            << ")" << std::endl;
+  std::cout << this->indentation() << "(UnaryExprAST op_code:" << expr.op_code
+            << " operand:";
+
+  int cur_indent = this->indent;
+  this->indent = 0;
+
+  expr.operand->accept(*this);
+  std::cout << ")";
+
+  this->indent = cur_indent;
 }
 
 void ASTToOutputVisitor::visit(BinaryExprAST& expr) {
@@ -197,7 +204,18 @@ void ASTToOutputVisitor::visit(VarExprAST& expr) {
 
 void ASTToOutputVisitor::visit(PrototypeAST& expr) {
   // TODO: implement it
-  std::cout << "(PrototypeAST " << expr.name << ")" << std::endl;
+  std::cout << "(PrototypeAST " << expr.name << ") -> " << expr.type_name
+            << " <ARGS> (" << std::endl;
+  this->indent += INDENT_SIZE;
+
+  for (const auto& node : expr.args) {
+    node->accept(*this);
+    std::cout << ", " << std::endl;
+  }
+
+  // close args section and open body section
+  this->indent -= INDENT_SIZE;
+  std::cout << this->indentation() << "), " << std::endl;
 }
 
 void ASTToOutputVisitor::visit(FunctionAST& expr) {
@@ -205,21 +223,9 @@ void ASTToOutputVisitor::visit(FunctionAST& expr) {
   this->indent += INDENT_SIZE;
 
   // create the function and open the args section
-  std::cout << this->indentation() << "Function " << expr.proto->name
-            << " <ARGS> (" << std::endl;
-  this->indent += INDENT_SIZE;
-
-  // std::cout << expr.proto->args.front();
-
-  for (const auto& node : expr.proto->args) {
-    node->accept(*this);
-    std::cout << ", " << std::endl;
-  }
-
-  // close args section and open body section
-  this->indent -= INDENT_SIZE;
-  std::cout << this->indentation() << "), " << std::endl
-            << this->indentation() << "<BODY> (" << std::endl;
+  std::cout << this->indentation() << "Function ";
+  this->visit(*expr.proto);
+  std::cout << this->indentation() << "<BODY> (" << std::endl;
 
   this->indent += INDENT_SIZE;
   // TODO: body should be a vector of unique_ptr<Expr>

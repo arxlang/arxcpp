@@ -9,7 +9,7 @@ extern bool IS_BUILD_LIB;
 // Check object generation
 TEST(CodeGenTest, ObjectGeneration) {
   string_to_buffer((char*) R""""(
-  function add_one(a):
+  fn add_one(a: float) -> float:
     a + 1
 
   add(1);

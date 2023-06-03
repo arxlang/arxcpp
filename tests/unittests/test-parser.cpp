@@ -11,11 +11,11 @@
 TEST(ParserTest, GetNextTokenTest) {
   /* Test gettok for main tokens */
   string_to_buffer((char*) R""""(
-  function math(x):
+  fn math(x: float) -> float:
     if x > 10:
-      x + 1
+      return x + 1;
     else:
-      x * 20
+      return x * 20;
 
   math(1);
   )"""");
@@ -29,7 +29,15 @@ TEST(ParserTest, GetNextTokenTest) {
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_identifier);
   Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, (int) ':');
+  Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, tok_identifier);
+  Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, (int) ')');
+  Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, tok_arrow_right);
+  Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, tok_identifier);
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, (int) ':');
   Lexer::get_next_token();
@@ -43,21 +51,29 @@ TEST(ParserTest, GetNextTokenTest) {
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, (int) ':');
   Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, tok_return);
+  Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_identifier);
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, (int) '+');
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_float_literal);
   Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, (int) ';');
+  Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_else);
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, (int) ':');
+  Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, tok_return);
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_identifier);
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, (int) '*');
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_float_literal);
+  Lexer::get_next_token();
+  EXPECT_EQ(Lexer::cur_tok, (int) ';');
   Lexer::get_next_token();
   EXPECT_EQ(Lexer::cur_tok, tok_identifier);
   Lexer::get_next_token();
@@ -114,9 +130,9 @@ TEST(ParserTest, ParseIfExprTest) {
   /* Test gettok for main tokens */
   string_to_buffer((char*) R""""(
   if 1 > 2:
-    a = 1
+    a = 1;
   else:
-    a = 2
+    a = 2;
   )"""");
 
   Lexer::get_next_token();  // update Lexer::cur_tok
