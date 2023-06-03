@@ -80,14 +80,14 @@ class ExprAST {
     return loc.line;
   }
 
-  int getCol() const {
+  int get_col() const {
     return loc.col;
   }
 
   void accept(Visitor& visitor);
 
   virtual llvm::raw_ostream& dump(llvm::raw_ostream& out, int ind) {
-    return out << ':' << this->get_line() << ':' << this->getCol() << "\n";
+    return out << ':' << this->get_line() << ':' << this->get_col() << "\n";
   }
 };
 
@@ -116,13 +116,18 @@ class FloatExprAST : public ExprAST {
 class VariableExprAST : public ExprAST {
  public:
   std::string name;
+  std::string type_name;
 
   /**
    * @param _loc The token location
    * @param _name The variable name
+   * @param _type_name The variable type name
    */
-  VariableExprAST(SourceLocation _loc, std::string _name)
-      : ExprAST(_loc), name(std::move(_name)) {
+  VariableExprAST(
+    SourceLocation _loc, std::string _name, std::string _type_name)
+      : ExprAST(_loc),
+        name(std::move(_name)),
+        type_name(std::move(_type_name)) {
     this->kind = ExprKind::VariableKind;
   }
 
@@ -253,7 +258,7 @@ class IfExprAST : public ExprAST {
     ExprAST::dump(out << "if", ind);
     this->cond->dump(indent(out, ind) << "cond:", ind + 1);
     this->then->dump(indent(out, ind) << "then:", ind + 1);
-    this->else_->dump(indent(out, ind) << "else_:", ind + 1);
+    this->else_->dump(indent(out, ind) << "else:", ind + 1);
     return out;
   }
 };
@@ -307,16 +312,21 @@ class ForExprAST : public ExprAST {
 class VarExprAST : public ExprAST {
  public:
   std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> var_names;
+  std::string type_name;
   std::unique_ptr<ExprAST> body;
 
   /**
-   * @param var_names Variable names
-   * @param body body of the variables
+   * @param _var_names Variable names
+   * @param _type_name Variables' type name
+   * @param _body body of the variables
    */
   VarExprAST(
     std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> _var_names,
+    std::string _type_name,
     std::unique_ptr<ExprAST> _body)
-      : var_names(std::move(_var_names)), body(std::move(_body)) {
+      : var_names(std::move(_var_names)),
+        type_name(std::move(_type_name)),
+        body(std::move(_body)) {
     this->kind = ExprKind::VarKind;
   }
 
@@ -341,18 +351,24 @@ class PrototypeAST : public ExprAST {
  public:
   std::string name;
   std::vector<std::unique_ptr<VariableExprAST>> args;
+  std::string type_name;
   int line;
 
   /**
    * @param _loc The token location
    * @param _name The prototype name
+   * @param _type_name The prototype return type
    * @param _args The prototype arguments
    */
   PrototypeAST(
     SourceLocation _loc,
     std::string _name,
+    std::string _type_name,
     std::vector<std::unique_ptr<VariableExprAST>>&& _args)
-      : name(std::move(_name)), args(std::move(_args)), line(_loc.line) {
+      : name(std::move(_name)),
+        type_name(std::move(_type_name)),
+        args(std::move(_args)),
+        line(_loc.line) {
     this->kind = ExprKind::PrototypeKind;
   }
 
