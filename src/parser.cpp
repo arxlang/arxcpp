@@ -519,6 +519,11 @@ std::unique_ptr<ExprAST> Parser::parse_expression() {
  */
 std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
   std::string fn_name;
+  std::string var_type_annotation;
+  std::string ret_type_annotation;
+  std::string identifier_name;
+
+  SourceLocation cur_loc;
   SourceLocation fn_loc = Lexer::cur_loc;
 
   switch (Lexer::cur_tok) {
@@ -541,8 +546,30 @@ std::unique_ptr<PrototypeAST> Parser::parse_extern_prototype() {
 
   std::vector<std::unique_ptr<VariableExprAST>> args;
   while (Lexer::get_next_token() == tok_identifier) {
+    identifier_name = Lexer::identifier_str;
+    cur_loc = Lexer::cur_loc;
+
+    if (Lexer::get_next_token() != ':') {
+      return log_full_parser_error<PrototypeAST>(
+        tok_identifier,
+        Lexer::cur_tok,
+        std::string("Variable type annotation required."));
+    }
+
+    if (Lexer::get_next_token() != tok_identifier) {
+      return log_full_parser_error<PrototypeAST>(
+        tok_identifier,
+        Lexer::cur_tok,
+        std::string("Variable type annotation required."));
+    }
+    var_type_annotation = Lexer::identifier_str;
+
     args.emplace_back(std::make_unique<VariableExprAST>(
-      Lexer::cur_loc, Lexer::identifier_str, Lexer::identifier_str));
+      Lexer::cur_loc, Lexer::identifier_str, var_type_annotation));
+
+    if (Lexer::get_next_token() != ',') {
+      break;
+    }
   }
 
   if (Lexer::cur_tok != ')') {
@@ -587,7 +614,6 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
   std::string msg;
 
   SourceLocation cur_loc;
-
   SourceLocation fn_loc = Lexer::cur_loc;
 
   switch (Lexer::cur_tok) {
@@ -620,6 +646,7 @@ std::unique_ptr<PrototypeAST> Parser::parse_prototype() {
         Lexer::cur_tok,
         std::string("Variable type annotation required."));
     }
+
     if (Lexer::get_next_token() != tok_identifier) {
       return log_full_parser_error<PrototypeAST>(
         tok_identifier,
