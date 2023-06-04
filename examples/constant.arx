@@ -1,2 +1,2 @@
-function get_constant(x):
+fn get_constant(x):
   x;

@@ -59,7 +59,7 @@ TEST(LexerTest, GetNextTokenSimpleTest) {
 TEST(LexerTest, GetTokTest) {
   /* Test gettok for main tokens */
   string_to_buffer((char*) R""""(
-  function math(x):
+  fn math(x):
     if x > 10:
       x + 1
     else:

@@ -114,7 +114,7 @@ auto Lexer::gettok() -> int {
       Lexer::identifier_str += last_char;
     }
 
-    if (Lexer::identifier_str == "function") {
+    if (Lexer::identifier_str == "fn") {
       return tok_function;
     }
     if (Lexer::identifier_str == "return") {
